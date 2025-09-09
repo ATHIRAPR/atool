@@ -1,0 +1,44 @@
+<?php
+require_once ("include/init.php.inc");
+require_once ("include/smarty.php.inc");
+require_once ("include/db.php.inc");
+require_once ("include/auth.php.inc");
+require_once ("include/util.php.inc");
+// 選択された左メニュー項目
+$smarty->assign ( "func_info", array (
+		"user" => 1 
+) );
+// ユーザ管理権限が無い場合は、エラーにする
+if ($role_info ['user_role_flg'] != 1) {
+	// エラーメッセージ表示
+	show_error_page ( array (
+			"ユーザ管理者の権限がありません" 
+	), "manage.php", "トップページへ戻る" );
+	exit ();
+}
+$login_nm = mb_convert_encoding ( $_POST ['login_nm'], "UTF-8", $OUTPUT_ENCODING );
+$user_nm = mb_convert_encoding ( $_POST ['user_nm'], "UTF-8", $OUTPUT_ENCODING );
+$role_id = $_POST ['role_id'];
+$status_flg = $_POST ['status_flg'];
+$smarty->assign ( "login_nm", $login_nm );
+$smarty->assign ( "user_nm", $user_nm );
+$smarty->assign ( "role_id", $role_id );
+$smarty->assign ( "status_flg", $status_flg );
+$rmm = new RoleMasterManager ();
+$role_all = $rmm->get_all ();
+$role_options ['0'] = "全て";
+foreach ( $role_all as $role ) {
+	$role_options [$role ['id']] = $role ['role_nm'];
+}
+$smarty->assign ( "role_options", $role_options );
+$status_options = array (
+		0 => "全て",
+		1 => "休止",
+		2 => "使用中" 
+);
+$smarty->assign ( "status_options", $status_options );
+$result_ary = search_user_info ( $login_nm, $user_nm, $role_id, $status_flg - 1 );
+$smarty->assign ( 'list', $result_ary );
+show_template_page ( "manage_user.tpl.html" );
+exit ();
+?>

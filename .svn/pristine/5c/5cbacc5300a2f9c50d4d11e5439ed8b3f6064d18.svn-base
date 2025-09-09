@@ -1,0 +1,70 @@
+<?php
+
+require_once("include/init.php.inc");
+require_once("include/smarty.php.inc");
+require_once("include/db.php.inc");
+require_once("include/auth.php.inc");
+require_once("include/util.php.inc");
+
+//選択された左メニュー項目
+$smarty->assign("func_info", array("doc_authority" => 1));
+
+
+//公開管理権限が無い場合は、エラーにする
+if ($role_info[publish_role_flg] != 1) {
+	//エラーメッセージ表示
+	show_error_page(array("公開管理者の権限がありません"), "manage.php", "トップページへ戻る");
+	exit;
+}
+
+$daim = new DocAuthorityInfoManager();
+
+$msg_array = array();
+
+if ($_SERVER['REQUEST_METHOD'] === "POST") {
+	beginTransaction();
+
+	//データをリセット
+	$daim->remove_all();
+
+	//権限データ登録処理
+	foreach($_POST[auth_check] as $auth) {
+		sscanf($auth, "doctype_id:%d,group_lvl:%d", $doctype_id, $group_lvl);
+		$info = array("doctype_id" => $doctype_id, "group_lvl" => $group_lvl);
+		$daim->add($info);
+	}
+
+	$msg_array[] = "権限が変更されました";
+	commit();
+}
+
+//$smarty->assign("file_info", $file_info);
+
+$authority_array = $daim->get_all();
+$check_list = array();
+foreach($authority_array as $auth) {
+	$group_lvl = $auth[group_lvl];
+	$doctype_id = $auth[doctype_id];
+	$check_list[] = "doctype_id:$doctype_id,group_lvl:$group_lvl";
+}
+
+//ユーザグループ情報を取得
+$ugmm = new UserGroupMasterManager();
+$group_array = $ugmm->get_all();
+
+//文書種別マスター情報を取得
+$dtmm = new DoctypeMasterManager();
+$doctype_array = $dtmm->get_all();
+foreach($doctype_array as &$doctype) {
+	$doctype[type_nm] = get_doctype_stamp_string($doctype[type_nm], $doctype[stamp_flg]);
+}
+
+$smarty->assign("mng", $_REQUEST[mng]);
+$smarty->assign("doctype_array", $doctype_array);
+$smarty->assign("group_array", $group_array);
+$smarty->assign("check_list", $check_list);
+show_template_page("edit_doc_authority.tpl.html", $msg_array);
+
+exit;
+
+?>

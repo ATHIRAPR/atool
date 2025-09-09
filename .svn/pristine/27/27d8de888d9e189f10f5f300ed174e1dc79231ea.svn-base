@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!-- Meta -->
+{include file="page_meta.tpl.html"}
+<!-- /Meta -->
+<link rel="stylesheet" type="text/css" href="css/default.css" media="screen,print" />
+<title>文書ファイル管理ツール</title>
+
+<script src="js/jquery-1.7.1.min.js" type="text/javascript"></script>
+<script src="js/jquery.tablesorter.js" type="text/javascript"></script>
+<!-- <script src="js/jquery.tablesorter.min.js" type="text/javascript"></script>-->
+<script src="js/jquery.tablesorter.pager.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/file_table_sorter.js"></script>
+
+<script language="javascript">
+	function show_add_file() {
+		var form = document.add_file_form;
+		form.action="add_file.php";
+		form.submit();
+	}
+
+	function show_edit_file(id) {
+		var form = document.edit_file_form;
+		form.action="edit_file.php";
+		form.id.value = id;
+		form.submit();
+	}
+
+	function show_edit_publish_config() {
+		var form = document.edit_publish_config_form;
+		var url = "edit_publish_config.php";
+		//window.showModalDialog(url, window, options);
+		//win = window.open("", "edit_publish_config");
+		//alert(win);
+		//window.showModalDialog(url, form.product_nm.value, options);
+		//form.target = "edit_publish_config";
+		form.submit();
+//		elem = win.document.edit_publish_form.createElement("input");
+		//elem.setAttribute("type", "hidden");
+		//elem.setAttribute("name", "file_id[]");
+		//elem.setAttribute("value", "test");
+	}
+
+	//$(function(){
+	//	$("[name='file_id[]']").click(function(){
+	//		var count = $("[name='file_id[]']:checked").length;
+	//		if(count > 0){
+	//			$("[name='show_publish_config']").prop("disabled", false);
+	//		} else {
+	//			$("[name='show_publish_config']").prop("disabled", true);
+	//		}
+	//	});
+	//});
+
+	//$(function(){
+	//	$("[name='toggle_checkbox_all']").click(function(){
+	//		var count = $("[name='toggle_checkbox_all']:checked").length;
+	//		if(count > 0){
+	//			$("[name='file_id[]']").prop("checked", true);
+	//			$("[name='show_publish_config']").prop("disabled", false);
+	//		} else {
+	//			$("[name='file_id[]']").prop("checked", false);
+	//			$("[name='show_publish_config']").prop("disabled", true);
+	//		}
+	//	});
+	//});
+
+	$(function(){
+		$("[name='toggle_checkbox_all']").click(function(){
+			var count = $("[name='toggle_checkbox_all']:checked").length;
+			if(count > 0){
+				$("[name='file_id[]']").prop("checked", true);
+			} else {
+				$("[name='file_id[]']").prop("checked", false);
+			}
+			publish_config_check();
+		});
+		$(".first, .prev, .next, .last").click(function(){
+			publish_config_check();
+		});
+	});
+
+	function publish_config_check(){
+		var count = $("[name='file_id[]']:checked").length;
+		if(count > 0){
+			$("[name='show_publish_config']").prop("disabled", false);
+		} else {
+			$("[name='show_publish_config']").prop("disabled", true);
+		}
+	}
+
+</script>
+
+</head>
+
+<body>
+
+<div id="skip_link_block">
+	<ul>
+		<li><a href="#main_content_anc">本文へジャンプします</a></li>
+
+	</ul>
+	<p id="pageTop">ページの先頭です</p>
+</div>
+
+<div id="contents">
+
+<!-- Header Area -->
+{include file="page_header.tpl.html"}
+<!-- /Header Area -->
+
+<!-- Contents Area -->
+
+<div id="contents_body" class="clearfix">
+
+	<!-- Left Navi Area -->
+	{include file="left_menu.tpl.html" role_info=$role_info func_info=$func_info}
+	<!-- /Left Navi Area -->
+
+	<!-- Main Contents Area -->
+	<div id="main_content_area">
+
+		<div id="skip_main_block">
+			<p id="main_content_anc"><a name="main_content_anc">本文の始まりです</a></p>
+		</div>
+
+		<h2><em>ファイル管理</em></h2>
+
+		<form name="add_file_form">
+		<p class="text">
+			<input type="image" alt="ファイルを新規登録" src="image/btn_newfile.jpg" onclick="javascript:show_add_file(); return false;">
+		</p>
+		</form>
+
+		<!-- 検索条件入力 -->
+		<div class="task_select">
+			<form name="search_file" method="post">
+			<table>
+				<tr>
+					<td><div>文書種類</div></td>
+					<td>
+						<select name="doctype_id" style="width:200px; margin-right:10px;">
+							{html_options options=$doctype_options selected=$doctype_id}
+						</select>
+					</td>
+					<td><div>ファイル名</div></td>
+					<td>
+						<input type="text" name="file_nm" id="file_nm" style="width:200px;" value="{$file_nm|escape}" maxlength="250" />
+					</td>
+					<!--
+					<td><div>診療科</div></td>
+					<td>
+						<select name="clinic_id" style="width:200px;">
+							{html_options options=$clinic_options selected=$clinic_id}
+						</select>
+					</td>
+					 -->
+				</tr>
+				<tr>
+					<td><div>名称</div></td>
+					<td colspan="3">
+						<input type="text" name="product_nm" id="product_nm" style="width:560px;"  value="{$product_nm|escape}" maxlength="500" />
+					</td>
+				</tr>
+				<tr>
+					<td><div>型番</div></td>
+					<td colspan="3">
+						<input type="text" name="model_nm" id="model_nm" style="width:560px;" value="{$model_nm|escape}" maxlength="500" />
+					</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td></td>
+					<td>&nbsp;</td>
+					<td colspan="4" align="right">
+					<input type="image" src="image/btn_search2.jpg" name="button" id="button" onclick="javascript:document.search_file.submit(); return false;" />
+					<input type="image" alt="条件をクリアする" src="image/btn_clear.jpg" onclick="window.location.href='manage_file.php'; return false;" />
+					</td>
+				</tr>
+			</table>
+			</form>
+		</div>
+
+		<!-- ページ送り  -->
+		{include file='table_pager.tpl.html'}
+		<!-- /ページ送り  -->
+
+		<form name="edit_publish_config_form" method="post" action="edit_publish_config.php">
+		<!-- 一括設定 -->
+		<p>
+		<input type="button" name="show_publish_config" value="　一括設定　" onclick="javascript:show_edit_publish_config(); return false;" disabled="disabled">
+		<span style="margin-left: 1em;">チェックが入っているファイルの「掲載開始日」「販売終了日」「状態」を一括設定します</span>
+		</p>
+		<!-- 一括設定 -->
+
+		<!-- ソート　テーブル -->
+		<table id="file_table_sorter" class="tablesorter">
+			<thead>
+				<tr>
+					<td style="text-align: center; background-color: #878787;"><input type="checkbox" name="toggle_checkbox_all"></td>
+
+					<th class="header">ファイル</th>
+					<th class="header">文書種類</th>
+					<th class="header">名称</th>
+					<th class="header">型番</th>
+					<th class="header">掲載開始日</th>
+					<th class="header">販売終了日</th>
+					<th class="header">現在</th>
+					<th class="header">反映後</th>
+					<th class="header headerSortUp">更新日時</th>
+					<th style="display:none;" />
+
+					<!--<th class="header"></th> -->
+				</tr>
+			</thead>
+
+			<tbody>
+		      {foreach from=$list item=data}
+			    {if !isset($data.edit_update_dt)}
+			    	<tr>
+			    {else}
+			    	<tr style="background-color: #ffffc1;">
+			    {/if}
+
+			    <td align="center"><input type="checkbox" name="file_id[]" value="{$data.id|escape}" onclick="javascript:publish_config_check();"></td>
+			    <td>
+			    <a href="edit_file.php?id={$data.id}">{$data.file_nm|escape|replace:',':'<br>'}</a>
+			    <!--
+			    <a href="#" onclick="show_edit_file({$data.id});return false;">{$data.file_nm|escape|replace:',':'<br>'}</a>
+			    -->
+			    </td>
+			    <td nowrap>{$data.type_nm|escape|replace:'\n':'<br>'}</td>
+			    <td>{$data.product_nm|escape}</td>
+			    {if !strpos($data.model_nm, "\n") }
+			    <td>{$data.model_nm|escape}</td>
+			    {else}
+			    <td>{substr($data.model_nm, 0, strpos($data.model_nm, "\n"))|escape}...</td>
+			    {/if}
+			    {if !is_null($data.edit_update_dt) }
+			    <td>{$data.edit_publish_start_dt|escape|date_format:"%Y/%m/%d"}</td>
+			    {else}
+			    <td>{$data.publish_start_dt|escape|date_format:"%Y/%m/%d"}</td>
+			    {/if}
+
+			    {if !is_null($data.edit_update_dt) }
+			    <td>{$data.edit_sale_end_dt|escape|date_format:"%Y/%m/%d"}</td>
+			    {else}
+			    <td>{$data.sale_end_dt|escape|date_format:"%Y/%m/%d"}</td>
+			    {/if}
+
+				<td align="center">
+		        {if $data.status_flg == 1}
+		        	{if $data.publish_start_dt|strtotime < $smarty.now}
+       				<div class="open">
+			        公開
+			        </div>
+	     	    	{else}
+    				<div class="ready">
+			        公開<br>予定
+			        </div>
+			        {/if}
+			    {else}
+			    	{if $data.publish_dt}<div class="close">非公開</div>{else}<div class="new">新規</div>{/if}
+			    {/if}
+			    </td>
+   				<td align="center">
+		        {if $data.edit_status_flg == 1}
+		        	{if $data.edit_publish_start_dt|strtotime < $smarty.now}
+       				<div class="open">
+			        公開{*(PDF)*}
+			        </div>
+			        {else}
+    				<div class="ready">
+			        公開<br>予定
+			        </div>
+			        {/if}
+	     	    {elseif $data.edit_status_flg == 2}
+    				<div class="open">
+			        公開{*(PDF/キーワード)*}
+			        </div>
+			    {elseif isset($data.edit_status_flg)}{if $data.edit_status_flg == 0}<div class="close">非公開</div>{/if}{/if}
+			    </td>
+			    <td>{$data.update_dt|escape|date_format:"%Y/%m/%d %H:%M:%S"}</td>
+			    <!--
+			    <td align="center">
+				<input type="button" value="　編集　" onclick="show_edit_file({$data.id});"></input>
+			    </td>
+			      -->
+			      <td style="display:none;" />
+			    </tr>
+			  {foreachelse}
+
+		      {/foreach}
+			</tbody>
+
+		</table>
+		<!-- /ソート　テーブル -->
+		</form>
+
+	    <form name="edit_file_form" method="get">
+		<input type="hidden" name="id" />
+		</form>
+
+
+		<div id="skip_end_block">
+			<p id="pageEnd">本文の終わりです。</p>
+		</div>
+
+		<p class="goto_pagetop"><a href="#header"><img src="../image/common/btnPagetop.gif" alt="ページの先頭へ" /></a></p>
+
+	</div>
+	<!-- /Main Contents Area -->
+
+</div>
+<!-- /Contents Area -->
+
+
+<!-- Footer Area -->
+{include file="page_footer.tpl.html"}
+<!-- /Footer Area -->
+
+</div>
+</body>
+</html>
+
+

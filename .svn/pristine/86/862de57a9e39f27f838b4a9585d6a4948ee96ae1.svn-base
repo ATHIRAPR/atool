@@ -1,0 +1,704 @@
+<?php
+header("Content-Type: text/html;Charset=UTF-8");
+
+if ($_SERVER['REQUEST_METHOD'] == "POST") {
+
+set_time_limit(0);
+/*
+    [0] => ID
+    [1] => タイトル
+    [2] => 型番（改行区切り）
+    [3] => 型番非表示
+    [4] => 文書種別
+    [5] => 消化器内科
+    [6] => 消化器外科
+    [7] => 呼吸器科
+    [8] => 耳鼻咽喉科
+    [9] => 泌尿器科
+    [10] => 麻酔科
+    [11] => 婦人科
+    [12] => 脳神経外科
+    [13] => 整形外科
+    [14] => 該当無し
+    [15] => 代表キーワード(改行区切り）
+    [16] => フリーキーワード（改行区切り）
+    [17] => 公開中
+    [18] => 公開日(yyyy/mm/dd)
+    [19] => 販売終了日（yyyy/mm/dd）
+    [20] => 登録ファイル名
+    [21] => ファイルパス
+    [22] => ファイルサイズ
+    [23] => 公開URL
+    [24] => ダウンロードファイル名
+    [25] => 版番号
+    [26] => 更新日(yyyy/mm/dd)
+    [27] => PDFパスワード
+    [28] => 最終作業日時
+    [29] => 最終更新者
+ */
+
+$OUTPUT_TYPE = 1;	//0:標準出力、非0:ログファイル出力
+$LOGFILE = "./import_csv_log_". date("Ymd-His"). ".txt";
+
+
+require_once("include/init.php.inc");
+require_once("include/smarty.php.inc");
+require_once("include/db.php.inc");
+require_once("include/auth.php.inc");
+require_once("include/util.php.inc");
+require_once("include/mtutil.php.inc");
+
+$doctype_array = array(
+	"添付文書（DL押印）" => "10"
+	,"取扱説明書（DL押印）" => "2"
+	,"操作編（DL押印）" => "3"
+	,"洗浄/消毒/滅菌編（DL押印）" => "4"
+	,"応用操作編（DL押印）" => "5"
+	,"組立マニュアル（DL押印）" => "6"
+	,"注意文書（DL押印）" => "7"
+	,"カタログ" => "1"
+	,"納品説明書" => "14"
+	,"納品作業チェックシート" => "24"
+	,"故障予防法" => "13"
+	,"選定理由書" => "8"
+	,"他社比較表" => "9"
+	,"設置・納品作業マニュアル" => "11"
+	,"設置・納品作業マニュアル（ユーザ配布禁止押印）" => "12"
+	,"価格表" => "23"
+	,"価格表（ユーザ配布禁止押印）" => "16"
+	,"修理見積書解説" => "19"
+	,"修理品・貸出し品の個人情報の取扱い（ユーザ配布禁止押印）" => "20"
+	,"洗浄機テクニカルガイド（ユーザ配布禁止押印）" => "18"
+	,"販売取扱マニュアル" => "21"
+	,"販売店備品運用マニュアル" => "22"
+	,"点検基準書（ユーザ配布禁止押印）" => "17"
+	,"その他" => "15"
+);
+$sys_user_id = "1";	//システム管理者
+
+//文書種別マスタから情報を取得
+$dmm = new DoctypeMasterManager();
+$doctype_all = $dmm->get_all();
+$doctype_info = array();
+foreach($doctype_all as $doctype) {
+	$doctype_info[$doctype[id]] = $doctype;
+}
+
+if ($_FILES[csv_file][error] != 0) {
+	print("ファイルのアップロードに失敗しました");
+	exit;
+}
+$CSV_ENCODING = "CP932";
+
+$data_type = $_POST[type];
+if ($data_type != "old" && $data_type != "new") {
+	("データ対象が指定されていません");
+
+	exit;
+}
+
+$new_pdf_dir = $_POST[new_pdf_dir];
+if ($data_type == "new" && !file_exists($new_pdf_dir)) {
+	print("新規PDF取り込み元パス $new_pdf_dir が存在しません");
+	exit;
+}
+
+$csv = $_FILES[csv_file][tmp_name];
+$fp = fopen($csv, "r");
+if (!$fp) {
+	//ファイルオープンエラー
+	print("csvファイルのオープンに失敗しました");
+	exit;
+
+} else {
+	$csv_array = array();
+	while($cols = fgetcsv($fp, 0, ",")) {
+		//CSVデータを配列に読み込む
+		$csv_array[] = $cols;
+	}
+	fclose($fp);
+}
+
+if (!is_array($csv_array)) {
+	//CSVデータを読み込みできなかった
+	print("csvデータの読み込みに失敗しました");
+	exit;
+}
+
+print "<pre>";
+print "データ取り込みを開始します...\n";
+
+for( $cnt = 0; $cnt <= count($csv_array); $cnt++) {
+	$cols = $csv_array[$cnt];
+
+	if (0 < count($msg_array)) {
+		//エラーメッセージ
+		output_log("#### CSVレコード : ".($cnt)." Error ##################################\n");
+		output_log(print_r($msg_array, true));
+		output_log("#### file_info ####\n");
+		output_log(print_r($file_info, true));
+		output_log("#### file_detail ####\n");
+		output_log(print_r($file_detail_array, true));
+	}
+	$msg_array = array();
+
+	//CSVの各フィールドを変数に格納
+	$id = $cols[0];
+	$product_nm = substr(mb_convert_encoding($cols[1], "UTF-8", $CSV_ENCODING), 0, 1000);
+	$model_nm = substr(mb_convert_encoding($cols[2], "UTF-8", $CSV_ENCODING), 0, 5000);
+	$model_visible_flg = (0 < $cols[3] ? 1 : 0);
+	$doctype_id = $doctype_array[mb_convert_encoding($cols[4], "UTF-8", $CSV_ENCODING)];
+
+/*
+	$clinic_id_array = array();
+	for($i = 5; $i <= 14; $i++) {
+		if ($cols[$i]) {
+			$clinic_id_array[] = $cols[$i];
+		}
+	}
+*/
+
+	$representative_keyword = substr(mb_convert_encoding($cols[15], "UTF-8", $CSV_ENCODING), 0, 4000);
+	$search_keyword = substr(mb_convert_encoding($cols[16], "UTF-8", $CSV_ENCODING), 0, 4000);
+	$status_flg = (0 < $cols[17] ? 1 : 0);
+	$publish_start_dt = $cols[18];
+	$sale_end_dt = $cols[19];
+
+//	$update_dt = $cols[28];
+//	if (!$update_dt) {
+		$update_dt = date("Y/m/d H:i:s");
+//	}
+
+//	$update_user_id = $cols[29];
+//	if (!$update_user_id) {
+		$update_user_id = $sys_user_id;
+//	}
+
+
+	//TODO 将来的対応でタイトルの非表示設定を可能にする
+	$product_visible_flg = 0;	//1:非表示にする
+
+	$file_info = array();
+	$file_detail_array = array();
+/*
+	$file_info[doctype_id] = $doctype_id;
+	$file_info[model_visible_flg] = $model_visible_flg;
+	$file_info[clinic_id_array] = $clinic_id_array;
+	$file_info[search_keyword] = $search_keyword;
+	$file_info[representative_keyword] = $representative_keyword;
+	$file_info[publish_start_dt] = $publish_start_dt;
+	$file_info[status_flg] = $status_flg;
+	$file_info[sale_end_dt] = $sale_end_dt;
+	$file_info[$update_dt] = $update_dt;
+	$file_info[update_user_id] = $update_user_id;
+*/
+
+	//製品タイトルと型番をセット
+	$product_model = array("product_nm" => $product_nm, "model_nm" => $model_nm);
+
+	if (!$doctype_id) {
+		//タイトルチェック
+		$msg_array[] = "文書種別が入力されていません";
+		continue;
+	}
+	$stamp_flg = $doctype_info[$doctype_id][stamp_flg];	//スタンプ押印フラグ
+
+	if (!$product_nm) {
+		//タイトルチェック
+		$msg_array[] = "タイトルが入力されていません";
+		continue;
+	}
+/*
+	if (0 == count($clinic_id_array)) {
+		//診療科の選択チェック
+		$msg_array[] = "診療科が選択されていません";
+	}
+*/
+
+	//トランザクション開始
+	beginTransaction();
+
+	$pnmm = new ProductNameMasterManager();
+	$product_nm_id = $pnmm->get_id($product_nm);	//製品名ID取得
+	if (!$product_nm_id) {
+		//登録済みでないなら、新たに製品マスタIDを生成する
+		$product_nm_info = array("product_nm" => $product_nm);
+		$product_nm_id = $pnmm->add($product_nm_info);	//製品名マスターにタイトル追加
+	}
+
+	$mmm = new ModelMasterManager();
+	$model_id = $mmm->get_id($model_nm);	//型番ID取得
+	if (!$model_id) {
+		$model_info = array("model_nm" => $model_nm);
+		$model_id = $mmm->add($model_info);	//型番名マスターに型番追加
+	}
+
+	//タイトルと型番の組合せが既に登録済みかチェックする
+	$pmm = new ProductMasterManager();
+	$product_id = $pmm->get_id($product_nm_id, $model_id);
+
+	if (!$product_id) {
+
+		if ($product_nm_id && $model_id) {
+			//製品マスターにidを登録する
+			$pmm = new ProductMasterManager();
+			$product_info = array("product_nm_id" => $product_nm_id, "model_id" => $model_id);
+			$product_id = $pmm->add($product_info);	//製品名マスターにタイトル追加、製品マスターID取得
+
+		} else {
+			//エラー、ロールバック実行
+			rollBack();
+
+			$msg_array[] = "システムエラー：製品情報の登録に失敗しました";
+			continue;
+		}
+	}
+
+	//製品マスタIDと文書種別IDの組合せが既に登録済みかどうかチェック
+	$fim = new FileInfoManager();
+	if ($fim->get_id($product_id, $doctype_id)) {
+		//既に登録済みなのでエラーにする
+		//エラー処理、ロールバック実行
+		rollBack();
+
+		$msg_array[] = "タイトル、型番、文書種別の同一の組合せが既に登録済みです";
+		continue;
+	}
+
+
+	//診療科ID配列から、ファイル情報テーブルのclinic_flg_ary格納形式に変換する
+	$cmm = new ClinicMasterManager();
+	$clinic_info_all = $cmm->get_all();
+
+	//$clinic_flg_ary = str_pad("", count($clinic_info_all), '0');
+	$clinic_flg_ary = str_pad("", 30, '0');
+/*
+	foreach($clinic_id_array as $clinic_id) {
+		$clinic_flg_ary[$clinic_id-1] = '1';	//選択された診療科のフラグをセットする
+	}
+*/
+	$clinic_flg_ary[0] = '1';	//該当無しフラグだけをセット
+
+	//ファイル情報をセット
+	$file_info = array(
+			"doctype_id" => $doctype_id
+			,"product_id" => $product_id
+			,"clinic_flg_ary" => $clinic_flg_ary
+			,"search_keyword" => $search_keyword
+			//		,"pickuph_keyword" => $pickup_keyword
+			,"update_dt" => $update_dt
+			,"update_user_id" => $update_user_id
+			,"publish_user_id" => $sys_user_id
+			,"publish_dt" =>  date("Y/m/d H:i:s")
+			//,"publish_id" => $publish_id
+			,"model_visible_flg" => $model_visible_flg
+			,"product_visible_flg" => $product_visible_flg
+			,"delete_flg" => 0
+			,"status_flg" => $status_flg
+	);
+
+	if (!empty($publish_start_dt)) {
+		$file_info[publish_start_dt] = $publish_start_dt;
+	}
+	if (!empty($sale_end_dt)) {
+		$file_info[sale_end_dt] = $sale_end_dt;
+	}
+
+	$file_id = $fim->add($file_info);	//ファイル新規追加
+
+	if (!$file_id) {
+		//ファイル情報の登録に失敗
+		//ロールバック
+		rollBack();
+
+		$msg_array[] = "システムエラー：ファイル情報の新規登録に失敗しました";
+		continue;
+	}
+/*
+	//idを更新する
+	$ret = $fim->set($file_id, array("id" => $id));
+	if (!$ret) {
+		//ロールバック
+		rollBack();
+
+		$msg_array[] = "システムエラー：ファイルIDの更新に失敗しました";
+		continue;
+	}
+*/
+/*
+	$eim = new EditInfoManager();
+	$file_info[id] = $file_id;
+	$file_info[status_flg] = 1;
+
+	unset($file_info[delete_flg]);
+
+	if (!$eim->add($file_info)) {	//編集ファイル新規追加
+		//ロールバック
+		rollBack();
+
+		show_error_page(array("システムエラー：ファイル編集情報の新規登録に失敗しました"), "manage_file.php", "ファイル管理へ戻る");
+		exit;
+	}
+*/
+	$rkim = new RepresentativeKwInfoManager();
+	$ctkim = new ChoiceTypeKwInfolManager();
+
+	//代表キーワードを配列に取り出す
+	if (!empty($representative_keyword)) {
+		$representative_names = explode("\n", $representative_keyword);
+		foreach($representative_names as $name) {
+			//各代表キーワード名が存在するかチェックする
+			$rs = $rkim->search_name($name);
+			if (!$rs) {
+				rollBack();
+				//入力画面を表示する(エラーメッセージ)
+				$msg_array[] = "存在しない代表キーワード名 '$name' が指定されています。";
+				continue;
+			}
+
+			$choice_info = array(
+					"file_id" => $file_id,
+					"representative_id" => $rs[representative_id]
+			);
+
+			if (!$ctkim->add($choice_info)) {
+				//ロールバック
+				rollBack();
+
+				$msg_array[] = "システムエラー：代表キーワード情報の登録に失敗しました";
+				continue;
+			}
+		}
+	}
+
+	$fdm = new FileDetailManager();
+	//$edm = new EditDetailManager();
+	$file_nm_array = array();	//アップロードファイル名を格納する配列
+
+//	$upload_cnt = intval((count($cols)-19) / 8) + 1;
+	$upload_cnt = intval((count($cols)-19) / 8);
+
+	if ($upload_cnt == 0) {
+		//アップロードファイルが指定されなかった
+		//エラーメッセージ表示
+		$msg_array[] = "登録ファイルが指定されていません";
+		continue;
+	}
+
+	for ($i = 0; $i < $upload_cnt; $i++) {
+/*
+		$url_hash = "";	//url_hash
+		$download_filename = "";	//ダウンロードファイル名
+		$version = "";	//版番号
+		$version_update_dt = "";	//版更新日
+		$pdf_password = "";	//PDFパスワード
+*/
+		$fcnt = 20 + $i * 8;
+
+		//ファイル詳細情報を格納する
+		$file_nm =  substr($cols[$fcnt], 0, 200);	//登録ファイル名
+		$filepath = substr($cols[$fcnt+1], 0, 500);	//ファイルパス
+
+		$filesize = $cols[$fcnt+2];	//ファイルサイズ
+		if (empty($filesize) || !is_numeric($filesize)) {
+			$filesize = -1;
+		}
+
+		$url_hash = substr($cols[$fcnt+3], 0, 36);	//url_hash
+		$download_filename = substr(mb_convert_encoding($cols[$fcnt+4], "UTF-8", $CSV_ENCODING), 0, 100);	//ダウンロードファイル名
+		$version = substr($cols[$fcnt+5], 0, 50);	//版番号
+		$version_update_dt = substr($cols[$fcnt+6], 0, 50);	//版更新日
+		$pdf_password = substr($cols[$fcnt+7], 0, 50);	//PDFパスワード
+
+		if (empty($file_nm)) {
+			//登録ファイルなし
+			$msg_array[] = "登録ファイル名が入力されていません";
+			if ($i != 0) {
+				continue;
+			}
+		}
+
+		if (!mb_check_encoding($file_nm, "ASCII")) {
+			//ファイル名に全角文字を利用しているかチェック
+			$msg_array[] = "登録ファイル名に全角文字を含んだファイルはアップロードできません";
+			if ($i != 0) {
+				continue;
+			}
+		}
+
+		if ( "pdf" !== strtolower(pathinfo($file_nm, PATHINFO_EXTENSION)) &&
+			"zip" !== strtolower(pathinfo($file_nm, PATHINFO_EXTENSION)) ) {
+			$msg_array[] = "登録ファイル名の拡張子がpdf、またはzipではありません";
+			if ($i != 0) {
+				continue;
+			}
+		}
+
+/*
+		if ($data_type == "new") {
+			//スタンプ押印チェック
+			if (0 < $stamp_flg) {
+				//pdflibによるスタンプ押印処理確認
+				include_once("include/pdf_stamp.php.inc");
+				$new_pdf = $new_pdf_dir."/".$file_nm;
+				$pdf_buf = get_stamped_pdf_data($PDFLIB_LICENSE_FILE, $CMAP_DIR, $new_pdf, $pdf_password, "uid_dummy", "fid_dummy", $stamp_flg);
+
+				if (!$pdf_buf) {
+					$msg_array[] = "アップロードされたファイルにスタンプが押印できませんでした。<br>パスワード保護されていないPDFファイルをアップロードするか、正しいPDFパスワードを入力して下さい。";
+				}
+			}
+		}
+*/
+
+		if (!empty($file_nm) && empty($download_filename)) {
+			$download_filename = $file_nm;
+		} else if ( "pdf" !== strtolower(pathinfo($download_filename, PATHINFO_EXTENSION)) &&
+					"zip" !== strtolower(pathinfo($download_filename, PATHINFO_EXTENSION)) ) {
+			//拡張子がpdf、またはzipではない場合はpdf拡張子をつける
+			$download_filename .= ".pdf";
+		}
+
+		//ファイル詳細情報を新規に登録する
+		$file_detail = array(
+				"file_id" => $file_id
+				,"file_no" => 0
+				,"pdf_password" => $pdf_password
+				,"file_nm" => $file_nm
+				,"filepath" => ""
+				,"filesize" => $filesize
+				,"download_file_nm" => $download_filename
+				,"update_dt" => $update_dt //date("Y/m/d H:i:s")
+				,"update_user_id" => $update_user_id
+				,"delete_flg" => 0
+		);
+
+		//版番号チェック
+		//			if (!empty($version) && is_numeric($version)) {
+		$file_detail["version"] = $version;
+		//			}
+
+		//作業日時チェック
+		/*
+		if (!empty($update_dt)
+				&& ereg("^([0-9]{4})[-]+([0-9]+)[-]+([0-9]+)$", $update_dt, $date_parts)
+				&& checkdate($date_parts[2], $date_parts[3], $date_parts[1])) {
+*/
+					$file_detail["version_update"] = $version_update_dt;
+/*		} else {
+			$file_detail["version_update"] = "";
+		}
+*/
+
+		$file_detail_array[] = $file_detail;
+
+		$file_detail_id = $fdm->add($file_detail);
+
+		if (!$file_detail_id) {
+			//ファイル詳細情報の登録失敗
+			//ロールバック
+			rollBack();
+
+			$msg_array[] = "システムエラー：ファイル詳細情報の新規登録に失敗しました";
+			continue;
+		}
+/*
+		//ファイル詳細編集情報の追加
+		$file_detail[id] = $file_detail_id;
+
+		if (!$edm->add($file_detail)) {
+			//ファイル詳細情報の登録失敗
+			//ロールバック
+			rollBack();
+
+			show_error_page(array("システムエラー：ファイル詳細編集の新規登録に失敗しました"), "manage_file.php", "ファイル管理へ戻る");
+			exit;
+		}
+*/
+		//ハッシュIDをセット
+		if (empty($url_hash)) {
+			//url_hashが指定されていない場合、新規生成した値をDBにセットする
+			$ret = $fdm->set_url_hash($file_detail_id);
+
+		} else {
+			//url_hashが指定されている場合、その値をDBにセットする
+			$ret = $fdm->set($file_detail_id, array("url_hash" => $url_hash));
+		}
+
+		if ($ret) {
+
+			//新規追加ファイルの場合、格納ディレクトリにファイルを移動させて、そのパスをDBに登録する
+			if ($data_type == "new") {
+
+				//生成されたファイル詳細IDから、格納ディレクトリの相対パスを生成する
+				$store_path = get_file_stored_dir($file_detail_id);
+
+				//フルパス取得
+				$store_fullpath = $UPLOAD_DIR . $store_path;
+
+				if (!file_exists($store_fullpath) && !is_dir($store_fullpath)) {
+					$ret = mkdir($store_fullpath, 0777, true);	//格納先ディレクトリを作成
+					if (!$ret) {
+						//ロールバック
+						rollBack();
+
+						$msg_array[] = "システムエラー：ファイル格納先ディレクトリの作成に失敗しました";
+						continue;
+					}
+
+				}
+
+				//公開中なら公開ディレクトリも作成する
+				if ($status_flg == 1) {
+					//公開ディレクトリフルパス
+					$publish_fullpath = $PUBLISH_DIR . $store_path;
+
+					if (!file_exists($publish_fullpath) && !is_dir($publish_fullpath)) {
+						$ret = mkdir($publish_fullpath, 0777, true);	//格納先ディレクトリを作成
+						if (!$ret) {
+							//ロールバック
+							rollBack();
+
+							$msg_array[] = "システムエラー：公開ディレクトリの作成に失敗しました";
+							continue;
+						}
+
+					}
+				}
+
+				//格納ディレクトリ内のファイル数を返す
+				$pdf_num = get_stored_file_num($store_fullpath);
+
+				//連番ファイル名を取得する
+				$filepath = $store_path."/".$file_nm . "_" . sprintf("%02d", $pdf_num);
+			}
+
+			//ファイルパス情報を更新する
+			$detail_array = array("filepath" => $filepath);
+			if ($filesize < 0) {
+				//ファイルサイズを取得する
+				$detail_array[filesize] = filesize($new_pdf_dir."/".$file_nm);
+			}
+
+			$ret = $fdm->set($file_detail_id, $detail_array);
+			if (!$ret) {
+				//ロールバック
+				rollBack();
+
+				$msg_array[] = "システムエラー：ファイル情報の格納先パスの更新に失敗しました";
+				continue;
+			}
+/*
+			//ファイルパス情報を更新する
+			$ret = $edm->set($file_detail_id, array("filepath" => $store_path . "/". $store_filename));
+			if (!$ret) {
+				//ロールバック
+				rollBack();
+
+				//show_error_page(array("システムエラー：ファイル情報の格納先パスの更新(編集)に失敗しました"), "manage_file.php", "ファイル管理へ戻る");
+				exit;
+			}
+
+*/
+			//新規登録ファイルの場合
+			if ($data_type == "new") {
+
+				//ファイルを規定の格納ディレクトリにコピー
+				$src = $new_pdf_dir."/".$file_nm;
+				$dst = $UPLOAD_DIR.$filepath;
+
+				if (!file_exists($src) || !copy($src, $dst)) {
+					//ファイルのコピーに失敗した
+					rollBack();
+
+					//エラーメッセージ表示
+					$msg_array[] = "システムエラー：新規登録ファイルの格納ディレクトリへのコピーに失敗しました";
+					continue;
+				}
+
+				//公開中なら公開ディレクトリにもコピーする
+				if ($status_flg == 1) {
+
+					//ファイルを規定の格納ディレクトリにコピー
+					$dst = $PUBLISH_DIR.$filepath;
+
+					if (!file_exists($src) || !copy($src, $dst)) {
+						//ファイルのコピーに失敗した
+						rollBack();
+
+						//エラーメッセージ表示
+						$msg_array[] = "システムエラー：新規登録ファイルの公開ディレクトリへのコピーに失敗しました";
+						continue;
+					}
+				}
+
+			}
+
+		} else {
+			//url_hashの生成に失敗した
+			//ロールバック
+			rollBack();
+
+			$msg_array[] = "システムエラー：公開URLの更新に失敗しました";
+			continue;
+		}
+	}
+
+	//コミット
+	commit();
+
+	output_log("#### CSVレコード : ".($cnt+1)." OK ##################################\n");
+	output_log("#### file_info ####\n");
+	output_log(print_r($file_info, true));
+	output_log("#### file_detail ####\n");
+	output_log(print_r($file_detail_array, true));
+
+
+}
+print "取り込みが終了しました";
+print "</pre>";
+
+if ($OUTPUT_TYPE != 0) {
+	print("<a target='_blank' href='./$LOGFILE'>ログファイル</a>");
+}
+exit;
+}
+
+function output_log($msg) {
+
+	global $OUTPUT_TYPE, $LOGFILE;
+
+	if ($OUTPUT_TYPE == 0) {
+		print $msg;
+
+	} else {
+		$fp = fopen($LOGFILE, "a");
+		if ($fp) {
+			fputs($fp, $msg);
+			fclose($fp);
+		}
+	}
+}
+
+
+?>
+
+<html>
+
+文書管理ツール データインポート
+<form method="post" enctype="multipart/form-data">
+<table>
+<tr>
+<td>CSV ファイル</td>
+<td><input type="file" name="csv_file"></td>
+</tr>
+<tr>
+<td>データ対象</td>
+<td><input type="radio" name="type" value="old" checked>既存データ<br><input type="radio" name="type" value="new">新規追加データ （ PDF取り込み元パス：<input type="text" name="new_pdf_dir" value="/"> ）</td>
+</tr>
+</table>
+<p>
+<input type="submit" value="インポート開始">
+
+</form>
+
+</html>

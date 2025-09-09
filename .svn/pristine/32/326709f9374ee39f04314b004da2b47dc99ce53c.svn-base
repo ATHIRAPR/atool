@@ -1,0 +1,96 @@
+<?php
+
+require_once("include/init.php.inc");
+require_once("include/smarty.php.inc");
+require_once("include/db.php.inc");
+require_once("include/auth.php.inc");
+require_once("include/util.php.inc");
+
+if ($_SERVER['REQUEST_METHOD'] !== "POST") {
+	//NOT FOUND
+	header("HTTP/1.0 404 Not Found");
+	exit;
+}
+
+
+//ユーザグループレベルと、urlハッシュ配列を取得
+$lvl = $_POST[lvl];
+$url_hash_array = json_decode($_POST[url_hash_array]);
+
+$info_array = array();
+
+foreach($url_hash_array as $url_hash) {
+
+	$info = array();
+
+	//新テーブルバージョン
+	//ユニークID(url_hash)からファイル詳細情報を取得する
+	$fdm = new FileDetailManager();
+	$detail_info = $fdm->search_url_hash($url_hash);
+	if (!$detail_info) {
+		//指定したurl_hashでファイル詳細情報が取得できなかった
+		continue;
+	}
+	
+	
+	 //取得した詳細情報からファイル情報を取得する
+	$fim = new FileInfoManager();
+	$file_info = $fim->get($detail_info[file_id]);
+	if (!$file_info) {
+		//ファイル情報の取得に失敗した
+		continue;
+	}
+	
+	
+	//TODO ユーザグループレベルが指定されたファイルを閲覧する権限を持つか確認する
+	$daim = new DocAuthorityInfoManager();
+	$doc_auth_info = $daim->search_doctype_id($lvl);
+	
+	$docTypeId = $file_info[doctype_id];
+	$doc_ids = array();
+	foreach($doc_auth_info as $doc_info) {
+		$doc_ids[] = $doc_info[doctype_id];
+	}
+	if (!in_array($docTypeId, $doc_ids)) {
+		//閲覧権限無し
+		continue;
+	}
+
+	//ファイル詳細情報
+	$info["url_hash"] = $detail_info[url_hash];
+	$info["file_nm"] = $detail_info[file_nm];
+	$info["filesize"] = $detail_info[filesize];
+	$info["version"] = $detail_info[version];
+	$info["version_update"] = $detail_info[version_update];
+
+	//製品タイトル、型番を取得
+	$product_model_info = get_product_model($file_info[product_id]);
+	$info["product_nm"] = $product_model_info[product_nm];
+	$info["model_nm"] = $product_model_info[model_nm];
+
+	$info_array[] = $info;
+}
+
+
+//ファイル詳細情報のみのリクエストなら、json形式でファイル詳細を返す
+if (!empty($info_array)) {
+
+	//レスポンスデータを依頼元サーバに返す
+//	header("HTTP/1.1 200 OK");
+//	header("Content-Type: application/json; charset=utf-8");
+//	header("Content-Type: text/javascript; charset=utf-8");
+//	header("Pragma: no-cache");
+//	header("Cache-Control: no-cache");
+//	header("Expires: Thu, 01 Dec 1994 16:00:00 GMT");
+
+	print (json_encode($info_array));
+	exit;
+
+} else {
+	//ファイル情報の取得に失敗した
+	//NOT FOUND
+	header("HTTP/1.0 404 Not Found");
+	exit;
+}
+
+?>

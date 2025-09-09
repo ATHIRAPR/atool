@@ -1,0 +1,44 @@
+<?php
+require_once('libs/Smarty.class.php');
+
+global $smarty;
+
+$smarty = new Smarty();
+$smarty->template_dir = "templates/";
+$smarty->compile_dir = "templates_c/";
+$smarty->config_dir = "configs/";
+$smarty->cache_dir = "cache/";
+
+
+//出力エンコードをUTF-8から変更する
+function set_mb_encoding_output() {
+	global $OUTPUT_ENCODING;
+
+	$output = ob_get_contents();
+	ob_end_clean();
+	echo mb_convert_encoding($output, $OUTPUT_ENCODING, "UTF-8");
+}
+
+
+//テンプレートを指定してページを表示する
+function show_template_page($template_html, $msg_array = array()) {
+	global $smarty;
+
+	$smarty->assign("msg_array", $msg_array);
+	$smarty->display($template_html);
+	set_mb_encoding_output();
+}
+
+
+//エラー画面を表示する
+function show_error_page($msg_array, $back_url, $back_msg) {
+	global $smarty;
+
+	$smarty->assign("msg_array", $msg_array);
+	$smarty->assign("back_url", $back_url);
+	$smarty->assign("back_msg", $back_msg);
+	$smarty->display("error.tpl.html");
+	set_mb_encoding_output();
+}
+
+?>

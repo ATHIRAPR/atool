@@ -1,0 +1,299 @@
+<?php
+require_once ("include/init.php.inc");
+require_once ("include/smarty.php.inc");
+require_once ("include/db.php.inc");
+require_once ("include/auth.php.inc");
+require_once ("include/util.php.inc");
+require_once ("include/mtutil.php.inc");
+// 選択された左メニュー項目
+$smarty->assign ( "func_info", array (
+    "file" => 1 
+) );
+// ファイル管理権限が無い場合は、エラーにする
+if ($role_info ['file_role_flg'] != 1) {
+    // エラーメッセージ表示
+    show_error_page ( array (
+        "ファイル管理者の権限がありません" 
+    ), "manage.php", "トップページへ戻る" );
+    exit ();
+}
+// システムIDはセッション情報から取得する
+$sys_id = $_SESSION ['sys_id'];
+if ($_SERVER ['REQUEST_METHOD'] === "GET") {
+    $file_id = $_GET ['id']; // ファイルID取得
+} else if ($_SERVER ['REQUEST_METHOD'] === "POST") {
+    $file_id = $_POST ['id']; // ファイルID取得
+}
+$fim = new FileInfoManager ();
+$file_info = $fim->get ( $file_id ); // ファイル情報取得
+if (! $file_info) {
+    // エラーメッセージ表示
+    show_error_page ( array (
+        "編集対象のファイルが存在しません" 
+    ), "manage_file.php", "ファイル管理へ戻る" );
+    exit ();
+}
+if (! is_null ( $file_info ['publish_start_dt'] )) {
+    $file_info ['publish_start_dt'] = date ( "Y-m-d", strtotime ( $file_info ['publish_start_dt'] ) );
+}
+if (! is_null ( $file_info ['download_update_dt'] )) {
+    $file_info ['download_update_dt'] = date ( "Y-m-d", strtotime ( $file_info ['download_update_dt'] ) );
+}
+if (! is_null ( $file_info ['filesize'] )) {
+    $file_info ['filesize'] = adjustFileSizeUnit ( $file_info ['filesize'] );
+}
+$file_info ['edit_status_flg'] = $file_info ['status_flg'];
+// 編集ファイル情報を取得する
+$eim = new EditInfoManager ();
+$edit_info = $eim->get ( $file_id ); // 編集ファイル情報取得
+if ($edit_info) {
+    // 既存の編集データでファイル情報を上書きする
+    if (! is_null ( $edit_info ['clinic_flg_ary'] )) {
+        $file_info ['clinic_flg_ary'] = $edit_info ['clinic_flg_ary'];
+    }
+    if (! is_null ( $edit_info ['doctype_id'] )) {
+        $file_info ['doctype_id'] = $edit_info ['doctype_id'];
+    }
+    $file_info ['update_user_id'] = $edit_info ['update_user_id'];
+    if (! is_null ( $edit_info ['publish_start_dt'] )) {
+        $file_info ['publish_start_dt'] = date ( "Y-m-d", strtotime ( $edit_info ['publish_start_dt'] ) );
+    }
+    if (! is_null ( $edit_info ['status_flg'] )) {
+        $file_info ['edit_status_flg'] = $edit_info ['status_flg'];
+    }
+    if (! is_null ( $edit_info ['filesize'] )) {
+        $file_info ['filesize'] = adjustFileSizeUnit ( $edit_info ['filesize'] );
+    }
+}
+// 更新ユーザ情報を取得
+$uim = new UserInfoManager ();
+$update_user_info = $uim->get ( $file_info ['update_user_id'] );
+// 公開ユーザ情報取得
+$publish_user_info = $uim->get ( $file_info ['publish_user_id'] );
+// カテゴリマスタから情報を取得
+$cmm = new ClinicMasterManager ();
+$clinic_all = $cmm->get_all ();
+foreach ( $clinic_all as $clinic ) {
+    $clinic_options [$clinic ['id']] = $clinic ['clinic_nm'];
+}
+// 文書種別マスタから情報を取得
+$dmm = new DoctypeMasterManager ();
+$doctype_all = $dmm->get_all ();
+foreach ( $doctype_all as $doctype ) {
+    $doctype_options [$doctype ['id']] = $doctype ['type_nm'];
+}
+// 選択されているカテゴリ情報を配列に変換する
+$clinic_flg_ary = array ();
+for($i = 0; $i < strlen ( $file_info ['clinic_flg_ary'] ); $i ++) {
+    $clinic_flg = $file_info ['clinic_flg_ary'] [$i];
+    if ($clinic_flg === '1') {
+        $clinic_flg_ary [] = $i + 1;
+    }
+}
+$clinic_id = $clinic_flg_ary;
+$smarty->assign ( "clinic_options", $clinic_options );
+$smarty->assign ( "doctype_options", $doctype_options );
+$smarty->assign ( "publish_user_info", $publish_user_info );
+$smarty->assign ( "update_user_info", $update_user_info );
+$smarty->assign ( "clinic_id", $clinic_id );
+if ($_SERVER ['REQUEST_METHOD'] === "GET") {
+    // 登録画面表示
+    $smarty->assign ( "data", $file_info );
+    show_template_page ( "edit_file.tpl.html" );
+    exit ();
+} else if ($_SERVER ['REQUEST_METHOD'] === "POST") {
+    // トランザクション開始
+    beginTransaction ();
+    if ($_POST ['file_op'] === 'delete') {
+        // 削除処理
+        // 削除対象ファイルが存在するかチェック
+        if ($file_info) {
+            // ファイル情報を削除する
+            $ret = $fim->remove ( $file_id );
+            if (! $ret) {
+                // ロールバック
+                rollBack ();
+                // ファイル情報の削除フラグ設定に失敗
+                show_error_page ( array (
+                    "ファイル情報の削除に失敗しました" 
+                ), "manage_file.php", "ファイル管理へ戻る" );
+                exit ();
+            }
+        }
+        if ($edit_info) {
+            // 編集データがあれば、編集データを削除する
+            $ret = $eim->remove ( $file_id );
+            if (! $ret) {
+                // 編集データの削除に失敗
+                rollBack ();
+                // エラーメッセージ表示
+                show_error_page ( array (
+                    "編集データの削除に失敗しました" 
+                ), "manage_file.php", "ファイル管理へ戻る" );
+                exit ();
+            }
+        }
+        commit ();
+        $smarty->assign ( "is_deleted", true );
+    } elseif ($_POST ['file_op'] === 'edit') {
+        // 編集処理
+        $file_nm = mb_convert_encoding ( $_FILES ['pdf_file'] ['name'], "UTF-8", $OUTPUT_ENCODING ); // 現行ファイル名
+        $filesize = $_FILES ['pdf_file'] ['size']; // ファイルサイズ
+        $download_file_nm = substr ( mb_convert_encoding ( $_POST ['download_filename'], "UTF-8", $OUTPUT_ENCODING ), 0, 100 );
+        $pdf_password = substr ( $_POST ['pdf_password'], 0, 50 );
+        $title = substr ( mb_convert_encoding ( $_POST ['title'], "UTF-8", $OUTPUT_ENCODING ), 0, 1000 );
+        $clinic_id = $_POST ['clinic_id'];
+        $doctype_id = mb_convert_encoding ( $_POST ['doctype_id'], "UTF-8", $OUTPUT_ENCODING );
+        $publish_start_dt = $_POST ['publish_start_dt'];
+        $download_update_dt = $_POST ['download_update_dt'];
+        $status_flg = $_POST ['status_flg'];
+        if (! mb_check_encoding ( $file_nm, "ASCII" )) {
+            // ファイル名に全角文字を利用しているかチェック
+            $msg_array [] = "ファイル名に全角文字を含んだファイルはアップロードできません";
+        }
+        if (! $title) {
+            // タイトルチェック
+            $msg_array [] = "タイトルが入力されていません";
+        }
+        if (0 == count ( $clinic_id )) {
+            // カテゴリの選択チェック
+            $msg_array [] = "カテゴリが選択されていません";
+        }
+        if (! isset ( $doctype_id ) || empty ( $doctype_id )) {
+            $msg_array [] = "文書種別が指定されていません。";
+        }
+        if (! $publish_start_dt) {
+            // タイトルチェック
+            $msg_array [] = "公開日（掲載開始日）が入力されていません";
+        }
+        if (0 < $msg_array) {
+            // ファイル新規登録の入力画面を表示する(エラーメッセージ)
+            $smarty->assign ( "data", $_POST );
+            show_template_page ( "edit_file.tpl.html", $msg_array );
+            exit ();
+        }
+        if (empty ( $download_file_nm )) {
+            $download_file_nm = $file_nm;
+        }
+        // ・ファイル編集時、アップロードしたファイル名の _ より前の文字列が、ダウンロードファイル名の _ より前の文字列と一致する場合は、ダウンロードファイル名を上書きする
+        // ・一番後ろの_で区切る
+        $pos = strrpos ( $download_file_nm, "_" );
+        if ($pos !== false) {
+            $dl_prev = substr ( $download_file_nm, 0, $pos );
+            if (false !== strpos ( $file_nm, $dl_prev )) {
+                $download_file_nm = $file_nm;
+            }
+        }
+        $file_info = array ();
+        $file_info ['download_file_nm'] = $download_file_nm;
+        $file_info ['title'] = $title;
+        $file_info ['doctype_id'] = $doctype_id;
+        $file_info ['publish_start_dt'] = $publish_start_dt;
+        $file_info ['status_flg'] = $status_flg;
+        if (! empty ( $file_nm )) {
+            $file_info ['file_nm'] = $file_nm;
+            $file_info ['filesize'] = $filesize;
+        }
+        if (! empty ( $pdf_password )) {
+            $file_info ['pdf_password'] = $pdf_password;
+        }
+        if (! empty ( $download_update_dt )) {
+            $file_info ['download_update_dt'] = $download_update_dt;
+        }
+        // カテゴリID配列から、ファイル情報テーブルのclinic_flg_ary格納形式に変換する
+        $clinic_flg_ary = str_pad ( "", 30, '0' );
+        foreach ( $clinic_id as $clinic_flg ) {
+            $clinic_flg_ary [$clinic_flg - 1] = '1'; // 選択されたカテゴリのフラグをセットする
+        }
+        $file_info ['clinic_flg_ary'] = $clinic_flg_ary;
+        // 最終更新者のIDをセッションから取得
+        $update_user_id = $_SESSION ['login_info'] ['id'];
+        // ファイル情報をセット
+        $file_info ['update_dt'] = date ( "Y/m/d H:i:s" );
+        $file_info ['update_user_id'] = $update_user_id;
+        if ($edit_info) {
+            // 編集データがあれば、編集データに対して更新を行う
+            if (! $eim->set ( $file_id, $file_info )) {
+                // ロールバック
+                rollBack ();
+                show_error_page ( array (
+                    "ファイル編集情報の更新に失敗しました" 
+                ), "manage_file.php", "ファイル管理へ戻る" );
+                exit ();
+            }
+        } else {
+            // 編集データが存在しないので、新規追加する
+            $file_info ['id'] = $file_id; // ファイルIDをセット
+            if (! $eim->add ( $file_info )) {
+                // ロールバック
+                rollBack ();
+                show_error_page ( array (
+                    "ファイル編集情報の新規登録に失敗しました" 
+                ), "manage_file.php", "ファイル管理へ戻る" );
+                exit ();
+            }
+        }
+        // 必要なら、最後にアップロードファイルを格納ディレクトリに移動させる
+        // PDFがアップロードされていれば格納ディレクトリに移動させる
+        if ($file_nm) {
+            // DB処理完了、コミット待ち
+            // 生成されたファイル詳細IDから、格納ディレクトリの相対パスを生成する
+            $store_path = get_file_stored_dir ( $file_id );
+            // フルパス取得
+            $store_fullpath = $UPLOAD_DIR . $store_path;
+            if (! file_exists ( $store_fullpath ) && ! is_dir ( $store_fullpath )) {
+                $ret = mkdir ( $store_fullpath, 0777, true ); // 格納先ディレクトリを作成
+                if (! $ret) {
+                    // ロールバック
+                    rollBack ();
+                    show_error_page ( array (
+                        "ファイル格納先ディレクトリの作成に失敗しました" 
+                    ), "manage_file.php", "ファイル管理へ戻る" );
+                    exit ();
+                }
+            }
+            // 格納ディレクトリ内のファイル数を返す
+            $pdf_num = get_stored_file_num ( $store_fullpath );
+            // 連番ファイル名を取得する
+            $store_filename = $file_nm . "_" . sprintf ( "%02d", $pdf_num );
+            // ファイルパス情報を更新する
+            $ret = $eim->set ( $file_id, array (
+                "filepath" => $store_path . "/" . $store_filename 
+            ) );
+            if (! $ret) {
+                // ロールバック
+                rollBack ();
+                show_error_page ( array (
+                    "ファイル情報の格納先パスの更新(編集)に失敗しました" 
+                ), "manage_file.php", "ファイル管理へ戻る" );
+                exit ();
+            }
+            // アップロードファイルを規定の格納ディレクトリに移動させる
+            $tmp_file = $_FILES ['pdf_file'] ['tmp_name'];
+            if (! move_uploaded_file ( $tmp_file, $store_fullpath . "/" . $store_filename )) {
+                // アップロードファイルの移動に失敗した
+                rollBack ();
+                // エラーメッセージ表示
+                show_error_page ( array (
+                    "アップロードファイルの格納ディレクトリへの移動に失敗しました" 
+                ), "manage_file.php", "ファイル管理へ戻る" );
+                exit ();
+            }
+        }
+        $smarty->assign ( "is_updated", true );
+    } else {
+        // 不正なリクエスト
+        // ロールバック
+        rollBack ();
+        show_error_page ( array (
+            "不正なリクエストです" 
+        ), "manage_file.php", "ファイル管理へ戻る" );
+        exit ();
+    }
+    // コミット
+    commit ();
+    $smarty->assign ( "file_id", $file_id );
+    show_template_page ( "edit_file_result.tpl.html" );
+}
+exit ();
+?>

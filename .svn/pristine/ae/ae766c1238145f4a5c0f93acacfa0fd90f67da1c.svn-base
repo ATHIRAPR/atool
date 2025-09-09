@@ -1,0 +1,201 @@
+<?php
+
+require_once("include/init.php.inc");
+require_once("include/smarty.php.inc");
+require_once("include/db.php.inc");
+require_once("include/auth.php.inc");
+require_once("include/util.php.inc");
+
+//選択された左メニュー項目
+$smarty->assign("func_info", array("file" => 1));
+
+
+//ファイル管理権限が無い場合は、エラーにする
+if ($role_info[file_role_flg] != 1) {
+	//エラーメッセージ表示
+	show_error_page(array("ファイル管理者の権限がありません"), "manage.php", "トップページへ戻る");
+	exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === "POST") {
+	$id_array = $_POST[file_id];
+
+	if (!is_array($id_array) or !count($id_array)) {
+		//エラーメッセージ表示
+		show_error_page(array("編集対象のファイルが指定されていません"), "manage_file.php", "ファイル管理へ戻る");
+		exit;
+	}
+}
+
+//ファイルIDの配列から、ファイル情報を取得する
+$file_info_array = search_file_info_from_id($id_array);
+
+if (!$file_info_array) {
+	//エラーメッセージ表示
+	show_error_page(array("ファイル情報の取得に失敗しました"), "manage_file.php", "ファイル管理へ戻る");
+	exit;
+}
+//一括設定変更する
+if (isset($_POST[update])) {
+	//データ取得
+	$publish_start_dt = $_POST[publish_start_dt];
+	$sale_end_dt = $_POST[sale_end_dt];
+//	$_POST[status_flg];
+
+	//ここからトランザクション開始
+	beginTransaction();
+
+	//公開設定情報をセット
+	$info = array();
+	if (!empty($_POST[publish_start_dt])) {
+		$info[publish_start_dt] = $_POST[publish_start_dt];	//掲載開始
+//	} else {
+//		$info[publish_start_dt] = NULL;
+	}
+
+	if (!empty($_POST[sale_end_dt])) {
+		$info[sale_end_dt] = $_POST[sale_end_dt];	//販売終了
+//	} else {
+//		$info[sale_end_dt] = NULL;
+	}
+
+	if (!empty($publish_start_dt) && !empty($sale_end_dt)) {
+		if (strtotime($publish_start_dt) >= strtotime($sale_end_dt)) {
+			$err_array[] = "販売終了日には、掲載開始日より後の日付を入力してください。";
+			$smarty->assign("err_array", $err_array);
+		}
+	}
+
+	//if (!empty($_POST[status_flg])) {
+		$info[status_flg] = $_POST[status_flg];	//状態
+	//};
+
+
+	$eim = new EditInfoManager();
+	$fim = new FileInfoManager();
+	$filenm_array = array();
+
+	if (0 == count($err_array)) {
+	
+		foreach($file_info_array as $file_info) {
+			$flg_err = false;
+			$edit_info = $eim->get($file_info[id]);
+	
+			if ($edit_info) {
+				//TODO 編集データの掲載開始日と販売終了日を、入力された掲載開始日と販売終了日と比較する
+				if (!empty($info[publish_start_dt]) && !empty($edit_info[sale_end_dt]) && strtotime($info[publish_start_dt]) > (strtotime($edit_info[sale_end_dt]) - 60*60*24) ) {
+					//TODO 入力された掲載開始日が、(販売終了日-1)より未来の日付なら、エラーにする
+					$flg_err = true;
+				}
+	
+				if (!empty($info[sale_end_dt]) && !empty($edit_info[publish_start_dt]) && strtotime($edit_info[publish_start_dt]) > (strtotime($info[sale_end_dt]) - 60*60*24) ) {
+					//TODO 入力された販売終了日が、(掲載開始日-1)より過去の日付なら、エラーにする
+					$flg_err = true;
+				}
+	
+				if($flg_err) {
+					$filenm_array[] = $file_info[file_nm];
+				}
+	
+			} else {
+				$finfo = $fim->get($file_info[id]);	//既存のファイル情報取得
+	
+				//TODO ファイル情報データの掲載開始日と販売終了日を、入力された掲載開始日と販売終了日と比較する
+				if (!empty($info[publish_start_dt]) && !empty($finfo[sale_end_dt]) && strtotime($info[publish_start_dt]) > (strtotime($finfo[sale_end_dt]) - 60*60*24) ) {
+					//TODO 入力された掲載開始日が、(販売終了日-1)より未来の日付なら、エラーにする
+					$flg_err = true;
+				}
+	
+				if (!empty($info[sale_end_dt]) && !empty($finfo[publish_start_dt]) && strtotime($finfo[publish_start_dt]) > (strtotime($info[sale_end_dt]) - 60*60*24) ) {
+					//TODO 入力された販売終了日が、(掲載開始日-1)より過去の日付なら、エラーにする
+					$flg_err = true;
+				}
+	
+				if($flg_err) {
+					$filenm_array[] = $file_info[file_nm];
+				}
+	
+			}
+		}
+	
+		if (0 < count($filenm_array)) {
+			//掲載開始日、販売終了日にエラーあった場合
+			$err_array[] = implode("、", $filenm_array) . "：販売終了日には、掲載開始日より後の日付を入力してください。";
+			$smarty->assign("err_array", $err_array);
+	
+		} else {
+	
+			foreach($id_array as $id) {
+				$edit_info = $eim->get($id);
+	
+				if ($edit_info) {
+					//編集データが存在するので、更新する
+					$ret = $eim->set($id, $info);
+	
+				} else {
+					$finfo = $fim->get($id);	//既存のファイル情報取得
+					if (!empty($info[sale_end_dt])) {
+						$finfo[sale_end_dt] = $info[sale_end_dt];	//販売終了日
+					}
+	
+					if (!empty($info[publish_start_dt])) {
+						$finfo[publish_start_dt] = $info[publish_start_dt];	//掲載開始日
+					}
+	
+					$finfo[status_flg] = $info[status_flg];
+					$finfo[update_dt] = date("Y/m/d H:i:s");
+					unset($finfo[delete_flg]);
+					unset($finfo[publish_user_id]);
+					unset($finfo[publish_dt]);
+	
+					//編集データが存在しないので、新規追加する
+					$ret = $eim->add($finfo);
+				}
+	
+				if (!$ret) {
+					//失敗
+					show_error_page(array("一括設定変更に失敗しました"), "manage_file.php", "ファイル管理へ戻る");
+					rollBack();
+					exit;
+				}
+			}
+			commit();
+			$msg_array[] = "設定を一括変更しました";
+	
+			//ファイルIDの配列から、更新後のファイル情報を取得する
+			$file_info_array = search_file_info_from_id($id_array);
+		}
+		if (!$file_info_array) {
+			//エラーメッセージ表示
+			show_error_page(array("ファイル情報の取得に失敗しました"), "manage_file.php", "ファイル管理へ戻る");
+			exit;
+		}
+	}
+}
+
+
+$dmm = new DoctypeMasterManager();
+$doctype_all = $dmm->get_all();
+
+foreach($doctype_all as $doctype) {
+	$doctype_items[$doctype[id]] = get_doctype_stamp_string($doctype[type_nm], $doctype[stamp_flg], '\n');
+}
+
+foreach($file_info_array as &$result) {
+	//$result[type_nm] = get_doctype_stamp_string($result[type_nm], $result[stamp_flg]);
+	$result[type_nm] = $doctype_items[$result[doctype_id]];
+}
+
+
+//取得したファイル情報をassignする
+$smarty->assign("list", $file_info_array);
+
+//POSTデータをassignする
+//$smarty->assign("data", $_POST);
+
+//設定画面を読み込む
+show_template_page("edit_publish_config.tpl.html", $msg_array);
+
+exit;
+
+?>

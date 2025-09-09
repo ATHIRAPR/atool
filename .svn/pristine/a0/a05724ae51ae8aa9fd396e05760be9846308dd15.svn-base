@@ -1,0 +1,75 @@
+<?php
+include_once "db.php.inc";
+
+
+//エクスポートデータ出力
+function get_export_file_info_all() {
+	global $dbh;
+
+	$sql =
+	"SELECT fi.id" .	//ファイルID
+	", fd.file_nm as file_nm".	//編集データのファイル名
+	", dmm.type_nm".	//文書種類
+	", pnm.product_nm".	//名称
+	", mm.model_nm".	//型番
+
+	//", ISNULL(ei.model_visible_flg, fi.model_visible_flg) as model_visible_flg".	//型番非表示
+	", fi.model_visible_flg".	//型番非表示
+
+	//", ISNULL(ei.update_dt, fi.update_dt) AS update_dt".	//編集データの更新日時
+	", fi.update_dt".	//編集データの更新日時
+
+	//", ISNULL(ei.status_flg, fi.status_flg) ".	//公開状態フラグ
+	", fi.status_flg".	//公開状態フラグ
+
+	", fd.url_hash ".	//url_hash
+	", fi.clinic_flg_ary".	//診療科
+	", fd.pdf_password".	//PDFパスワード
+	", fi.search_keyword".	//検索キーワード
+	", fd.filesize".	//ファイルサイズ
+	", fd.filepath".	//ファイルパス
+	", fi.update_dt".	//最終更新日時
+	", fi.update_user_id".	//最終更新者
+	", fi.publish_start_dt".	//掲載開始日
+	", fi.sale_end_dt".	//販売終了日
+	", fd.version_update".	//ファイル更新日
+	", fd.version".	//ファイル版番号
+	", fd.download_file_nm".	//ダウンロードファイル名
+	", fd.update_dt".		//ファイル更新日時
+
+	" FROM ". FileInfoManager::$TABLE_NAME ." fi ";
+//	$sql .= " LEFT JOIN ". PublishInfoManager::$TABLE_NAME ." pi ON fi.id = pi.file_id ";
+	$sql .= " LEFT JOIN ". FileDetailManager::$TABLE_NAME ." fd ON fi.id = fd.file_id and fd.delete_flg = 0 ";
+	$sql .= " JOIN " . ProductMasterManager::$TABLE_NAME ." pm ON fi.product_id = pm.id ";
+	$sql .= " JOIN " . ProductNameMasterManager::$TABLE_NAME ." pnm ON pm.product_nm_id = pnm.id ";
+	$sql .= " JOIN ". ModelMasterManager::$TABLE_NAME ." mm ON pm.model_id = mm.id ";
+	$sql .= " JOIN ". DoctypeMasterManager::$TABLE_NAME ." dmm ON fi.doctype_id = dmm.id ";
+
+	//編集データを結合する
+//	$sql .= " LEFT JOIN ". EditInfoManager::$TABLE_NAME ." ei ON fi.id = ei.id ";
+
+	if (!$where) {
+		$where = "WHERE ";
+	} else {
+		$where .= " AND ";
+	}
+	//削除済みのファイルは除く
+	$where .= " fi.delete_flg = 0 and fi.status_flg = 1 ";
+	$sql .= $where;
+	$sql .= " ORDER BY id ";
+	$stmt = $dbh->prepare($sql);
+
+	for($i = 0; $i < count($binds); $i++) {
+		$stmt->bindValue($i+1, $binds[$i]);
+	}
+
+	$rs_search = array();
+	if ($stmt->execute()) {
+		$rs_search = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	} else {
+		$arr = $stmt->errorInfo();
+		return false;
+	}
+	return $rs_search;
+}
+?>

@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!-- Meta -->
+{include file="page_meta.tpl.html"}
+<!-- /Meta -->
+<link rel="stylesheet" type="text/css" href="css/default.css" media="screen,print" />
+<title>文書ファイル管理ツール</title>
+<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+</head>
+
+<body>
+
+<div id="skip_link_block">
+	<ul>
+		<li><a href="#main_content_anc">本文へジャンプします</a></li>
+
+	</ul>
+	<p id="pageTop">ページの先頭です</p>
+</div>
+
+<div id="contents">
+
+<!-- Header Area -->
+{include file="page_header.tpl.html"}
+<!-- /Header Area -->
+
+<!-- Contents Area -->
+
+<div id="contents_body" class="clearfix">
+
+	<!-- Main Contents Area -->
+	<div id="main_content_area">
+
+		<div id="skip_main_block">
+			<p id="main_content_anc"><a name="main_content_anc">本文の始まりです</a></p>
+		</div>
+
+		<h2><em>{if $mng == 1}文書種別の閲覧権限管理{else}閲覧権限確認{/if}</em></h2>
+		<form name="edit_doctype_authority_form" method="post" id="edit_doctype_authority_form">
+
+		<p class="text">
+			{foreach from=$msg_array item=msg}
+			<span class="text_blue text_wb">{$msg}</span><br>
+			{/foreach}
+		</p>
+
+		<!-- 登録情報入力 -->
+		<div class="task_input_form">
+
+			<table>
+			<tr align="center">
+				<th colspan="2"></th>
+				{foreach from=$group_array item=group_info}
+				<th>{$group_info.GROUP_NAME}</th>
+				{/foreach}
+			</tr>
+
+			{foreach from=$doctype_array item=doctype_info}
+			<tr align="center">
+				<th colspan="2" align="left">{$doctype_info.type_nm}</th>
+
+				{foreach from=$group_array item=group_info}
+				{assign var="authority" value="doctype_id:`$doctype_info.id`,group_lvl:`$group_info.GROUP_LVL`"}
+				<td><input type="checkbox" name="auth_check[]" value="doctype_id:{$doctype_info.id},group_lvl:{$group_info.GROUP_LVL}"
+				{if in_array($authority, $check_list)} checked{/if}{if $mng != 1} disabled="disabled"{/if}
+				></input></td>
+				{/foreach}
+
+			</tr>
+			{/foreach}
+
+<!--
+			<tr align="center">
+				<th colspan="2">カタログ</th>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+			</tr>
+
+			<tr align="center">
+				<th rowspan="3">取扱説明書</th>
+				<th>取扱説明書</th>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+			</tr>
+
+			<tr align="center">
+				<th>操作編</th>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+			</tr>
+
+			<tr align="center">
+				<th>洗浄/消毒/滅菌編</th>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+			</tr>
+
+			<tr align="center">
+				<th colspan="2">添付文書</th>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+				<td><input type="checkbox"></input></td>
+			</tr>
+  -->
+			</table>
+
+			<p class="center">
+			{if $mng == 1}
+			<input type="image" alt="変更する" src="image/btn_change.jpg" name="edit_file_submit">
+			{/if}
+			<input type="image" alt="キャンセル" src="image/btn_cancel.jpg" onclick="window.close();return false;">
+			</p>
+
+		</div>
+		</form>
+
+	</div>
+	<!-- /Main Contents Area -->
+
+</div>
+<!-- /Contents Area -->
+
+
+<!-- Footer Area -->
+{include file="page_footer.tpl.html"}
+<!-- /Footer Area -->
+
+</div>
+</body>
+</html>
+
+

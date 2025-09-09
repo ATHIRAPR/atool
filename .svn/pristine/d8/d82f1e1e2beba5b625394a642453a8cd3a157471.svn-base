@@ -1,0 +1,32 @@
+<?php
+header("content-type: text/plain");
+
+
+/*
+$SCRIPT_FILENAME = $_SERVER["SCRIPT_FILENAME"];
+$scr_nm = pathinfo("/admin-too/basename_test.php", PATHINFO_BASENAME);//basename($_SERVER["SCRIPT_FILENAME"]);
+
+
+print "get by basename=$scr_nm\n";
+print "SCRIPT_FILENAME=$SCRIPT_FILENAME\n";
+
+if (empty($scr_nm) ) {
+	header("HTTP/1.0 404 Not Found");
+	print "basename is empty!!";
+	exit;
+}
+*/
+
+
+$num = 0;
+for($i = 0; $i < 1000; $i++){
+	$scr_nm = pathinfo("/admin-too/basename_test.php", PATHINFO_BASENAME);
+	
+	if (empty($scr_nm)) {
+	header("HTTP/1.0 404 Not Found");
+	print "basename is empty!! $num";
+	exit;
+	}
+}
+
+?>

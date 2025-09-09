@@ -1,0 +1,17 @@
+<?php
+error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
+
+//設定ファイルの絶対パス
+$CONFIG_PATH = "/www/_default/mtinfo_data/mtinfo_linux.php.inc";
+
+//設定ファイル読み込み
+require_once($CONFIG_PATH);
+
+//初期化
+//ini_set('include_path', ini_get('include_path').PATH_SEPARATOR.'/Smarty-3.1.19/');	//smartyのlibsをinclude_pathに設定
+date_default_timezone_set('Asia/Tokyo');
+mb_http_output($OUTPUT_ENCODING);
+//header('Content-Type: text/html; charset=' . $OUTPUT_ENCODING);
+ob_start("mb_output_handler");
+
+?>

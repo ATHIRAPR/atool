@@ -1,0 +1,1386 @@
+<?php
+
+try {
+	$dbh = new PDO($DB_DSN, $DB_USER, $DB_PWD);
+
+	if (PHP_OS !== 'WINNT') {
+		$stmt = $dbh->query("USE $DB_NAME;");
+	}
+
+} catch(Exception $e) {
+	//DB接続エラー
+	//header("Content-Type: text/html; charset='UTF-8'");
+	echo "Database Connection Error!";
+	print_r($e);
+	exit;
+}
+
+/**************************
+ * クラス定義
+ **************************/
+
+//マスターテーブル管理の抽象クラス
+abstract class MasterManager {
+	protected $table_name;
+
+	//1件取得
+	function get($id) {
+		global $dbh;
+
+		$sql = "SELECT * FROM $this->table_name WHERE id = ?";
+		$stmt = $dbh->prepare($sql);
+		$stmt->bindValue(1, $id);
+
+		if ($stmt->execute()) {
+			$rs = $stmt->fetch(PDO::FETCH_ASSOC);
+			return $rs;
+		} else {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "get");
+		}
+		return false;
+	}
+
+	function get_all() {
+		global $dbh;
+
+		$sql = "SELECT * FROM $this->table_name ORDER BY id";
+		$stmt = $dbh->prepare($sql);
+
+		if ($stmt->execute()) {
+			return $rs_all = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		} else {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "get_all");
+			return false;
+		}
+	}
+
+	function add($info) {
+		global $dbh;
+
+		$sql = "INSERT INTO $this->table_name ";
+
+		foreach($info as $key => $value) {
+			$columns[] = $key;
+			$values[] = $value;
+			$binds[] = "?";
+		}
+
+		$sql .= "(" . join(", ", $columns) . ") VALUES (" . join(", ", $binds) . ")";
+		$stmt = $dbh->prepare($sql);
+
+		for($i = 0; $i < count($values); $i++)
+		{
+			$stmt->bindValue($i+1, $values[$i]);
+		}
+
+		if ($stmt->execute()) {
+			return get_identity();
+			//return $dbh->lastInsertId();
+		} else {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "add");
+			return false;
+		}
+	}
+}
+
+//情報テーブル管理の抽象クラス
+class InfoManager {
+	protected $table_name;
+
+	function add($info) {
+		global $dbh;
+
+		$sql = "INSERT INTO $this->table_name ";
+
+		foreach($info as $key => $value) {
+			$columns[] = $key;
+			$values[] = $value;
+			$binds[] = "?";
+		}
+
+		$sql .= "(" . join(", ", $columns) . ") VALUES (" . join(", ", $binds) . ")";
+		$stmt = $dbh->prepare($sql);
+
+		for($i = 0; $i < count($values); $i++)
+		{
+			$stmt->bindValue($i+1, $values[$i]);
+		}
+
+		if ($stmt->execute()) {
+			//$new_id = $dbh->lastInsertId();	//新規IDを返す
+			$new_id = get_identity($stmt);
+
+			if (!$new_id) {
+				//レコード挿入時に明示的にIDが指定されている場合、新規IDが空になる
+				$new_id = $info[id];	//指定されたIDを返す
+			}
+			return $new_id;
+		} else {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "add", $info);
+			return false;
+		}
+	}
+
+	//1件取得
+	function get($id) {
+		global $dbh;
+
+		$sql = "SELECT * FROM $this->table_name WHERE id = ?";
+		$stmt = $dbh->prepare($sql);
+		$stmt->bindValue(1, $id);
+
+		if ($stmt->execute()) {
+			$rs = $stmt->fetch(PDO::FETCH_ASSOC);
+			return $rs;
+		} else {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "get");
+		}
+		return false;
+	}
+
+	function get_all() {
+		global $dbh;
+
+		$sql = "SELECT * FROM $this->table_name ";
+		$stmt = $dbh->prepare($sql);
+
+		if ($stmt->execute()) {
+			$rs_all = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "get_all");
+			return $rs_all;
+		}
+		return false;
+	}
+
+	//1件更新
+	function set($id, $info) {
+		global $dbh;
+
+		$sql = "UPDATE $this->table_name ";
+
+		foreach($info as $key => $value) {
+			$columns[] = "$key = ?";
+			$values[] = $value;
+		}
+
+		$sql .= "SET " . join(", ", $columns) . " WHERE id = ?";
+		$stmt = $dbh->prepare($sql);
+
+		for($i = 0; $i < count($values); $i++)
+		{
+			if (is_null($values[$i])) {
+				$stmt->bindValue($i+1, $values[$i], PDO::PARAM_NULL);
+			} else {
+				$stmt->bindValue($i+1, $values[$i]);
+			}
+		}
+		$stmt->bindValue($i+1, $id);
+
+		//return
+		$ret = $stmt->execute();
+		if (!$ret) {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "set");
+			return false;
+		}
+		return true;
+	}
+
+	//1件削除
+	function remove($id) {
+		global $dbh;
+
+//		$sql = "UPDATE $this->table_name SET delete_flg = 1 WHERE id = ?";
+		$sql = "DELETE FROM $this->table_name WHERE id = ?";
+		$stmt = $dbh->prepare($sql);
+		$stmt->bindValue(1, $id);
+
+		//return
+		$ret = $stmt->execute();
+		if (!$ret) {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "remove");
+			return false;
+		}
+		return true;
+	}
+}
+
+//user_infoテーブル管理のクラス
+class UserInfoManager extends InfoManager{
+	public static $TABLE_NAME = "user_info";
+	function UserInfoManager() {
+		$this->table_name = self::$TABLE_NAME;
+	}
+
+	//指定のログインIDとパスワードでログイン認証を行う
+	function login($login_nm, $password) {
+		global $dbh;
+
+		$sql = "SELECT id, login_nm, status_flg, role_id, user_nm, department_nm, tel, email, GETDATE() AS login_dt ".
+			"FROM $this->table_name ".
+			"WHERE login_nm = ? AND password = ? AND status_flg = 1";
+		$stmt = $dbh->prepare($sql);
+		$stmt->bindValue(1, $login_nm);
+		$stmt->bindValue(2, $password);
+
+		if ($stmt->execute()) {
+			$rs = $stmt->fetch(PDO::FETCH_ASSOC);
+			if ($rs) {
+				return $rs;	//ログイン成功
+			} else {
+				return false;	//ログイン失敗
+			}
+		} else {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "login");
+			return false;	//DBエラー、ログイン失敗
+		}
+	}
+
+	//指定のログインIDが存在するかどうかをチェックする
+	function search_user_nm($login_nm) {
+		global $dbh;
+
+		$sql = "SELECT id, login_nm, status_flg, role_id, user_nm, department_nm, tel, email, GETDATE() AS login_dt ".
+			"FROM $this->table_name ".
+			"WHERE login_nm = ?";
+		$stmt = $dbh->prepare($sql);
+		$stmt->bindValue(1, $login_nm);
+
+		if ($stmt->execute()) {
+			$rs = $stmt->fetch(PDO::FETCH_ASSOC);
+			return $rs;
+		} else {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "search_user_nm");
+			return false;	//失敗
+		}
+	}
+
+}
+
+//file_infoテーブル管理のクラス
+class FileInfoManager extends InfoManager{
+	public static $TABLE_NAME = "file_info";
+	function FileInfoManager() {
+		$this->table_name = self::$TABLE_NAME;
+	}
+
+	//指定されたファイルIDで登録済みのファイル情報を取得する
+	function get($id) {
+		global $dbh;
+
+		$sql = "SELECT * FROM $this->table_name WHERE id = ? AND delete_flg = 0";
+		$stmt = $dbh->prepare($sql);
+		$stmt->bindValue(1, $id);
+
+		if ($stmt->execute()) {
+			$rs = $stmt->fetch(PDO::FETCH_ASSOC);
+			return $rs;
+		} else {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "get");
+		}
+		return false;
+	}
+	//ファイル情報を削除する(削除フラグセット)
+	function remove($id) {
+		global $dbh;
+
+		$sql = "UPDATE $this->table_name SET delete_flg = 1 WHERE id = ?";
+//		$sql = "DELETE FROM $this->table_name WHERE id = ?";
+		$stmt = $dbh->prepare($sql);
+		$stmt->bindValue(1, $id);
+
+		//return
+		$ret = $stmt->execute();
+		if (!$ret) {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "remove");
+			return false;
+		}
+		return true;
+	}
+
+	function set_url_hash($id) {
+		global $dbh;
+
+		$sql = "UPDATE $this->table_name SET url_hash = newid() WHERE id = ?";
+		$stmt = $dbh->prepare($sql);
+		$stmt->bindValue(1, $id);
+
+		$ret = $stmt->execute();
+		if (!$ret) {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "set_url_hash");
+			return false;
+		}
+		return true;
+	}
+
+	//指定されたurl_hashに紐付いているファイル詳細情報を取得する
+	function search_url_hash($url_hash) {
+		global $dbh;
+		//指定されたファイルIDの条件に該当一致する公開設定情報を取得する
+
+		$sql = "SELECT * FROM $this->table_name WHERE url_hash = ? and delete_flg != 1";
+		$stmt = $dbh->prepare($sql);
+		$stmt->bindValue(1, $url_hash);
+
+		if ($stmt->execute()) {
+			$rs = $stmt->fetch(PDO::FETCH_ASSOC);
+			return $rs;
+		} else {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "search_info_array");
+		}
+		return false;
+	}
+}
+
+//v_file_infoテーブル管理のクラス
+class VFileInfoManager extends FileInfoManager {
+    public static $TABLE_NAME = "v_file_info";
+    function VFileInfoManager() {
+        $this->table_name = self::$TABLE_NAME;
+    }
+}
+
+//edit_infoテーブル管理のクラス
+class EditInfoManager extends InfoManager{
+	public static $TABLE_NAME = "edit_info";
+	function EditInfoManager() {
+		$this->table_name = self::$TABLE_NAME;
+	}
+}
+
+//doc_authority_infoテーブル管理のクラス
+class DocAuthorityInfoManager extends InfoManager{
+	public static $TABLE_NAME = "doc_authority_info";
+	function DocAuthorityInfoManager() {
+		$this->table_name = self::$TABLE_NAME;
+	}
+
+	//指定されたグループレベルで閲覧可能な文書種別IDを取得する
+	function search_doctype_id($group_lvl) {
+		global $dbh;
+
+		$sql = "SELECT * FROM $this->table_name WHERE group_lvl = ?  order by doctype_id";
+		$stmt = $dbh->prepare($sql);
+		$stmt->bindValue(1, $group_lvl);
+
+		if ($stmt->execute()) {
+			$rs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			return $rs;
+		} else {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "get");
+		}
+		return false;
+	}
+
+	//削除
+	function remove_all() {
+		global $dbh;
+
+		//		$sql = "UPDATE $this->table_name SET delete_flg = 1 WHERE id = ?";
+		$sql = "DELETE FROM $this->table_name";
+		$stmt = $dbh->prepare($sql);
+		$stmt->bindValue(1, $id);
+
+		//return
+		$ret = $stmt->execute();
+		if (!$ret) {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "remove_all");
+			return false;
+		}
+		return true;
+	}
+
+}
+
+//doctype_masterテーブル管理のクラス
+class DoctypeMasterManager extends MasterManager {
+	public static $TABLE_NAME = "doctype_master";
+	function DoctypeMasterManager() {
+		$this->table_name = self::$TABLE_NAME;
+	}
+
+	function get_all() {
+		global $dbh;
+
+		$sql = "SELECT * FROM $this->table_name WHERE sort_order IS NOT NULL ORDER BY sort_order ASC";
+		$stmt = $dbh->prepare($sql);
+
+		if ($stmt->execute()) {
+			$rs_all = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			return $rs_all;
+		} else {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "get_all");
+		}
+		return false;
+	}
+}
+
+//clinic_masterテーブル管理のクラス
+class ClinicMasterManager extends MasterManager {
+	public static $TABLE_NAME = "clinic_master";
+	function ClinicMasterManager() {
+		$this->table_name = self::$TABLE_NAME;
+	}
+}
+
+//role_masterテーブル管理のクラス
+class RoleMasterManager extends MasterManager {
+	public static $TABLE_NAME = "role_master";
+	function RoleMasterManager() {
+		$this->table_name = self::$TABLE_NAME;
+	}
+}
+
+//m_user_groupテーブル管理のクラス
+class UserGroupMasterManager extends MasterManager {
+	public static $TABLE_NAME = "[MTMT].[dbo].[m_user_group]";
+	function UserGroupMasterManager() {
+		$this->table_name = self::$TABLE_NAME;
+	}
+
+	function get_all() {
+		global $dbh;
+
+		$sql = "SELECT * FROM $this->table_name";
+		$stmt = $dbh->prepare($sql);
+
+		if ($stmt->execute()) {
+			$rs_all = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "get_all");
+			return $rs_all;
+		}
+		return false;
+	}
+
+}
+
+//download_logテーブル管理のクラス
+class DownloadLogManager extends InfoManager {
+	public static $TABLE_NAME = "download_log";
+	function DownloadLogManager() {
+		$this->table_name = self::$TABLE_NAME;
+	}
+}
+
+/**************************
+ * 関数定義
+ **************************/
+
+//トランザクション開始
+function beginTransaction() {
+	global $dbh;
+
+	if (PHP_OS === 'WINNT') {
+		$ret = $dbh->beginTransaction();
+
+	} else {
+		$sql = "BEGIN TRANSACTION";
+		$stmt = $dbh->prepare($sql);
+		$ret = $stmt->execute();
+
+	}
+
+	if ($ret) {
+		return true;
+	} else {
+		$arr = $stmt->errorInfo();
+		global $DB_LOG_FILE;
+		log_db_error($DB_LOG_FILE, $arr, $sql, "beginTransaction");
+	}
+	return false;
+}
+
+//ロールバック
+function rollBack() {
+	global $dbh;
+
+	if (PHP_OS === 'WINNT') {
+		$ret = $dbh->rollBack();
+
+	} else {
+		$sql = "ROLLBACK";
+		$stmt = $dbh->prepare($sql);
+		$ret = $stmt->execute();
+	}
+
+	if ($ret) {
+		return true;
+	} else {
+		$arr = $stmt->errorInfo();
+		global $DB_LOG_FILE;
+		log_db_error($DB_LOG_FILE, $arr, $sql, "rollBack");
+	}
+	return false;
+}
+
+//コミット
+function commit() {
+	global $dbh;
+
+	if (PHP_OS === 'WINNT') {
+		$ret = $dbh->commit();
+
+	} else {
+		$sql = "COMMIT";
+		$stmt = $dbh->prepare($sql);
+		$ret = $stmt->execute();
+	}
+
+	if ($ret) {
+		return true;
+	} else {
+		$arr = $stmt->errorInfo();
+		global $DB_LOG_FILE;
+		log_db_error($DB_LOG_FILE, $arr, $sql, "commit");
+	}
+	return false;
+}
+
+//自動採番されたidを取得する
+function get_identity($stmt) {
+	global $dbh;
+
+	if (PHP_OS === 'WINNT') {
+		$inserted_id = $dbh->lastInsertId();
+		return $inserted_id;
+
+	} else {
+		$sql = "SELECT SCOPE_IDENTITY() AS insert_id";
+		$stmt = $dbh->prepare($sql);
+		$ret = $stmt->execute();
+
+		$rs = $stmt->fetch(PDO::FETCH_ASSOC);
+		if ($rs) {
+			$inserted_id = $rs[insert_id];
+		}
+		if ($inserted_id) {
+			return $inserted_id;
+		} else {
+			$arr = $stmt->errorInfo();
+			global $DB_LOG_FILE;
+			log_db_error($DB_LOG_FILE, $arr, $sql, "get_identity");
+		}
+	}
+	return false;
+}
+
+//指定されたログインID、ユーザ名、権限ID、状態でユーザ情報を検索し、その結果を返す
+function search_user_info($login_nm, $user_nm, $role_id, $status_flg) {
+	global $dbh;
+	//指定された条件に該当一致するユーザ情報を取得する
+
+	$sql =
+		"SELECT ui.id" .
+			",ui.login_nm" .	//ログイン名
+			",ui.user_nm".	//ユーザの名前
+			", rm.role_nm".	//権限名
+			", ui.status_flg".	//状態フラグ
+			", ui.update_dt".	//作業日時
+		" FROM ". UserInfoManager::$TABLE_NAME ." ui ".
+		" JOIN " . RoleMasterManager::$TABLE_NAME ." rm ON rm.id = ui.role_id ";
+
+	if ($login_nm) {
+		if (!$where) {
+			$where = " WHERE ";
+		} else {
+			$where .= " AND ";
+		}
+		$where  .= " ui.login_nm LIKE ? ";	//ログイン名
+		$binds[] = "%$login_nm%";
+	}
+	if ($user_nm) {
+		if (!$where) {
+			$where = " WHERE ";
+		} else {
+			$where .= " AND ";
+		}
+		$where .= " user_nm LIKE ? ";	//ユーザ名前
+		$binds[] = "%$user_nm%";
+	}
+	if (0 < $role_id) {
+		if (!$where) {
+			$where = " WHERE ";
+		} else {
+			$where .= " AND ";
+		}
+		$where .= " role_id = ? ";	//ロールID
+		$binds[] = $role_id;
+	}
+	if (0 <= $status_flg) {
+		if (!$where) {
+			$where .= " WHERE ";
+		} else {
+			$where .= " AND ";
+		}
+		$where .= " status_flg = ? ";	//状態フラグ
+		$binds[] = $status_flg;
+	}
+
+	$sql .= $where;
+
+	//作業日時でソート
+	$sql .= " ORDER BY update_dt ASC";
+
+	$stmt = $dbh->prepare($sql);
+
+	for($i = 0; $i < count($binds); $i++) {
+		$stmt->bindValue($i+1, $binds[$i]);
+	}
+
+	$rs_search = array();
+	if ($stmt->execute()) {
+		$rs_search = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	} else {
+		$arr = $stmt->errorInfo();
+		global $DB_LOG_FILE;
+		log_db_error($DB_LOG_FILE, $arr, $sql, "search_user_info");
+		return false;
+	}
+	return $rs_search;
+}
+
+
+//指定された文書種別ID、カテゴリID、タイトル、PDF公開、検索公開、変更済みフラグ、ファイル名で公開情報を検索し、その結果を返す
+//function search_publish_info($doctype_id, $clinic_id, $title, $dir_flg, $search_flg, $show_sync_target_only, $file_nm, $status_flg) {
+function search_publish_info($doctype_id, $title, $status_flg, $edit_status_flg, $show_sync_target_only, $file_nm) {
+	global $dbh;
+
+	$func_isnull = "ISNULL";
+
+	//指定された条件に該当一致するファイル情報＋公開情報を取得する
+
+	$sql =
+		"SELECT fi.id " . //pi.id" .	//公開ID
+			", di.file_nm". //ファイル名
+			", dmm.type_nm".	//文書種別
+			", dmm.stamp_flg".	//スタンプフラグ
+			", pnm.title".	//タイトル
+			//", ISNULL(ei.update_dt, fi.update_dt) AS update_dt".	//ファイル作業日時
+			", fi.update_dt AS update_dt".	//ファイル作業日時
+			", ei.update_dt AS edit_update_dt". //ファイル作業日時編集
+
+			//", ISNULL(ei.publish_start_dt, fi.publish_start_dt) AS publish_start_dt".	//公開日
+			", ei.publish_start_dt AS edit_publish_start_dt".	//公開日編集
+			", fi.publish_start_dt AS publish_start_dt".	//公開日
+
+			//", ISNULL(ei.download_update_dt, fi.download_update_dt) AS download_update_dt".	//販売終了日
+			", ei.download_update_dt AS edit_download_update_dt".	//販売終了日編集
+			", fi.download_update_dt AS download_update_dt".	//販売終了日
+
+			", ei.status_flg AS edit_status_flg".	//公開状態フラグ編集
+			", fi.status_flg AS status_flg".	//公開状態フラグ
+
+			", fi.publish_dt AS publish_dt" .	//反映日時
+/*
+			", pi.status_flg".	//公開状態フラグ
+			", pi.dir_flg".	//ディレクトリ公開フラグ
+			", pi.search_flg".	//検索公開フラグ
+			", pi.update_flg AS publish_update_flg".	//更新フラグ
+			", pi.id AS publish_id" .	//公開設定ID
+			", pi.publish_dt AS publish_dt" .	//公開日時
+*/
+			", fi.id as file_id".	//ファイルID
+
+			", fi.clinic_flg_ary AS clinic_flg_ary" .	//ファイルデータのカテゴリフラグ
+			", ei.clinic_flg_ary AS edit_clinic_flg_ary" .	//編集データのカテゴリフラグ
+
+			", fi.doctype_id AS doctype_id" .	//ファイルデータの文書種別ID
+			", ei.doctype_id AS edit_doctype_id" .	//編集データの文書種別ID
+
+			", uie.login_nm AS edit_update_login_nm" .	//編集データの更新者ログイン名
+		" FROM ". FileInfoManager::$TABLE_NAME ." fi ";
+
+/*
+	if (isset($dir_flg)) {
+		 $sql .= " AND pi.dir_flg = ? ";	//ディレクトリ公開フラグ
+		 $binds[] = $dir_flg;
+	}
+	if (isset($search_flg)) {
+		 $sql .= " AND pi.search_flg = ? ";	//検索公開フラグ
+		 $binds[] = $search_flg;
+	}
+
+	if ($show_sync_target_only == 1) {
+		 $sql .= " AND pi.update_flg = ? ";	//検索公開フラグ
+		 $binds[] = $show_sync_target_only;
+	}
+*/
+	if ($title) {
+		 $sql .= " AND pnm.title LIKE ? ";	//タイトル
+		 $binds[] = "%$title%";
+	}
+
+	$sql .= " JOIN ". DoctypeMasterManager::$TABLE_NAME ." dmm ON fi.doctype_id = dmm.id ";
+	if ($doctype_id) {
+		 $sql .= " AND dmm.id = ? ";	//文書種別
+		$binds[] = $doctype_id;
+	}
+
+	//編集データを結合する
+	if ($show_sync_target_only != 1) {
+		$sql .=  " LEFT";
+	}
+	$sql .= " JOIN ". EditInfoManager::$TABLE_NAME ." ei ON fi.id = ei.id ";
+	$sql .= " JOIN ". UserInfoManager::$TABLE_NAME ." uie ON ei.update_user_id = uie.id ";
+
+	$sql .= " JOIN (".
+		"SELECT fd2.file_id AS file_id," .
+		"REPLACE((SELECT ISNULL(ed.file_nm, fd.file_nm) AS [data()] ".
+				"FROM file_detail fd ".
+				"LEFT JOIN edit_detail ed ON fd.id = ed.id ".
+				"WHERE fd2.file_id = fd.file_id AND fd.delete_flg = 0 AND (ed.delete_flg IS NULL OR ed.delete_flg = 0) ".
+				"FOR XML PATH('')), ' ', ',') AS file_nm ".
+		"FROM file_detail fd2 ".
+		"group by fd2.file_id".
+		") di ON di.file_id = fi.id ";
+
+	if (!$where) {
+		$where = "WHERE ";
+	} else {
+		$where .= " AND ";
+	}
+	//削除済みのファイルは除く
+	$where .= " fi.delete_flg = 0 ";
+
+	if ($clinic_id) {
+		if (!$where) {
+			$where = "WHERE ";
+		} else {
+			$where .= "AND ";
+		}
+		$where .= " SUBSTRING(fi.clinic_flg_ary, $clinic_id, 1) = '1' ";	//カテゴリ
+	}
+
+	if (!empty($file_nm)) {
+		if (!$where) {
+			$where = "WHERE ";
+		} else {
+			$where .= "AND ";
+		}
+		$where .= "di.file_nm like ? ";	//ファイル名
+		$binds[] = "%$file_nm%";
+	}
+
+	if (isset($status_flg)) {
+		if (!$where) {
+			$where = "WHERE ";
+		} else {
+			$where .= "AND ";
+		}
+
+		if ($status_flg == 0) {	//非公開
+			$where .= "(fi.status_flg = ? AND fi.publish_dt IS NOT NULL) ";
+			$binds[] = $status_flg;
+
+		} else if ($status_flg == 1) { //公開
+			$where .= "(fi.status_flg = ? AND (fi.publish_start_dt IS NULL OR (fi.publish_start_dt IS NOT NULL AND fi.publish_start_dt <= GETDATE()))) ";
+			$binds[] = $status_flg;
+
+		} else if ($status_flg == 2) { //新規
+				$where .= "(fi.status_flg = 0 AND fi.publish_dt IS NULL) ";
+
+		} else if ($status_flg == 3) { //公開予定
+			$where .= "(fi.status_flg = 1 AND (fi.publish_start_dt IS NOT NULL AND GETDATE() < fi.publish_start_dt AND ei.update_dt IS NULL)) ";	//状態
+		}
+		//$where .= "status_flg = ? ";	//
+		//$binds[] = $status_flg;
+	}
+
+	if (isset($edit_status_flg)) {
+		if (!$where) {
+			$where = "WHERE ";
+		} else {
+			$where .= "AND ";
+		}
+
+		if ($edit_status_flg == 0) {	//非公開
+			$where .= "(ei.status_flg = ?) ";	//状態
+			$binds[] = $edit_status_flg;
+
+		} else if ($edit_status_flg == 1) { //公開
+			$where .= "(ei.status_flg = ? AND (ei.publish_start_dt IS NULL OR (ei.publish_start_dt IS NOT NULL AND ei.publish_start_dt <= GETDATE())) AND ei.update_dt IS NOT NULL) ";	//状態
+			$binds[] = $edit_status_flg;
+
+		} else if ($edit_status_flg == 3) { //公開予定
+			$where .= "(ei.status_flg = 1 AND ei.publish_start_dt IS NOT NULL AND GETDATE() < ei.publish_start_dt AND ei.update_dt IS NOT NULL) ";	//状態
+		}
+	}
+
+
+	$sql .= $where;
+
+	//作業日時でソート
+	$sql .= " ORDER BY edit_update_dt DESC";
+
+	$stmt = $dbh->prepare($sql);
+
+	for($i = 0; $i < count($binds); $i++) {
+		$stmt->bindValue($i+1, $binds[$i]);
+	}
+
+	$rs_search = array();
+	if ($stmt->execute()) {
+		$rs_search = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	} else {
+		$arr = $stmt->errorInfo();
+		global $DB_LOG_FILE;
+		log_db_error($DB_LOG_FILE, $arr, $sql, "search_publish_info");
+		return false;
+	}
+	return $rs_search;
+}
+
+//指定された文書種別ID、タイトル、現在の状態、反映後の状態、変更済みフラグ、ファイル名で公開情報を検索し、その結果を返す
+function search_publish_info_ex($doctype_id, $title, $status_flg, $edit_status_flg, $show_sync_target_only, $file_nm) {
+	global $dbh;
+
+	$func_isnull = "ISNULL";
+
+	//指定された条件に該当一致するファイル情報＋公開情報を取得する
+
+	$sql =
+	"SELECT fi.id " . //pi.id" .	//公開ID
+	", di.file_nm". //ファイル名
+	", dmm.type_nm".	//文書種別
+	", dmm.stamp_flg".	//スタンプフラグ
+	", pnm.title".	//タイトル
+	//", ISNULL(ei.update_dt, fi.update_dt) AS update_dt".	//ファイル作業日時
+	", fi.update_dt AS update_dt".	//ファイル作業日時
+	", ei.update_dt AS edit_update_dt". //ファイル作業日時編集
+
+	//", ISNULL(ei.publish_start_dt, fi.publish_start_dt) AS publish_start_dt".	//公開日
+	", ei.publish_start_dt AS edit_publish_start_dt".	//公開日編集
+	", fi.publish_start_dt AS publish_start_dt".	//公開日
+
+	//", ISNULL(ei.download_update_dt, fi.download_update_dt) AS download_update_dt".	//販売終了日
+	", ei.download_update_dt AS edit_download_update_dt".	//販売終了日編集
+	", fi.download_update_dt AS download_update_dt".	//販売終了日
+
+	", ei.status_flg AS edit_status_flg".	//公開状態フラグ編集
+	", fi.status_flg AS status_flg".	//公開状態フラグ
+
+	", fi.publish_dt AS publish_dt" .	//反映日時
+	/*
+	 ", pi.status_flg".	//公開状態フラグ
+	", pi.dir_flg".	//ディレクトリ公開フラグ
+	", pi.search_flg".	//検索公開フラグ
+	", pi.update_flg AS publish_update_flg".	//更新フラグ
+	", pi.id AS publish_id" .	//公開設定ID
+	", pi.publish_dt AS publish_dt" .	//公開日時
+	*/
+	", fi.id as file_id".	//ファイルID
+
+	", fi.clinic_flg_ary AS clinic_flg_ary" .	//ファイルデータのカテゴリフラグ
+	", ei.clinic_flg_ary AS edit_clinic_flg_ary" .	//編集データのカテゴリフラグ
+
+	", fi.doctype_id AS doctype_id" .	//ファイルデータの文書種別ID
+	", ei.doctype_id AS edit_doctype_id" .	//編集データの文書種別ID
+	" FROM ". FileInfoManager::$TABLE_NAME ." fi ";
+
+	/*
+	 if (isset($dir_flg)) {
+	$sql .= " AND pi.dir_flg = ? ";	//ディレクトリ公開フラグ
+	$binds[] = $dir_flg;
+	}
+	if (isset($search_flg)) {
+	$sql .= " AND pi.search_flg = ? ";	//検索公開フラグ
+	$binds[] = $search_flg;
+	}
+
+	if ($show_sync_target_only == 1) {
+	$sql .= " AND pi.update_flg = ? ";	//検索公開フラグ
+	$binds[] = $show_sync_target_only;
+	}
+	*/
+	if ($title) {
+		$sql .= " AND pnm.title LIKE ? ";	//タイトル
+		$binds[] = "%$title%";
+	}
+	$sql .= " JOIN ". DoctypeMasterManager::$TABLE_NAME ." dmm ON fi.doctype_id = dmm.id ";
+	if ($doctype_id) {
+		$sql .= " AND dmm.id = ? ";	//文書種別
+		$binds[] = $doctype_id;
+	}
+
+	//編集データを結合する
+	if ($show_sync_target_only != 1) {
+		$sql .=  " LEFT";
+	}
+	$sql .= " JOIN ". EditInfoManager::$TABLE_NAME ." ei ON fi.id = ei.id ";
+
+	$sql .= " JOIN (".
+			"SELECT fd2.file_id AS file_id," .
+			"REPLACE((SELECT ISNULL(ed.file_nm, fd.file_nm) AS [data()] ".
+			"FROM file_detail fd ".
+			"LEFT JOIN edit_detail ed ON fd.id = ed.id ".
+			"WHERE fd2.file_id = fd.file_id AND fd.delete_flg = 0 AND (ed.delete_flg IS NULL OR ed.delete_flg = 0) ".
+			"FOR XML PATH('')), ' ', ',') AS file_nm ".
+			"FROM file_detail fd2 ".
+			"group by fd2.file_id".
+			") di ON di.file_id = fi.id ";
+
+	if (!$where) {
+		$where = "WHERE ";
+	} else {
+		$where .= " AND ";
+	}
+	//削除済みのファイルは除く
+	$where .= " fi.delete_flg = 0 ";
+
+	if ($clinic_id) {
+		if (!$where) {
+			$where = "WHERE ";
+		} else {
+			$where = "AND ";
+		}
+		$where .= " SUBSTRING(fi.clinic_flg_ary, $clinic_id, 1) = '1' ";	//カテゴリ
+	}
+
+	if (isset($file_nm)) {
+		if (!$where) {
+			$where = "WHERE ";
+		} else {
+			$where = "AND ";
+		}
+		$where .= "di.file_nm like ? ";	//ファイル名
+		$binds[] = "%$file_nm%";
+	}
+
+	if (isset($status_flg)) {
+		if (!$where) {
+			$where = "WHERE ";
+		} else {
+			$where = "AND ";
+		}
+		$where .= "fi.status_flg = ? ";	//状態
+		$binds[] = $status_flg;
+	}
+
+	$sql .= $where;
+
+	//作業日時でソート
+	$sql .= " ORDER BY update_dt DESC";
+
+	$stmt = $dbh->prepare($sql);
+
+	for($i = 0; $i < count($binds); $i++) {
+		$stmt->bindValue($i+1, $binds[$i]);
+	}
+
+	$rs_search = array();
+	if ($stmt->execute()) {
+		$rs_search = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	} else {
+		$arr = $stmt->errorInfo();
+		global $DB_LOG_FILE;
+		log_db_error($DB_LOG_FILE, $arr, $sql, "search_publish_info");
+		return false;
+	}
+	return $rs_search;
+}
+
+//指定されたファイルIDに紐付くファイル詳細情報と編集詳細情報を結合し、その結果セットを返す
+function search_info($file_id) {
+	global $dbh;
+
+	$func_isnull = "ISNULL";
+
+	//指定された条件に該当一致するファイル情報＋公開情報を取得する
+
+	$sql =
+		"SELECT fi.file_id as file_id".	//ファイルID
+
+			", fi.pdf_password AS pdf_password" .	//詳細情報のPDFパスワード
+			", ei.pdf_password AS edit_pdf_password" .	//編集詳細情報のPDFパスワード
+
+			", fi.download_file_nm AS download_file_nm" .	//詳細のダウンロードファイル名
+			", ei.download_file_nm AS edit_download_file_nm" .	//編集詳細情報のダウンロードファイル名
+
+			", fi.file_nm AS file_nm" .	//詳細のアップロードファイル名
+			", ei.file_nm AS edit_file_nm" .	//編集詳細情報のアップロードファイル名
+
+		" FROM ". FileInfoManager::$TABLE_NAME ." fi ";
+
+	$sql .= " JOIN ". EditInfoManager::$TABLE_NAME ." ei ON fi.id = ei.id ";
+	$sql .= " WHERE fi.id = ?";
+
+	//作業日時でソート
+	//$sql .= " ORDER BY update_dt DESC";
+
+	$stmt = $dbh->prepare($sql);
+	$stmt->bindValue(1, $file_id);
+
+	$rs_search = array();
+	if ($stmt->execute()) {
+		$rs_search = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	} else {
+		$arr = $stmt->errorInfo();
+		global $DB_LOG_FILE;
+		log_db_error($DB_LOG_FILE, $arr, $sql, "search_info");
+		return false;
+	}
+	return $rs_search;
+}
+
+//ハッシュを生成してレコードセットにして返す
+function get_url_hash() {
+	global $dbh;
+
+	$sql = "SELECT newid()";
+	$stmt = $dbh->prepare($sql);
+
+	if ($stmt->execute()) {
+		$rs = $stmt->fetch(PDO::FETCH_ASSOC);
+		return $rs;
+	} else {
+		$arr = $stmt->errorInfo();
+		global $DB_LOG_FILE;
+		log_db_error($DB_LOG_FILE, $arr, $sql, "get_url_hash");
+	}
+	return false;
+}
+
+//DBエラーをログファイルに書き出す
+function log_db_error($log_file_path, $err_ary, $sql, $func, $data) {
+
+	//ログファイルを開く
+	$hdl = fopen($log_file_path, "a+");
+	if ($hdl) {
+		//DBログを追記する
+		flock($hdl, LOCK_EX);
+		//現在日時、関数名、エラー情報、SQLを書き込む
+		fprintf($hdl, "%s, %s, %s, %s, $s\n", date("Y/m/d H:i:s"), $func, print_r($err_ary, true), $sql, print_r($data, true));
+		flock($hdl, LOCK_UN);
+		fclose($hdl);
+		return true;
+	}
+	return false;
+}
+
+
+//渡されたurl_hashの配列とグループレベルから、閲覧可能なファイル情報を取得して返す
+function search_files_from_hash($url_hash_array, $lvl, $develop) {
+    global $dbh;
+    
+    if ($develop) {
+        $finfo = VFileInfoManager::$TABLE_NAME;
+        $publish_sql = "";
+    } else {
+        $finfo = FileInfoManager::$TABLE_NAME;
+        $publish_sql = "and (publish_start_dt is null or publish_start_dt < GETDATE())";
+    }
+        
+    $sql =
+	"SELECT DISTINCT ".
+	"pinfo.id as PID, ".
+	"pinfo.title as title, ".
+	"finfo.id as file_id, ".
+	"finfo.doctype_id as DOC_TYPE, ".
+	"finfo.M_VISIBLE as M_VISIBLE, ".
+	"finfo.id as file_detail_id, ".
+	"finfo.file_no as file_no, ".
+	"finfo.version as version, ".
+	"finfo.version_update as version_update, ".
+	"finfo.download_file_nm as download_file_nm, ".
+	"finfo.file_nm as file_nm, ".
+	"finfo.filesize as filesize, ".
+	"finfo.url_hash as url_hash ".
+	"FROM ".
+	"INNER JOIN ".
+	"( ".
+		"SELECT " .
+		"A.id as id, " .
+		"A.doctype_id as doctype_id, ".
+		"FROM ". $finfo . " A " .
+		"WHERE A.status_flg <> 0 " . $publish_sql .
+	") finfo on pinfo.ID = finfo.PID " .
+	"INNER JOIN ".
+	"( " .
+		"SELECT doctype_id FROM ". DocAuthorityInfoManager::$TABLE_NAME ." WHERE group_lvl = ? " .
+	") auth ON auth.doctype_id = finfo.doctype_id " .
+	"WHERE finfo.url_hash IN (". substr(str_repeat(',?',count($url_hash_array)),1).")";
+    
+    $stmt = $dbh->prepare ( $sql );
+    
+    $stmt->bindValue ( 1, $lvl );
+    for($i = 0; $i < count ( $url_hash_array ); $i ++) {
+        $stmt->bindValue ( $i + 2, $url_hash_array [$i] );
+    }
+    
+    $rs_search = array ();
+    if ($stmt->execute ()) {
+        $rs_search = $stmt->fetchAll ( PDO::FETCH_ASSOC );
+    } else {
+        $arr = $stmt->errorInfo ();
+        global $DB_LOG_FILE;
+        log_db_error ( $DB_LOG_FILE, $arr, $sql, "get_file_version" );
+        return false;
+    }
+    return $rs_search;
+}
+
+//指定された文書種別ID、カテゴリID、タイトル、ファイル名でファイル情報を検索し、その結果を返す
+//文書種別マスタテーブルを結合しないように修正
+function search_file_info_ex($doctype_id, $clinic_id, $title, $file_nm) {
+	global $dbh;
+
+	//指定された条件に該当一致するファイル情報を取得する
+	$sql =
+	"SELECT info.id".//id
+	", di.file_nm".
+
+//	", dmm.type_nm".
+//	", dmm.stamp_flg".	//スタンプフラグ
+	", info.doctype_id".	//文書種別ID
+
+	", pnm.title".	//タイトル
+	", info.update_dt".	//作業日時
+	", info.edit_update_dt".	//作業日時
+	", info.status_flg ".	//公開状態フラグ
+	", info.publish_dt ".	//公開日時
+
+	", info.edit_status_flg ".	//公開設定
+	", info.publish_start_dt ".	//公開予定日
+	", info.edit_publish_start_dt ".	//公開予定日編集
+	", info.download_update_dt ".	//販売終了日
+	", info.edit_download_update_dt ".	//販売終了日
+
+	"FROM (" .
+	"SELECT fi.id" .	//ファイルID
+	", ISNULL(ei.doctype_id, fi.doctype_id) AS doctype_id".	//文書種別
+	", ISNULL(ei.update_dt, fi.update_dt) AS update_dt".	//編集データの作業日時
+	", ei.update_dt AS edit_update_dt".	//編集データの作業日時
+	", ISNULL(ei.clinic_flg_ary, fi.clinic_flg_ary) AS clinic_flg_ary".	//カテゴリフラグ配列 " .
+	//", pi.status_flg ".	//公開状態フラグ
+	", fi.status_flg ".	//公開状態フラグ
+	", ei.status_flg AS edit_status_flg" .
+
+	", fi.publish_start_dt AS publish_start_dt".	//公開予定日
+	", ei.publish_start_dt AS edit_publish_start_dt".	//公開予定日
+	//", ISNULL(ei.download_update_dt, fi.download_update_dt) AS download_update_dt".	//販売終了日
+
+	", ei.download_update_dt AS edit_download_update_dt". //販売終了日
+	", fi.download_update_dt AS download_update_dt".	//販売終了日
+
+	//", pi.publish_dt ".	//公開日時
+	", fi.publish_dt ".	//公開日時
+
+	", fi.delete_flg ".	//削除フラグ
+	" FROM ". FileInfoManager::$TABLE_NAME ." fi ";
+
+
+	//編集データを結合する
+	$sql .= " LEFT JOIN ". EditInfoManager::$TABLE_NAME ." ei ON fi.id = ei.id ) info";
+
+	if ($title) {
+		$sql .= " AND pnm.title LIKE ? ";	//タイトル
+		$binds[] = "%$title%";
+	}
+
+/*
+	$sql .= " JOIN ". DoctypeMasterManager::$TABLE_NAME ." dmm ON info.doctype_id = dmm.id ";
+	if (0 < $doctype_id) {
+		$sql .= " AND dmm.id = ? ";	//文書種別
+		$binds[] = $doctype_id;
+	}
+*/
+
+	$sql .= " JOIN (".
+			"SELECT fd2.file_id AS file_id," .
+			"REPLACE((SELECT ISNULL(ed.file_nm, fd.file_nm) AS [data()] ".
+			"FROM file_detail fd ".
+			"LEFT JOIN edit_detail ed ON fd.id = ed.id ".
+			"WHERE fd2.file_id = fd.file_id AND fd.delete_flg = 0 AND (ed.delete_flg IS NULL OR ed.delete_flg = 0) ".
+			"FOR XML PATH('')), ' ', ',') AS file_nm ".
+			"FROM file_detail fd2 ".
+			"group by fd2.file_id".
+			") di ON di.file_id = info.id ";
+
+	if ($file_nm) {
+		$where  = " WHERE di.file_nm LIKE ? ";
+		$binds[] = "%$file_nm%";
+	}
+
+	if (!$where) {
+		$where = "WHERE ";
+	} else {
+		$where .= " AND ";
+	}
+	//削除済みのファイルは除く
+	$where .= " info.delete_flg = 0 ";
+
+	if (0 < $clinic_id) {
+		if (!$where) {
+			$where = "WHERE ";
+		} else {
+			$where .= " AND ";
+		}
+		$where .= " SUBSTRING(info.clinic_flg_ary, $clinic_id, 1) = '1' ";	//カテゴリ
+	}
+
+	//文書種別の条件
+	if (0 < $doctype_id) {
+		if (!$where) {
+			$where = "WHERE ";
+		} else {
+			$where .= " AND ";
+		}
+		$where .= " info.doctype_id = ? ";	//文書種別
+		$binds[] = $doctype_id;
+	}
+
+	$sql .= $where;
+	$sql .= " ORDER BY update_dt DESC";
+
+	$stmt = $dbh->prepare($sql);
+
+	for($i = 0; $i < count($binds); $i++) {
+		$stmt->bindValue($i+1, $binds[$i]);
+	}
+
+	$rs_search = array();
+	if ($stmt->execute()) {
+		$rs_search = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	} else {
+		$arr = $stmt->errorInfo();
+		global $DB_LOG_FILE;
+		log_db_error($DB_LOG_FILE, $arr, $sql, "search_file_info_ex");
+		return false;
+	}
+	return $rs_search;
+}
+
+//指定されたファイルIDの配列でファイル情報を検索し、その結果を返す
+function search_file_info_from_id($file_id_array) {
+	global $dbh;
+
+	//指定された条件に該当一致するファイル情報を取得する
+	$sql =
+	"SELECT info.id".//id
+	", di.file_nm".
+
+	//	", dmm.type_nm".
+	//	", dmm.stamp_flg".	//スタンプフラグ
+	", info.doctype_id".	//文書種別ID
+
+	", pnm.title".	//タイトル
+	", info.update_dt".	//作業日時
+	", info.edit_update_dt".	//作業日時
+	", info.status_flg ".	//公開状態フラグ
+	", info.publish_dt ".	//公開日時
+
+	", info.edit_status_flg ".	//公開設定
+	", info.publish_start_dt ".	//公開予定日
+	", info.edit_publish_start_dt ".	//公開予定日編集
+	", info.download_update_dt ".	//販売終了日
+	", info.edit_download_update_dt ".	//販売終了日
+
+	"FROM (" .
+	"SELECT fi.id" .	//ファイルID
+	", ISNULL(ei.doctype_id, fi.doctype_id) AS doctype_id".	//文書種別
+	", ISNULL(ei.update_dt, fi.update_dt) AS update_dt".	//編集データの作業日時
+	", ei.update_dt AS edit_update_dt".	//編集データの作業日時
+	", ISNULL(ei.clinic_flg_ary, fi.clinic_flg_ary) AS clinic_flg_ary".	//カテゴリフラグ配列 " .
+	//", pi.status_flg ".	//公開状態フラグ
+	", fi.status_flg ".	//公開状態フラグ
+	", ei.status_flg AS edit_status_flg" .
+
+	", fi.publish_start_dt AS publish_start_dt".	//公開予定日
+	", ei.publish_start_dt AS edit_publish_start_dt".	//公開予定日
+	//", ISNULL(ei.download_update_dt, fi.download_update_dt) AS download_update_dt".	//販売終了日
+
+	", ei.download_update_dt AS edit_download_update_dt". //販売終了日
+	", fi.download_update_dt AS download_update_dt".	//販売終了日
+
+	//", pi.publish_dt ".	//公開日時
+	", fi.publish_dt ".	//公開日時
+
+	", fi.delete_flg ".	//削除フラグ
+	" FROM ". FileInfoManager::$TABLE_NAME ." fi ";
+
+
+	//編集データを結合する
+	$sql .= " LEFT JOIN ". EditInfoManager::$TABLE_NAME ." ei ON fi.id = ei.id ) info";
+	$sql .= " JOIN (".
+			"SELECT fd2.file_id AS file_id," .
+			"REPLACE((SELECT ISNULL(ed.file_nm, fd.file_nm) AS [data()] ".
+			"FROM file_detail fd ".
+			"LEFT JOIN edit_detail ed ON fd.id = ed.id ".
+			"WHERE fd2.file_id = fd.file_id AND fd.delete_flg = 0 AND (ed.delete_flg IS NULL OR ed.delete_flg = 0) ".
+			"FOR XML PATH('')), ' ', ',') AS file_nm ".
+			"FROM file_detail fd2 ".
+			"group by fd2.file_id".
+			") di ON di.file_id = info.id ";
+
+	if (is_array($file_id_array) && count($file_id_array)) {
+		$param = array();
+		foreach($file_id_array as $id) {
+			$param[] = "?";
+			$binds[] = $id;
+		}
+		$where  = " WHERE info.id IN (" . implode(",", $param) .")";
+	}
+
+	if (!$where) {
+		$where = "WHERE ";
+	} else {
+		$where .= " AND ";
+	}
+	//削除済みのファイルは除く
+	$where .= " info.delete_flg = 0 ";
+
+	$sql .= $where;
+	$sql .= " ORDER BY update_dt DESC";
+
+	$stmt = $dbh->prepare($sql);
+
+	for($i = 0; $i < count($binds); $i++) {
+		$stmt->bindValue($i+1, $binds[$i]);
+	}
+
+	$rs_search = array();
+	if ($stmt->execute()) {
+		$rs_search = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	} else {
+		$arr = $stmt->errorInfo();
+		global $DB_LOG_FILE;
+		log_db_error($DB_LOG_FILE, $arr, $sql, "search_file_info_from_id");
+		return false;
+	}
+	return $rs_search;
+}
+
+?>

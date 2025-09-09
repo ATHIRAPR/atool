@@ -1,0 +1,12 @@
+
+	//OK
+	$(document).ready(function() {
+		$("#product_table_sorter")
+		//.tablesorter({widthFixed: true, widgets: ['zebra']})
+		.tablesorter({widthFixed: true,
+			headers: {
+				0: {sorter: false}	//チェックボックス
+			}
+		})
+		.tablesorterPager({container: $("#pager")});
+	});

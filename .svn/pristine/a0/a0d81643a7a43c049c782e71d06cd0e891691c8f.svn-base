@@ -1,0 +1,21 @@
+<?php
+require_once ("include/init.php.inc");
+require_once ("include/smarty.php.inc");
+require_once ("include/db.php.inc");
+require_once ("include/auth.php.inc");
+require_once ("include/util.php.inc");
+// セッション削除、ログアウト処理
+session_name ( $SYSTEM_NAME );
+session_start ();
+if ($_SESSION [timeout]) {
+	// セッションタイムアウトのメッセージ表示
+	$smarty->assign ( "is_timeout", true );
+}
+$_SESSION = array ();
+if (isset ( $_COOKIE [$SYSTEM_NAME] )) {
+	setcookie ( $SYSTEM_NAME, '', time () - $SESSION_TIMEOUT );
+}
+session_destroy ();
+show_template_page ( "logout.tpl.html" );
+exit ();
+?>

@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<!-- Meta -->
+		{include file="page_meta.tpl.html"}
+		<!-- /Meta -->
+		<link rel="stylesheet" type="text/css" href="css/default.css" media="screen,print" />
+		<title>案内文書管理システム</title>
+	</head>
+
+	<body>
+
+		<div id="skip_link_block">
+			<ul>
+				<li>
+					<a href="#main_content_anc">本文へジャンプします</a>
+				</li>
+
+			</ul>
+			<p id="pageTop">
+				ページの先頭です
+			</p>
+		</div>
+
+		<div id="contents">
+
+			<!-- Header Area -->
+			{include file="page_header.tpl.html"}
+			<!-- /Header Area -->
+
+			<!-- Contents Area -->
+			<div id="contents_body" class="clearfix">
+
+				<!-- Left Navi Area -->
+				{include file="left_menu.tpl.html" role_info=$role_info func_info=$func_info}
+				<!-- /Left Navi Area -->
+
+				<!-- Main Contents Area -->
+				<div id="main_content_area">
+
+					<div id="skip_main_block">
+						<p id="main_content_anc">
+							<a name="main_content_anc">本文の始まりです</a>
+						</p>
+					</div>
+
+					<h2><em>{$title}</em></h2>
+
+					<p class="text">
+						{foreach from=$msg_array item=msg}
+						<p>
+							{$msg}
+						</p>
+						{/foreach}
+
+						{if $back_url && $back_msg}
+						<p>
+							<a href="{$back_url}">{$back_msg}</a>
+						</p>
+						{/if}
+					</p>
+
+					<div id="skip_end_block">
+						<p id="pageEnd">
+							本文の終わりです。
+						</p>
+					</div>
+
+					<p class="goto_pagetop">
+						<a href="#header"><img src="../image/common/btnPagetop.gif" alt="ページの先頭へ" /></a>
+					</p>
+
+				</div>
+				<!-- /Main Contents Area -->
+
+			</div>
+			<!-- /Contents Area -->
+
+			<!-- Footer Area -->
+			{include file="page_footer.tpl.html"}
+			<!-- /Footer Area -->
+
+		</div>
+	</body>
+</html>
+

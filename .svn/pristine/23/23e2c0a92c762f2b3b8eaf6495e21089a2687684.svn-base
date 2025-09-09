@@ -1,0 +1,222 @@
+<?php
+require_once ("include/init.php.inc");
+require_once ("include/smarty.php.inc");
+require_once ("include/db.php.inc");
+require_once ("include/auth.php.inc");
+require_once ("include/util.php.inc");
+
+$url_hash = $_GET ['id']; // PDFのファイルを識別するためのユニークID(url_hash)
+$uid = $_GET ['uid']; // ユーザID
+$lvl = $_GET ['lvl']; // グループレベル
+$info_only = $_GET ['info_only']; // 情報取得フラグ
+$type = $_GET ['type'];
+
+$ret = log_pdf_download ( $BASE_DIR . "/dltest.txt", $uid, "", "url_hash=$url_hash, uid=$uid, lvl=$lvl" );
+
+// 新テーブルバージョン
+$develop = $type === 'develop';
+if ($develop) {
+    $fdm = new VFileDetailManager ();
+    $fim = new VFileInfoManager ();
+} else {
+    $fdm = new FileDetailManager ();
+    $fim = new FileInfoManager ();
+}
+// ユニークID(url_hash)からファイル詳細情報を取得する
+$detail_info = $fdm->search_url_hash ( $url_hash );
+if (! $detail_info) {
+    // 指定したurl_hashでファイル詳細情報が取得できなかった
+    // NOT FOUND
+    header ( "HTTP/1.0 404 Not Found" );
+    exit ();
+}
+
+// 取得した詳細情報からファイル情報を取得する
+$file_info = $fim->get ( $detail_info ['file_id'] );
+if (! $file_info) {
+    // ファイル情報の取得に失敗した
+    // NOT FOUND
+    header ( "HTTP/1.0 404 Not Found" );
+    exit ();
+}
+
+// TODO ユーザグループレベルが指定されたファイルを閲覧する権限を持つか確認する
+$daim = new DocAuthorityInfoManager ();
+$doc_auth_info = $daim->search_doctype_id ( $lvl );
+
+$docTypeId = $file_info ['doctype_id'];
+$doc_ids = array ();
+foreach ( $doc_auth_info as $info ) {
+    $doc_ids [] = $info ['doctype_id'];
+}
+
+if (! in_array ( $docTypeId, $doc_ids )) {
+    // 閲覧権限無し
+    header ( "HTTP/1.0 403 Forbidden" );
+    exit ();
+}
+
+// ファイル詳細情報のみのリクエストなら、json形式でファイル詳細を返す
+if (! empty ( $info_only )) {
+    print (json_encode ( $detail_info )) ;
+    exit ();
+}
+
+if ($develop) {
+    // 編集データからファイル情報を取得する
+    $edm = new EditDetailManager ();
+    $edit_info = $edm->get ( $detail_info ['id'] );
+    
+    if ($edit_info ['filepath'] && $edit_info ['file_nm']) {
+        // 検証機からのアクセスは、格納ディレクトリの最新ファイルを参照
+        $download_dir = $UPLOAD_DIR;
+        
+        // 編集データから、ダウンロードするPDFファイルのパスを取得する
+        $filepath = $edit_info ['filepath'];
+        $file_nm = $edit_info ['file_nm'];
+    } else {
+        // 検証機からのアクセスは、格納ディレクトリの最新ファイルを参照
+        $download_dir = $PUBLISH_DIR;
+        
+        // 取得したファイル情報から、ダウンロードするPDFファイルのパスを取得する
+        $filepath = $detail_info ['filepath'];
+        $file_nm = $detail_info ['file_nm'];
+    }
+} else {
+    // 本番機からのアクセスは、公開ディレクトリのファイル
+    $download_dir = $PUBLISH_DIR;
+    
+    // 取得したファイル情報から、ダウンロードするPDFファイルのパスを取得する
+    $filepath = $detail_info ['filepath'];
+    $file_nm = $detail_info ['file_nm'];
+}
+
+// 検証機からのアクセスではない
+if (! $develop) {
+    // TODO 掲載開始日が設定されており、かつ掲載開始日が現在より未来の日付なら閲覧不可
+    if (! is_null ( $file_info ['publish_start_dt'] )) {
+        $cur_dt = Date ( "Y-m-d H:i:s" );
+        $publish_start_dt = date ( "Y-m-d H:i:s", strtotime ( $file_info ['publish_start_dt'] ) );
+        
+        if ($cur_dt < $publish_start_dt) {
+            // 掲載開始日に達していない
+            header ( "HTTP/1.0 403 Forbidden" );
+            exit ();
+        }
+    }
+    
+    // ファイルが公開状態ではない場合
+    if ($file_info ['status_flg'] == 0) {
+        // ファイルは公開されていない
+        header ( "HTTP/1.0 403 Forbidden" );
+        exit ();
+    }
+}
+
+// 文書種別からスタンプ押印が必要かを確認する
+$dtmm = new DoctypeMasterManager ();
+$dt_info = $dtmm->get_all ();
+foreach ( $dt_info as $info ) {
+    if ($info ['id'] == $docTypeId) {
+        $file_info ['stamp_flg'] = $info ['stamp_flg']; // スタンプ押印フラグセット
+        break;
+    }
+}
+
+$pdf_file_path = $download_dir . "/" . $filepath; // ダウンロードするPDFファイル
+
+$pos = strrpos ( $file_nm, "." );
+if ($pos !== FALSE) {
+    $file_ext = substr ( $file_nm, $pos + 1 );
+}
+
+if ($file_ext === "pdf") {
+    include_once ("include/pdf_stamp.php.inc");
+    
+    // ダウンロード用のPDFファイルを生成する
+    // 要スタンプ押印ならスタンプ押印する
+    
+    $pdf_buf = get_stamped_pdf_data ( $PDFLIB_LICENSE_FILE, $CMAP_DIR, $pdf_file_path, $detail_info ['pdf_password'], $uid, $detail_info ['id'], $file_info ['stamp_flg'], $PDF_PWD );
+    
+    if (! $pdf_buf) {
+        // pdfファイルのスタンプ押印に失敗
+        // ダウンロードログを記録する
+        $ret = log_pdf_download ( $DOWNLOAD_LOG_FILE, $uid, $file_nm, "Failed to create pdf file." );
+        
+        // PDFの生成、もしくはスタンプの押印に失敗した場合は、アップロードされているオリジナルのPDFファイルをダウンロードさせる
+        $pdf_buf = file_get_contents ( $pdf_file_path );
+    }
+} else {
+    // PDF以外(Excel文書、Word文書、zipファイル等)
+    $pdf_buf = file_get_contents ( $pdf_file_path );
+    
+    if (! $pdf_buf) {
+        // ファイルの読み込みに失敗
+        // ダウンロードログを記録する
+        $ret = log_pdf_download ( $DOWNLOAD_LOG_FILE, $uid, $file_nm, "Failed to read file." );
+    }
+}
+
+if (! $pdf_buf) {
+    // PDFファイルの読み込み失敗エラー
+    header ( "HTTP/1.0 500" );
+    exit ();
+}
+
+// ダウンロードログをDBに記録する
+$detail_id = $detail_info ['id'];
+$ver = $detail_info ['version'];
+log_pdf_download_db ( $uid, $detail_id, $ver );
+
+// ダウンロードログを記録する
+$ret = log_pdf_download ( $DOWNLOAD_LOG_FILE, $uid, $file_nm, "Succeed: $file_nm is downloaded by user:$uid." );
+if ($ret) {
+    
+    // レスポンスデータを依頼元サーバに返す
+    header ( "HTTP/1.1 200 OK" );
+    
+    // 拡張子ごとのコンテンツタイプのヘッダを返す
+    if ($file_ext === "pdf") {
+        header ( "Content-Type: application/pdf" );
+    } else if ($file_ext === "zip") {
+        header ( "Content-Type: application/zip" );
+    } else {
+        header ( "Content-Type: application/octed-stream" );
+    }
+    
+    header ( "Pragma: no-cache" );
+    header ( "Cache-Control: no-cache" );
+    header ( "Expires: Thu, 01 Dec 1994 16:00:00 GMT" );
+    
+    header ( "Content-Length: " . filesize ( $pdf_file_path ) );
+    
+    print ($pdf_buf) ;
+} else {
+    // ダウンロードログ記録に失敗した
+    header ( "HTTP/1.0 500" );
+    exit ();
+}
+
+exit ();
+
+// eucからutf8に変換する
+function to_utf8($s) {
+    return mb_convert_encoding ( $s, "utf-8", "euc-jp" );
+}
+
+// pdfダウンロードログをDBに出力する
+function log_pdf_download_db($user_id, $file_detail_id, $ver) {
+    $dl = new DownloadLogManager ();
+    $info = array (
+        "user_id" => $user_id,
+        "file_detail_id" => $file_detail_id,
+        "download_dt" => date ( "Y/m/d H:i:s" ) 
+    );
+    if (! empty ( $ver )) {
+        $info ['version'] = $ver;
+    }
+    
+    $dl->add ( $info );
+}
+
+?>

@@ -1,0 +1,38 @@
+$(document).ready(function() {
+	//初期化処理
+	var publish_input_all = $("#publish_checkboxes_part > label > input");
+
+	//公開設定のPDFチェックボックスの要素を取得する
+	var publish_pdf = $("#publish_checkboxes_part > label > input:first");
+
+	//公開設定のキーワードチェックボックス要素
+	var publish_keyword = $("#publish_checkboxes_part > label > input:last");
+
+	publish_pdf.change(function() {
+		if (!publish_pdf.attr("checked")) {
+			publish_keyword.removeAttr("checked");
+
+			publish_keyword.attr("disabled", "disabled");
+			//publish_keyword.parent().hide("show");
+		} else {
+			publish_keyword.removeAttr("disabled");
+
+			publish_keyword.removeAttr("checked");
+			//publish_keyword.parent().show("show");
+		}
+	});
+/*
+	publish_keyword.change(function() {
+		if (publish_keyword.is(":checked")) {
+			publish_pdf.removeAttr("checked");
+			//publish_pdf.attr("disabled", "disabled");
+		} else {
+			publish_pdf.removeAttr("disabled");
+		}
+	});
+*/
+	if (!publish_pdf.attr("checked")) {
+		publish_keyword.removeAttr("checked");
+		publish_keyword.attr("disabled", "disabled");
+	}
+});

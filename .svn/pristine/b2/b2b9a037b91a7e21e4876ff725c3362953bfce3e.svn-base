@@ -1,0 +1,27 @@
+<?php
+require_once ("include/init.php.inc");
+require_once ("include/smarty.php.inc");
+require_once ("include/db.php.inc");
+require_once ("include/auth.php.inc");
+require_once ("include/util.php.inc");
+$login_nm = substr ( mb_convert_encoding ( $_POST ['login_nm'], "UTF-8", $OUTPUT_ENCODING ), 0, 50 );
+$password = pw_hash ( substr ( mb_convert_encoding ( $_POST ['password'], "UTF-8", $OUTPUT_ENCODING ), 0, 50 ) );
+$uim = new UserInfoManager ();
+$login_info = $uim->login ( $login_nm, $password );
+if ($login_info) {
+    // セッション有効期限
+    ini_set ( "session.gc_maxlifetime", $SESSION_TIMEOUT );
+    // セッション開始
+    session_start ();
+    $_SESSION ['last_access_dt'] = date ( "Y-m-d H:i:s" ); // 最終アクセス日時を更新
+    $_SESSION ['login_info'] = $login_info; // ユーザ情報をセッションに格納
+    $_SESSION ['sys_id'] = $SYS_ID; // システムIDをセッションに格納
+    session_regenerate_id ( true ); // セッションIDの再生成
+    setcookie ( session_name (), session_id (), 0, "/", "", 0, 1 ); // クッキーにhttponlyをセット
+    header ( "Location: manage.php" );
+} else {
+    // ログインエラー
+    show_template_page ( "login_error.tpl.html" );
+    exit ();
+}
+?>

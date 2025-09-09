@@ -1,0 +1,26 @@
+<?php
+
+require_once("include/init.php.inc");
+require_once("include/smarty.php.inc");
+require_once("include/db.php.inc");
+require_once("include/auth.php.inc");
+require_once("include/util.php.inc");
+
+//選択された左メニュー項目
+//$smarty->assign("func_info", array("file" => 1));
+$smarty->assign("func_info", array("extract_kw" => 1));
+
+
+// ファイル管理権限が無い場合は、エラーにする
+if ($role_info['file_role_flg'] != 1) {
+    // エラーメッセージ表示
+    show_error_page(array("ファイル管理者の権限がありません"), "manage.php", "トップページへ戻る");
+    exit;
+}
+
+$smarty->assign('max_limit_document', 10);
+
+show_template_page("extract_keyword_file.tpl.html");
+exit;
+
+?>

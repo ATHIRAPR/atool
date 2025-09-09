@@ -1,0 +1,8 @@
+
+function start_import() {
+	if(confirm('ファイルのインポートを開始します')) {
+		var form = document.form_start_import;
+		form.do_import.value = 1;
+		form.submit();
+	}
+}

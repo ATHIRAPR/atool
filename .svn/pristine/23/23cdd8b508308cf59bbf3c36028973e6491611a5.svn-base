@@ -1,0 +1,408 @@
+<?php
+
+require_once("include/init.php.inc");
+require_once("include/smarty.php.inc");
+require_once("include/db.php.inc");
+require_once("include/auth.php.inc");
+require_once("include/util.php.inc");
+
+//選択された左メニュー項目
+$smarty->assign("func_info", array("publish" => 1));
+
+
+//公開管理権限が無い場合は、エラーにする
+if ($role_info[publish_role_flg] != 1) {
+	//エラーメッセージ表示
+	show_error_page(array("公開管理者の権限がありません"), "manage.php", "トップページへ戻る");
+	exit;
+}
+
+$fim = new FileInfoManager();
+
+if ($_SERVER['REQUEST_METHOD'] === "POST") {
+
+	//$result_list = array();
+	$open_list = array();
+	$close_list = array();
+
+	//同期処理開始
+	$sync_publish_id_array = $_POST[sync_publish_id];
+
+	//ファイル操作内容の格納配列
+	$file_operation_array = array();
+
+	//ここからトランザクション開始
+	beginTransaction();
+
+	//$pim = new PublishInfoManager();
+	$fim = new FileInfoManager();
+
+	$fdm = new FileDetailManager();	//ファイル詳細取得
+	$edm = new EditDetailManager();
+
+	//一件づつ処理
+	foreach($sync_publish_id_array as $publish_id) {
+/*
+		$publish_info = $pim->get($publish_id);	//公開設定情報取得
+
+		if (!$publish_info) {
+			//公開設定情報の取得エラー
+			continue;	//FIXME 処理をスキップする
+		}
+*/
+		//$file_id = $publish_info[file_id];	//ファイルID取得
+		$file_id = $publish_id;
+		$file_info = $fim->get($file_id);	//ファイル情報取得
+
+		if (!$file_info) {
+			//ファイル情報の取得エラー
+			continue;	//FIXME 処理をスキップする
+		}
+
+
+		//同期処理で行うこと
+		/******************************************
+	 		 ・公開ファイル
+	 		 	a.非公開状態から公開状態の場合、ファイルを公開ﾃﾞｨﾚｸﾄﾘにコピー
+	 		 		ステータスを公開状態に変更
+	 		 	b.公開状態から非公開になったら、ファイルを削除(または削除しなくてもいい)
+	 		 		ステータスを非公開状態に変更
+	 		 ・編集データを本データへ反映(edit_infoからfile_infoテーブルへのレコードマージ)
+	 		 ・詳細データを本データへ反映(edit_detailからfile_detailへのレコードマージ)
+
+		 *******************************************/
+/*
+		$publish_info[update_flg] = 0;	//更新フラグOFF
+
+		//公開状態フラグ
+		if ($publish_info[dir_flg] == 1) {
+			if ($publish_info[search_flg] == 1) {
+				$publish_status_flg = 2;	//PDFとキーワード公開状態
+			} else {
+				$publish_status_flg = 1;	//PDF公開状態
+			}
+
+		} else {
+			$publish_status_flg = 0;	//非公開状態
+		}
+*/
+		//編集データを取得
+		$eim = new EditInfoManager();
+		$edit_info = $eim->get($file_id);
+
+		/*
+		$detail_array = $edm->search_info_array($file_id);
+		if (0 == count($detail_array)) {
+			$detail_array = $fdm->search_info_array($file_id);
+		}
+		*/
+		$detail_array = get_file_details($file_id);
+
+		//PDF公開またはPDF＆キーワード公開状態の同期処理時に、公開ディレクトリにファイルがコピーされるようにする
+		if (//$publish_info[status_flg] == 0 &&
+			//0 < $publish_status_flg) {
+			$edit_info[status_flg] == 1) {
+			//ファイルを公開ﾃﾞｨﾚｸﾄﾘにコピーする
+			//コピーするファイルの一覧を配列に格納しておいて、後で一括コピーする
+
+			//TODO 詳細データに対応する(2014/10/14)
+			foreach($detail_array as $detail) {
+				//TODO 詳細データテーブルからレコード取得
+				//登録、差し替え、削除の場合分けは必要か検討
+				//下記処理を各ファイルごとにループ処理する
+
+				$src_file = "";
+				$dst_file = "";
+				if (!$detail[delete_flg]) {
+					//編集データのファイルパス
+					$src_file = $UPLOAD_DIR . "/" . $detail[filepath];
+					$dst_file = $PUBLISH_DIR . "/" . $detail[filepath];
+					$file_operation = array('OP' => "COPY", 'SRC' => $src_file, 'DST' => $dst_file);
+
+					//同期ファイル名、変更内容、公開URLを格納
+					$result = array(
+							"file_nm" =>$detail[file_nm]
+							,"url_hash" => $detail[url_hash]
+							,"status_flg" =>  $edit_info[status_flg]//$publish_status_flg
+							,"publish_dt" =>  $file_info[publish_dt]//$publish_info[publish_dt]
+							,"publish_start_dt" =>  $edit_info[publish_start_dt]
+					);
+					$open_list[] = $result;
+				}
+				//ここまでループ
+			}
+
+			//初回公開のときは、初回公開日時と初回公開者IDを設定する
+			//if (!$publish_info[publish_user_id] && !$publish_info[publish_dt]) {
+			if (!$file_info[publish_user_id] && !$file_info[publish_dt]) {
+				//$publish_info[publish_user_id] = $_SESSION[login_info][id];
+				//$publish_info[publish_dt] = date("Y/m/d H:i:s");
+
+				$file_info[publish_user_id] = $_SESSION[login_info][id];
+				$file_info[publish_dt] = date("Y/m/d H:i:s");
+			}
+
+		//} else if (0 < $publish_info[status_flg] && $publish_status_flg == 0) {
+		} else if ($file_info[status_flg] == 1 && $edit_info[status_flg] == 0) {
+			//PDF公開またはPDF＆キーワード公開状態から、非公開状態になった場合
+
+			foreach($detail_array as $detail) {
+				//公開ﾃﾞｨﾚｸﾄﾘからファイルを削除する
+				//削除するファイルの一覧を配列に格納しておいて、後で一括削除する
+				$dst_file = $PUBLISH_DIR . "/" . $detail[filepath];
+
+				//公開ﾃﾞｨﾚｸﾄﾘからファイルを削除する
+				$file_operation = array('OP' => "REMOVE", 'DST' => $dst_file);
+
+				//同期ファイル名、変更内容、公開URLを格納
+				$result = array(
+						"file_nm" =>$detail[file_nm]
+						,"url_hash" => $detail[url_hash]
+						,"status_flg" =>  $edit_info[status_flg]//$publish_status_flg
+						,"publish_dt" =>  $file_info[publish_dt]//$publish_info[publish_dt]
+						,"publish_start_dt" =>  $edit_info[publish_start_dt]
+				);
+				$close_list[] = $result;
+
+			}
+
+		} else {
+			//新規登録ファイルを非公開に設定した場合
+			foreach($detail_array as $detail) {
+				//同期ファイル名、変更内容、公開URLを格納
+				$result = array(
+						"file_nm" =>$detail[file_nm]
+						,"url_hash" => $detail[url_hash]
+						,"status_flg" =>  $edit_info[status_flg]//$publish_status_flg
+						,"publish_dt" =>  $file_info[publish_dt]//$publish_info[publish_dt]
+				);
+				$close_list[] = $result;
+			}
+			//初回のときは、初回公開日時と初回公開者IDを設定する
+			//if (!$publish_info[publish_user_id] && !$publish_info[publish_dt]) {
+			if (!$file_info[publish_user_id] && !$file_info[publish_dt]) {
+				//$publish_info[publish_user_id] = $_SESSION[login_info][id];
+				//$publish_info[publish_dt] = date("Y/m/d H:i:s");
+				$file_info[publish_user_id] = $_SESSION[login_info][id];
+				$file_info[publish_dt] = date("Y/m/d H:i:s");
+			}
+		}
+		//$publish_info[status_flg] = $publish_status_flg;	//公開状態の変更を反映
+		$file_info[status_flg] = $edit_info[status_flg];//$publish_status_flg;	//公開状態の変更を反映
+
+		if ($edit_info) {
+			//edit_infoの編集データをfile_infoに反映させる
+			$file_info[clinic_flg_ary] = $edit_info[clinic_flg_ary];
+			$file_info[search_keyword] = $edit_info[search_keyword];
+
+			$file_info[doctype_id] = $edit_info[doctype_id];
+			$file_info[product_id] = $edit_info[product_id];
+
+			$file_info[update_dt] = $edit_info[update_dt];
+			$file_info[update_user_id] = $edit_info[update_user_id];
+			$file_info[model_visible_flg] = $edit_info[model_visible_flg];
+			$file_info[product_visible_flg] = $edit_info[product_visible_flg];
+
+			$file_info[publish_start_dt] = $edit_info[publish_start_dt];
+			$file_info[sale_end_dt] = $edit_info[sale_end_dt];
+
+
+			unset($file_info[id]);
+			$ret = $fim->set($file_id, $file_info);	//file_infoテーブル更新
+			if (!$ret) {
+				//file_infoテーブル更新失敗
+				rollBack();
+
+				//ファイル情報の同期処理に失敗
+				show_error_page(array("ファイル情報の同期実行に失敗しました"), "manage_publish.php", "公開管理へ戻る");
+				exit;
+
+			} else {
+				//編集データをedit_infoテーブルから削除する
+				$ret = $eim->remove($file_id);
+				if (!$ret) {
+					//edit_infoテーブルのレコード削除失敗
+					rollBack();
+
+					//ファイル編集データの削除失敗
+					show_error_page(array("ファイル編集データの削除に失敗しました"), "manage_publish.php", "公開管理へ戻る");
+					exit;
+				}
+			}
+
+			//
+			//詳細データのマージ処理も行う
+			if (0 < count($detail_array)) {
+
+				//編集詳細データを取得する
+				foreach($detail_array as $detail) {
+
+					//詳細編集データテーブルにidが存在するかチェックする
+					$detail_id = $detail[id];
+					$detail_info = $edm->get($detail_id);
+
+					unset($detail_info[id]);
+					unset($detail_info['url_hash']);
+
+					if(is_null($detail_info[file_nm])) {
+						unset($detail_info[file_nm]);
+					}
+					if(is_null($detail_info[filesize])) {
+						unset($detail_info[filesize]);
+					}
+					if(is_null($detail_info[filepath])) {
+						unset($detail_info[filepath]);
+					}
+
+					if ($detail_info) {
+						//編集情報で、更新されたレコードは、詳細データテーブルに反映する
+						$ret = $fdm->set($detail_id, $detail_info);
+						if (!$ret) {
+							//detail_infoテーブル追加失敗
+							rollBack();
+
+							//ファイル情報の同期処理に失敗
+							show_error_page(array("ファイル詳細情報の同期実行(更新)に失敗しました"), "manage_publish.php", "公開管理へ戻る");
+							exit;
+						}
+/*
+					} else {
+						//編集情報で新規追加されたレコードは、詳細データテーブルに追加する
+						$new_id = $fdm->add($detail_info);
+						if (!$new_id) {
+							//detail_infoテーブル追加失敗
+							rollBack();
+
+							//ファイル情報の同期処理に失敗
+							show_error_page(array("ファイル詳細情報の同期実行(追加)に失敗しました"), "manage_publish.php", "公開管理へ戻る");
+							exit;
+						}
+					}
+*/
+						//反映させた編集詳細データは、編集テーブルから削除する
+						$ret = $edm->remove($detail_id);
+
+						//エラーが出たら、ロールバックして終了
+						if (!$ret) {
+							//file_infoテーブル更新失敗
+							rollBack();
+
+							//ファイル情報の同期処理に失敗
+							show_error_page(array("ファイル情報の同期実行(削除)に失敗しました"), "manage_publish.php", "公開管理へ戻る");
+							exit;
+						}
+					}
+
+				}//foreach
+
+			}//if
+		}
+
+		/*
+		unset($publish_info[id]);	//idを更新対象フィールドから外す
+
+		//公開設定の更新フラグ、公開状態フラグの更新処理
+		$ret = $pim->set($publish_id, $publish_info);
+		if ($ret) {
+		*/
+/*
+			//同期を行ったファイル名、変更内容、公開URLを格納
+
+			$result = array(
+				//"file_nm" =>$file_info[file_nm]
+				"changed" => $modified
+				,"url_hash" => $publish_info[url_hash]
+				,"status_flg" =>  $publish_info[status_flg]
+				,"publish_dt" =>  $publish_info[publish_dt]
+			);
+
+			//公開・非公開ごとの結果を配列に格納する
+			if ($publish_info[status_flg] == 0) {
+				$close_list[] = $result;
+			} else if ($publish_info[status_flg] == 1 || $publish_info[status_flg] == 2) {
+				$open_list[] = $result;
+			}
+
+		} else if (!$ret) {
+			//同期更新失敗
+			rollBack();
+
+			//公開設定の更新フラグと公開状態フラグの更新に失敗
+			show_error_page(array("公開設定の同期処理に失敗しました"), "manage_publish.php", "公開管理へ戻る");
+			exit;
+		}
+*/
+		//ファイル操作配列に格納
+		$file_operation_array[] = $file_operation;
+	}
+
+	//ファイルのコピー(公開)と、削除(非公開)処理を行う
+	if (0 < count($file_operation_array)) {
+
+		foreach($file_operation_array as $file_operation) {
+			if ($file_operation['OP'] === "REMOVE") {
+
+				//$ret = unlink($file_operation['DST']);
+				//if ($ret) {
+					//最悪ファイルの削除に失敗しても、DB上は非公開設定のままなので問題は無いはず
+				//}
+
+// 				$publish_dir = dirname($file_operation['DST']);
+// 				if ( file_exists($publish_dir) && is_dir($publish_dir) ) {
+// 					//公開ディレクトリ内のファイル格納ディレクトリを削除する
+// 					delete_dir($publish_dir);
+// 				}
+
+			} else if ($file_operation['OP'] === "COPY") {
+
+				//コピー先ディレクトリが存在しない場合
+				$dst_dir = dirname($file_operation['DST']);
+				if (!file_exists($dst_dir) || is_file($dst_dir)) {
+					//コピー先ディレクトリ作成
+					$ret = mkdir($dst_dir, 0777, true);
+					if (!$ret) {
+						//ディレクトリ作成失敗
+						rollBack();
+
+						//公開ディレクトリ内のディレクトリ作成失敗
+						show_error_page(array("公開ディレクトリ内のディレクトリ作成に失敗しました"), "manage_publish.php", "公開管理へ戻る");
+						exit;
+					}
+				}
+
+				//差し替える最新ファイルが存在する場合
+				if (file_exists($file_operation['SRC']) && is_file($file_operation['SRC'])) {
+					//最新ファイルを公開ディレクトリにコピーする
+					$ret = copy($file_operation['SRC'], $file_operation['DST']);
+
+					if (!$ret) {
+						//コピー失敗
+						rollBack();
+
+						//公開ディレクトリへのファイルコピー失敗
+						show_error_page(array("公開ディレクトリへのファイルコピーに失敗しました"), "manage_publish.php", "公開管理へ戻る");
+						exit;
+					}
+				}
+
+			}
+		}
+
+	}
+
+	//同期成功
+	commit();
+
+	//同期対象ファイル情報を表示する
+	//$smarty->assign("result_list", $result_list);
+	$smarty->assign("open_list", $open_list);
+	$smarty->assign("close_list", $close_list);
+	show_template_page("sync_publish_result.tpl.html");
+	exit;
+}
+
+//GETリクエストだったら、公開管理ページへ遷移する
+header("Location: manage_publish.php");
+exit;
+
+?>

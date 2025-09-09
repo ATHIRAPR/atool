@@ -1,0 +1,287 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<!-- Meta -->
+		{include file="page_meta.tpl.html"}
+		<!-- /Meta -->
+		<link rel="stylesheet" type="text/css" href="css/default.css" media="screen,print" />
+		<title>文書ファイル管理ツール</title>
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<link rel="stylesheet" href="css/validationEngine.jquery.css" type="text/css"/>
+		<script src="js/languages/jquery.validationEngine-ja.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+		<link type="text/css" rel="stylesheet" href="css/jquery-ui.css" />
+		<script language="javascript">
+			$(function() {
+				jQuery("#edit_file_form").validationEngine('attach', {
+					onValidationComplete : function(form, status) {
+						if (status) {
+							return confirm("ファイルを変更します");
+						}
+					}
+				});
+			});
+			//--datepicker制御
+			$(function() {
+				$(".datepicker").datepicker({
+					changeMonth : true,
+					changeYear : true,
+					showOn : "focus",
+					dateFormat : "yy/mm/dd",
+					showAnim : "slideDown",
+					beforeShow : function() {
+						$('#ui-datepicker-div').css('font-size', '80%');
+					}
+				});
+			});
+		</script>
+		<script>
+			function delete_check() {
+				if (confirm('ファイル削除を行います')) {
+					document.edit_file_form.submit();
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div id="skip_link_block">
+			<ul>
+				<li>
+					<a href="#main_content_anc">本文へジャンプします</a>
+				</li>
+			</ul>
+			<p id="pageTop">
+				ページの先頭です
+			</p>
+		</div>
+		<div id="contents">
+			<!-- Header Area -->
+			{include file="page_header.tpl.html"}
+			<!-- /Header Area -->
+			<!-- Contents Area -->
+			<div id="contents_body" class="clearfix">
+				<div id="skip_menu_block">
+					<p id="side_navi_anc">
+						<a name="side_navi_anc">メニューの始まりです</a>
+					</p>
+				</div>
+				<!-- Left Navi Area -->
+				{include file="left_menu.tpl.html" role_info=$role_info func_info=$func_info}
+				<!-- /Left Navi Area -->
+				<!-- Main Contents Area -->
+				<div id="main_content_area">
+					<div id="skip_main_block">
+						<p id="main_content_anc">
+							<a name="main_content_anc">本文の始まりです</a>
+						</p>
+					</div>
+					<h2><em>ファイル編集</em></h2>
+					<form name="edit_file_form" method="post" enctype="multipart/form-data" id="edit_file_form">
+						<p class="text">
+							{foreach from=$msg_array item=msg}
+							<span class="text_red text_wb">{$msg}</span>
+							<br>
+							{/foreach}
+						</p>
+						<p>
+							<span class="text_red">(*:必須)</span>
+						</p>
+						<!-- 登録情報入力 -->
+						<div class="task_input_form">
+							<table>
+								<tr>
+									<td><span class="text_red text_s">※差し替えファイルはpdfのみ登録できます。</span>
+									<br>
+									<span class="text_red text_s">※ダウンロードファイル名には、100文字まで使用できます。</span>
+									<br>
+									<span class="text_red text_s" style="margin-left: 1em;">ダウンロードファイル名には、拡張子まで入力してください。 　例：修理対応について.pdf</span>
+									<br>
+									<span class="text_red text_s" style="margin-left: 1em;">ダウンロードファイル名が入力されなかった場合は、登録ファイル名と同じファイル名で登録されます。</span></td>
+								</tr>
+							</table>
+							<table id="add_pdf_file" style="border: double 3px #adadad; padding: 5px; margin-bottom: 5px;" class="add_file_table">
+								<tr>
+									<td>
+									<div>
+										現在の登録ファイル
+									</div></td>
+									<td>
+									<div style="float:left;">
+										<a href="edit_download.php?id={$data.id}" target="edit_download">{$data.file_nm|escape} ({$data.filesize|escape})</a>
+									</div></td>
+								</tr>
+								<tr>
+									<td>
+									<div>
+										差し替えファイル
+									</div></td>
+									<td>
+									<input type="file" id="pdf_file" name="pdf_file" size="50" class="validate[checkFileType{if $data.file_nm|regex_replace:'/\.pdf$/i':'test' ne $data.file_nm}[pdf|PDF]{elseif $data.file_nm|regex_replace:'/\.zip$/i':'test' ne $data.file_nm}[zip|ZIP]{else}[pdf|PDF|zip|ZIP]{/if}]"/>
+									<input type="hidden" name="data_id" value="{$data.id}"/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<div>
+										ダウンロードファイル名
+									</div></td>
+									<td>
+									<input type="text" name="download_filename" value="{$data.download_file_nm|escape}" size="25" maxlength="100"/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<div>
+										PDFパスワード
+									</div></td>
+									<td>
+									<input type="text" name="pdf_password" value="{$data.pdf_password|escape}" size="25" maxlength="50"/>
+									</td>
+								</tr>
+							</table>
+							<table>
+								<tr>
+									<td>
+									<div>
+										タイトル<span class="text_red">*</span>
+									</div></td>
+									<td>
+									<input type="text" id="title" name="title" value="{$data.title|escape}" size="50" class="validate[required,checkTitleName]" maxlength="1000" style="width: 250px;" data-prompt-position="bottomRight"/>
+									</td>
+								</tr>
+								<tr>
+									<td></td>
+									<td><span class="text_red text_s">※タイトルには1,000文字まで使用できます。</span></td>
+								</tr>
+								<tr>
+									<td>
+									<div>
+										カテゴリ<span class="text_red">*</span>
+									</div></td>
+									<td>
+									<div id="clinic_checkboxes_part"  class="chkcheckbox" style="font-size:100%;">
+										{foreach from=$clinic_options item=clinic_name key=value name='clinic'}
+										<label for="clinic_{$value}">
+											<input id="clinic_{$value}" type="checkbox" value="{$value}" name="clinic_id[]" class="validate[required,checkClinicCheck] checkbox" data-prompt-position="bottomLeft" {if $value|in_array:$clinic_id}checked{/if}/>
+											{$clinic_name}</label>
+										{if ($smarty.foreach.clinic.index+1) % 5 == 0}
+										<br/>
+										{/if}
+										{/foreach}
+										{*html_checkboxes name='clinic_id' options=$clinic_options selected=$clinic_id assign=clinic_checkboxes_tags}
+										{foreach from=$clinic_checkboxes_tags item=checkbox_tag name='clinic'}
+										{$checkbox_tag}
+										{if ($smarty.foreach.clinic.index+1) % 5 == 0}
+										<br/>
+										{/if}
+										{/foreach*}
+									</div></td>
+								</tr>
+								<tr>
+									<td></td>
+									<td><span class="text_red text_s">※「すべて」には必ず表示されます。</span></td>
+								</tr>
+								<tr>
+									<td>
+									<div>
+										文書種別<span class="text_red">*</span>
+									</div></td>
+									<td>{html_radios  name="doctype_id" options=$doctype_options selected=$data.doctype_id  class="validate[required]" data-prompt-position="bottomLeft"}</td>
+								</tr>
+								<tr>
+									<td>
+									<div>
+										公開日（掲載開始日）<span class="text_red">*</span>
+									</div></td>
+									<td>
+									<input type="text" name="publish_start_dt" value="{$data.publish_start_dt|escape|date_format:'%Y/%m/%d'}" size="25" maxlength="50" class="datepicker validate[required]" data-prompt-position="bottomRight"/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<div>
+										更新日
+									</div></td>
+									<td>
+									<input type="text" name="download_update_dt" value="{$data.download_update_dt|escape|date_format:'%Y/%m/%d'}" size="25" maxlength="50" class="datepicker"/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<div>
+										公開の状態
+									</div></td>
+									<td> {if $data.status_flg == 1}
+									{if $data.publish_start_dt|strtotime < $smarty.now}
+									公開
+									{else}
+									公開予定
+									{/if}
+									{else}
+									{if $data.publish_dt}非公開{else}新規{/if}
+									{/if} </td>
+								</tr>
+								<tr>
+									<td>
+									<div>
+										公開設定<span class="text_red">*</span>
+									</div></td>
+									<td><label for="publish_on">
+										<input type="radio" id="publish_on" name="status_flg" value="1" {if $data.edit_status_flg == 1}checked{/if}>
+										公開</label><label for="publish_off">
+										<input type="radio" id="publish_off" name="status_flg" value="0" {if $data.edit_status_flg == 0}checked{/if}>
+										非公開</label></td>
+								</tr>
+								<tr>
+									<td>
+									<div>
+										更新日時
+									</div></td>
+									<td>{$update_dt|escape|date_format:"%Y/%m/%d %H:%M:%S"}</td>
+								</tr>
+								<tr>
+									<td>
+									<div>
+										登録者
+									</div></td>
+									<td>{$update_user_info.login_nm|escape}</td>
+								</tr>
+								<tr>
+									<td>
+									<div>
+										初回反映日時
+									</div></td>
+									<td>{$data.publish_dt|escape|date_format:"%Y/%m/%d %H:%M:%S"}</td>
+								</tr>
+								<tr>
+									<td>
+									<div>
+										初回反映者
+									</div></td>
+									<td>{$publish_user_info.login_nm|escape}</td>
+								</tr>
+							</table>
+							<p style="overflow:hidden" class="center">
+								{if $data.status_flg == 0}
+								<span style="float:right">
+									<input type="image" alt="ファイルを削除する" src="image/btn_delete2.jpg" name="delete_file_submit" onclick="document.edit_file_form.file_op.value='delete'; delete_check(); return false;"/>
+								</span>
+								{/if}
+								<input type="image" alt="変更する" src="image/btn_change.jpg" name="edit_file_submit" onclick="document.edit_file_form.file_op.value='edit'; return true;" />
+								<input type="image" alt="キャンセル" src="image/btn_cancel.jpg" onclick="window.location.href='manage_file.php'; return false;">
+							</p>
+							<input type="hidden" name="id" value="{$data.id}"/>
+							<input type="hidden" name="file_op" value=""/>
+						</div>
+					</form>
+				</div>
+				<!-- /Main Contents Area -->
+			</div>
+			<!-- /Contents Area -->
+			<!-- Footer Area -->
+			{include file="page_footer.tpl.html"}
+			<!-- /Footer Area -->
+		</div>
+	</body>
+</html>

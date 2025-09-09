@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<!-- Meta -->
+		{include file="page_meta.tpl.html"}
+		<!-- /Meta -->
+		<link rel="stylesheet" type="text/css" href="css/default.css" media="screen,print" />
+		<title>文書ファイル管理ツール</title>
+	</head>
+
+	<body>
+
+		<div id="skip_link_block">
+			<ul>
+				<li>
+					<a href="#main_content_anc">本文へジャンプします</a>
+				</li>
+
+			</ul>
+			<p id="pageTop">
+				ページの先頭です
+			</p>
+		</div>
+
+		<div id="contents">
+
+			<!-- Header Area -->
+			{include file="page_header.tpl.html"}
+			<!-- /Header Area -->
+
+			<!-- Contents Area -->
+			<div id="contents_body" class="clearfix">
+
+				<!-- Left Navi Area -->
+				{include file="left_menu.tpl.html" role_info=$role_info func_info=$func_info}
+				<!-- /Left Navi Area -->
+
+				<!-- Main Contents Area -->
+				<div id="main_content_area">
+
+					<div id="skip_main_block">
+						<p id="main_content_anc">
+							<a name="main_content_anc">本文の始まりです</a>
+						</p>
+					</div>
+
+					<h2><em>メニュー</em></h2>
+
+					<!-- メニューリスト -->
+					<ul class="topmenu_list">
+						{if $role_info.file_role_flg == 1}
+						<li>
+							<a href="manage_file.php"><img src="image/subnavi_icon01.gif" width="11" height="11" alt="" />ファイル管理　（新規登録・変更・削除）</a>
+						</li>
+						{/if}
+						{if $role_info.user_role_flg == 1}
+						<li>
+							<a href="manage_user.php"><img src="image/subnavi_icon01.gif" width="11" height="11" alt="" />ユーザ管理</a>
+						</li>
+						{/if}
+						{if $role_info.publish_role_flg == 1}
+						<li>
+							<a href="manage_publish.php"><img src="image/subnavi_icon01.gif" width="11" height="11" alt="" />公開管理　（公開・非公開の設定）</a>
+						</li>
+						{/if}
+						<li>
+							<a href="change_user_password.php"><img src="image/subnavi_icon01.gif" width="11" height="11" alt="" />パスワード変更</a>
+						</li>
+						<li>
+							<a href="logout.php"><img src="image/subnavi_icon01.gif" width="11" height="11" alt="" />ログアウト</a>
+						</li>
+					</ul>
+
+					<div id="skip_end_block">
+						<p id="pageEnd">
+							本文の終わりです。
+						</p>
+					</div>
+
+					<p class="goto_pagetop">
+						<a href="#header"><img src="../image/common/btnPagetop.gif" alt="ページの先頭へ" /></a>
+					</p>
+
+				</div>
+				<!-- /Main Contents Area -->
+
+			</div>
+			<!-- /Contents Area -->
+
+			<!-- Footer Area -->
+			{include file="page_footer.tpl.html"}
+			<!-- /Footer Area -->
+
+		</div>
+	</body>
+</html>
+

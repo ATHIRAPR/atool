@@ -1,0 +1,8 @@
+<div id="header">
+	<h1 class="header_logo"><img src="../image/common/gm_w_logo.gif" width="307" height="29" alt="" /></h1>
+	<p class="header_subtitle">
+		<a href="manage.php"><img src="image/header_title.gif" width="120" height="13" alt="" /></a>
+	</p>
+	<p class="header_mtlogo"><img src="../image/common/mtlogo2.gif" width="358" height="13" alt="" />
+	</p>
+</div>

@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * PDFファイルからテキストを抽出する。
+ * @param string $filename PDFファイル名
+ * @param number $first_page 抽出開始ページ
+ * @param number $last_page 抽出終了ページ
+ * @return mixed 抽出に成功した場合はテキスト、失敗した場合はfalse。
+ */
+function pdftotext($filename, $first_page = 0, $last_page = 0) {
+    global $OUTPUT_ENCODING;
+
+    if ($first_page)
+        $page = "-f $first_page";
+
+    if ($last_page)
+        $page .= " -l $last_page";
+
+    ob_start();
+
+    // コマンド実行
+    $return_var;
+    passthru("pdftotext -raw -layout -enc $OUTPUT_ENCODING $page \"$filename\" -", $return_var);
+    $output = ob_get_contents();
+
+    ob_end_clean();
+
+    if ($return_var !== 0)
+        return false;
+
+    return $output;
+}
+
+?>

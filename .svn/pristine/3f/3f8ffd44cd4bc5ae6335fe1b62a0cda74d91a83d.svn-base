@@ -1,0 +1,406 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!-- Meta -->
+{include file="page_meta.tpl.html"}
+<!-- /Meta -->
+<title>文書ファイル管理ツール</title>
+<link rel="stylesheet" type="text/css" href="css/default.css" media="screen,print" />
+<link rel="stylesheet" type="text/css" href="css/jquery-ui/jquery-ui.min.css" media="screen,print" />
+<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="js/jquery.zclip.min.js"></script>
+<script type="text/javascript" src="js/jquery.snippet.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+
+<style type="text/css">
+hr.separater {
+	width: 100%;
+	border: 1px gray dashed;
+	display: block;
+	text-align: left;
+	margin-bottom: 20px;
+}
+
+textarea.keyword {
+	width: 100%;
+	height: 6em;
+}
+
+textarea.keyword_group {
+	width: 70%;
+}
+
+textarea[readonly] {
+	background-color:#CCC;
+}
+
+#model_number_area .checkbox_area label {
+	display: inline-block;
+	width: {$model_number_keyword_length}em;
+	margin-bottom: 0.3em;
+}
+
+#free_keyword_area .checkbox_area label {
+	display: inline-block;
+	width: {$free_keyword_length}em;
+	margin-bottom: 0.3em;
+}
+
+#keyword_group_btn {
+	width: 10em;
+	height: 1.5em;
+}
+
+#submit_btn {
+	border: none;
+	margin-bottom: 10px;
+	background:none;
+	width:auto;
+	overflow:visible;
+}
+
+#cancel_btn {
+	border: none;
+	margin-bottom: 10px;
+	background:none;
+	width:auto;
+	overflow:visible;
+}
+
+.area_controller {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.area_controller > * {
+	margin-right: 1.5em;
+}
+
+.task_input_form table {
+	table-layout: fixed;
+}
+
+.task_input_form td {
+	vertical-align: top;
+}
+
+.task_input_form td:first-child {
+	width: 8.5em;
+}
+
+.ui-dialog {
+	font-size: 80%;
+}
+
+</style>
+
+<script type="text/javascript">
+$(function(){
+
+	// チェックボックスをソートする
+	function sort_checkbox(sorter, func) {
+		// ソート
+		var sorted = sorter.parents('td').find('label').sort(func);
+
+		// ソート済み要素挿入
+		sorter.parents('td').children('.checkbox_area').html(sorted);
+
+		if (sorter.parents('#model_number_area').length)
+			var column_count = {$model_number_keyword_column_count};
+		else if (sorter.parents('#free_keyword_area').length)
+			var column_count = {$free_keyword_column_count};
+
+		// 改行
+		for(var i = column_count - 1; i < sorted.length; i += column_count)
+			sorted.eq(i).after('<br/>');
+	}
+
+	// チェックボックスで選択されたキーワードとテキストエリアをマージする
+	function merge_keywords(source_id) {
+		// チェックされた要素取得
+		var keywords = $('#' + source_id + ' input:checked').map(function() {
+			return $.trim($(this).val());
+		}).get();
+
+		// 改行で分割
+		var lines = $('#' + source_id + ' textarea').val().replace(/\r\n|\r/g, "\n").split('\n');
+
+		// 重複を除く
+		$.each(lines, function (i, value) {
+			var item = $.trim(value);
+			if (item.length > 0 && $.inArray(item, keywords) == -1)
+				keywords.push(item);
+		});
+
+		return keywords.join("\r\n");
+	}
+
+	// 全選択
+	$('.all_on').click(function() {
+		$(this).parents('td').find(':checkbox').prop('checked', true);
+		return false;
+	});
+
+	// 全解除
+	$('.all_off').click(function() {
+		$(this).parents('td').find(':checkbox').prop('checked', false);
+		return false;
+	});
+
+	// 昇順ソート
+	$('.sort_asc').click(function() {
+		// ソート
+		sort_checkbox($(this), function(a, b) {
+			var aText = $(a).text();
+			var bText = $(b).text();
+
+			if (aText < bText)
+				return -1;
+			else if (aText > bText)
+				return 1;
+			return 0;
+		});
+
+		return false;
+	});
+
+	// 降順ソート
+	$('.sort_desc').click(function() {
+		// ソート
+		sort_checkbox($(this), function(a, b){
+			var aText = $(a).text();
+			var bText = $(b).text();
+
+			if (aText < bText)
+				return 1;
+			else if (aText > bText)
+				return -1;
+			return 0;
+		});
+
+		return false;
+	});
+
+	// クリップボードコピー
+	$('.clipboard').zclip({
+		path: 'js/ZeroClipboard.swf',
+		copy: function(obj) {
+			return merge_keywords($(obj.target).parents('table').attr('id'));
+		},
+		afterCopy: function(obj) {
+			var targetText = $(obj.target).children('span:first').text();
+
+			// メッセージダイアログ表示
+			$('#message_dialog')
+			.html(targetText + 'をコピーしました。')
+			.dialog({
+				modal: true,
+				autoOpen: false,
+				draggable: true,
+				resizable: false,
+				title: targetText + 'コピー',
+				buttons: {
+					'OK': function() {
+						$(this).dialog('close');
+					}
+				}
+			})
+			.dialog('open');
+		}
+	});
+
+	// キーワード群選択
+	$('#keyword_group_btn').click(function() {
+		var w = window.open('./manage_representative_kw.php', "{'REP'|uniqid}", 'width=800,height=600,resizable=yes,scrollbars=yes');
+		w.focus();
+		return false;
+	});
+
+	// 送信
+	$('#submit_btn').click(function() {
+		// 型番
+		$('#model_nm').val(merge_keywords('model_number_area'));
+
+		// キーワード群
+		$('#representative_keyword').val(merge_keywords('keyword_group_area'));
+
+		// フリーキーワード
+		$('#search_keyword').val(merge_keywords('free_keyword_area'));
+	});
+});
+</script>
+
+</head>
+
+<body>
+
+<div id="skip_link_block">
+	<ul>
+		<li><a href="#main_content_anc">本文へジャンプします</a></li>
+
+	</ul>
+	<p id="pageTop">ページの先頭です</p>
+</div>
+
+<div id="contents">
+
+<!-- Header Area -->
+{include file="page_header.tpl.html"}
+<!-- /Header Area -->
+
+<!-- Contents Area -->
+<div id="contents_body" class="clearfix">
+
+	<!-- Left Navi Area -->
+	{include file="left_menu.tpl.html" role_info=$role_info func_info=$func_info}
+	<!-- /Left Navi Area -->
+
+	<!-- Main Contents Area -->
+	<div id="main_content_area">
+
+		<div id="skip_main_block">
+			<p id="main_content_anc"><a name="main_content_anc">本文の始まりです</a></p>
+		</div>
+
+		<h2><em>キーワード抽出</em></h2>
+
+		<p class="text">
+			{foreach from=$msg_array item=msg}
+			<span class="text_red text_wb">{$msg}</span><br>
+			{/foreach}
+		</p>
+
+		<!-- 入力画面 -->
+		<form name="form_main" action="add_file.php" target="_self" method="post">
+		<div class="task_input_form">
+			<table id="model_number_area">
+				<tbody>
+					<tr>
+						<td>型番選択</td>
+						<td>
+							<div class="checkbox_area">
+							{foreach from=$model_number_keywords item=keyword name=keyword}{strip}
+								<label><input type="checkbox" value="{$keyword}" checked /> {$keyword}</label>
+								{if ($smarty.foreach.keyword.index + 1) % $model_number_keyword_column_count == 0}
+								<br />
+								{/if}
+							{/strip}{/foreach}
+							</div>
+							<div class="area_controller">
+								<a href="#" class="all_on">すべて選択</a>
+								<a href="#" class="all_off">すべて外す</a>
+								<span>|</span>
+								<a href="#" class="sort_desc">降順ソート</a>
+								<a href="#" class="sort_asc">昇順ソート</a>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>型番手入力</td>
+						<td>
+							<textarea class="keyword"></textarea><br>
+						※型番選択で表示されない場合は、こちらに手入力してください。<br>
+						※複数の型番を入力するときは、改行で区切ってください。
+							<div class="area_controller">
+								<a href="#" class="clipboard"><span>型番</span>コピー</a>※選択・手入力した型番がクリップボードにコピーされます。
+
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<hr class="separater"/>
+
+			<table id="keyword_group_area">
+				<tbody>
+					<tr>
+						<td>代表キーワード</td>
+						<td>
+							<textarea class="keyword keyword_group" readonly></textarea>
+							<input type="button" id="keyword_group_btn" value="代表キーワード選択" />
+							<div class="area_controller">
+								<a href="#" class="clipboard"><span>代表キーワード</span>コピー</a>※代表キーワードが改行区切りでクリップボードにコピーされます
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<hr class="separater"/>
+
+			<table id="free_keyword_area">
+				<tbody>
+					<tr>
+						<td>フリーキーワード選択</td>
+						<td>
+							<div class="checkbox_area">
+							{foreach from=$free_keywords item=keyword name=keyword}{strip}
+								<label><input type="checkbox" value="{$keyword}" checked /> {$keyword}</label>
+								{if ($smarty.foreach.keyword.index + 1) % $free_keyword_column_count == 0}
+								<br />
+								{/if}
+							{/strip}{/foreach}
+							</div>
+							<div class="area_controller">
+								<a href="#" class="all_on">すべて選択</a>
+								<a href="#" class="all_off">すべて外す</a>
+								<span>|</span>
+								<a href="#" class="sort_desc">降順ソート</a>
+								<a href="#" class="sort_asc">昇順ソート</a>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>フリーキーワード手入力</td>
+						<td>
+							<textarea class="keyword"></textarea><br>
+						※型番選択で表示されない場合は、こちらに手入力してください。<br>
+						※複数の型番を入力するときは、改行で区切ってください。
+
+							<div class="area_controller">
+								<a href="#" class="clipboard"><span>フリーキーワード</span>コピー</a>※選択・手入力したフリーキーワードがクリップボードにコピーされます。
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<p class="center">
+			<button type="submit" id="submit_btn"><img alt="ファイルを新規登録" src="image/btn_newfile.jpg" /></button>
+
+			<button type="button" id="cancel_btn" alt="キャンセル" onclick="window.location.href='extract_keyword_file.php'; return false;"><img src="image/btn_cancel.jpg"/></button>
+			</p>
+			
+			<input type="hidden" id="model_nm" name="model_nm"/>
+			<input type="hidden" id="representative_keyword" name="representative_keyword" />
+			<input type="hidden" id="search_keyword" name="search_keyword" />
+			<input type="hidden" id="file_op" name="file_op" value="file_copy" />
+		</div>
+		</form>
+
+		<!-- メッセージダイアログ要素 -->
+		<div id="message_dialog"></div>
+
+		<div id="skip_end_block">
+			<p id="pageEnd">本文の終わりです。</p>
+		</div>
+
+		<p class="goto_pagetop"><a href="#header"><img src="../image/common/btnPagetop.gif" alt="ページの先頭へ" /></a></p>
+
+	</div>
+	<!-- /Main Contents Area -->
+
+</div>
+<!-- /Contents Area -->
+
+
+<!-- Footer Area -->
+{include file="page_footer.tpl.html"}
+<!-- /Footer Area -->
+
+</div>
+</body>
+</html>
+
+

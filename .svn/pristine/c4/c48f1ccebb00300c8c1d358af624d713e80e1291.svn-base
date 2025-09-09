@@ -1,0 +1,67 @@
+<?php
+require_once ("include/init.php.inc");
+require_once ("include/smarty.php.inc");
+require_once ("include/db.php.inc");
+require_once ("include/auth.php.inc");
+require_once ("include/util.php.inc");
+if ($_SERVER ['REQUEST_METHOD'] == "GET") {
+    //
+} else if ($_SERVER ['REQUEST_METHOD'] == "POST") {
+    $current = mb_convert_encoding ( $_POST ['current_user_password'], "UTF-8", $OUTPUT_ENCODING );
+    $new = mb_convert_encoding ( $_POST ['new_user_password'], "UTF-8", $OUTPUT_ENCODING );
+    $new_confirm = mb_convert_encoding ( $_POST ['new_user_password_confirm'], "UTF-8", $OUTPUT_ENCODING );
+    // ユーザidはセッションから取得
+    $id = $_SESSION [login_info] [id];
+    // ユーザ情報取得
+    $uim = new UserInfoManager ();
+    $user_info = $uim->get ( $id );
+    // ログインユーザの現在のパスワード、新しいパスワードをチェック
+    if (! $current) {
+        $msg = "現在のパスワードが入力されていません";
+    } else if (! $new) {
+        $msg = "新しいパスワードが入力されていません";
+    } else if (! $new_confirm) {
+        $msg = "確認用のパスワードが入力されていません";
+    } else {
+        // 新しいパスワードと確認用パスワードが同じかチェック
+        if ($new !== $new_confirm) {
+            // エラー
+            $msg = "入力された新しいパスワードが一致していません";
+        }
+        // 現在のパスワードチェック
+        if ($user_info [password] !== pw_hash ( $current )) {
+            // エラー
+            $msg = "入力された現在のパスワードが無効です";
+        }
+        // 新しいパスワードが現在と同じかチェック
+        if ($user_info [password] === pw_hash ( $new )) {
+            // エラー
+            $msg = "入力された新しいパスワードが現在のパスワードと同じです";
+        }
+    }
+    if (! $msg) {
+        $update_user_info = array (
+            "password" => pw_hash ( $new ) 
+        );
+        if ($uim->set ( $id, $update_user_info )) {
+            // パスワード変更成功
+            $smarty->assign ( "error", 0 );
+            $smarty->assign ( "success", 1 );
+        } else {
+            // チェックエラー
+            $smarty->assign ( "error", 1 );
+            $msg = "パスワードの変更に失敗しました";
+            $smarty->assign ( "msg", $msg );
+        }
+    } else {
+        // チェックエラー
+        $smarty->assign ( "error", 1 );
+        $smarty->assign ( "msg", $msg );
+        $smarty->assign ( 'current', $current );
+        $smarty->assign ( 'new', $new );
+        $smarty->assign ( 'new_confirm', $new_confirm );
+    }
+}
+show_template_page ( "change_user_password.tpl.html" );
+exit ();
+?>

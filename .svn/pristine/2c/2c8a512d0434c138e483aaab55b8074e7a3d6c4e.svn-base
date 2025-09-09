@@ -1,0 +1,12 @@
+
+	//OK
+	$(document).ready(function() {
+		$("#file_table_sorter")
+		//.tablesorter({widthFixed: true, widgets: ['zebra']})
+		//.tablesorter({widthFixed: true, sortList: [[8, 1]]})
+		.tablesorter({widthFixed: true})
+		.tablesorterPager({container: $("#pager")});
+		$("#file_table_sorter").bind("sortEnd", function(){
+			publish_config_check();
+		});
+	});

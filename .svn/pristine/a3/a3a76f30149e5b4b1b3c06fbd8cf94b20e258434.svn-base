@@ -1,0 +1,140 @@
+<?php
+/* 旧
+ "1,"カタログ
+"2",取扱説明書
+"3",操作編
+"4",洗浄消毒編
+"5",添付文書
+*/
+
+/* 新
+"10",添付文書（DL押印）
+"2",取扱説明書（DL押印）
+"3",操作編（DL押印）
+"4",洗浄/消毒/滅菌編（DL押印）
+"5",応用操作編（DL押印）
+"1",カタログ
+*/
+
+require_once("include/init.php.inc");
+require_once("include/smarty.php.inc");
+require_once("include/export_csv_file_from_mtdoc.php.inc");
+require_once("include/auth.php.inc");
+require_once("include/util.php.inc");
+
+if ($_SERVER['REQUEST_METHOD'] === "POST") {
+	$fname = "admin-tool-export-from-mtdoc.csv";
+
+	header('Content-Type: text/csv;charset=SJIS');
+	header('Content-Disposition: attachment; filename="'.$fname.'"');
+
+	//ヘッダ文字列
+	$header =
+	'ID,"名称","型番
+（改行区切り）","型番
+非表示","文書種別","消化器
+内科","消化器
+外科","呼吸器科","耳鼻
+咽喉科","泌尿器科","麻酔科","婦人科","脳神経
+外科",整形外科,該当無し,"代表キーワード
+(改行区切り）","フリーキーワード
+（改行区切り）","公開中","掲載開始日
+(yyyy/mm/dd)","販売終了日
+（yyyy/mm/dd）","最終更新日時","最終更新者"';
+
+for($i = 1; $i <= 10; $i++) {
+$header .=
+',"登録
+ファイル名'.$i.'","ファイル
+パス'.$i.'","ファイル
+サイズ'.$i.'","公開URL'.$i.'","ダウンロード
+ファイル名'.$i.'","版番号'.$i.'","更新日'.$i.'
+(yyyy/mm/dd)","PDF
+パスワード'.$i.'"';
+//."\r\n";
+}
+
+	//ヘッダ出力
+	print $header;
+
+	//データ抽出
+	$all_data = get_export_file_info_all();
+
+	//1件ごとに処理
+	foreach($all_data as $file_info) {
+
+		if ($prev_id == $file_info[id]) {
+
+		} else {
+			print "\r\n";	//改行
+
+			//選択されている診療科IDを配列に格納
+			$clinic_id_array = array();
+			for($i = 0; $i < strlen($file_info[clinic_flg_ary]); $i++) {
+				$clinic_flg = $file_info[clinic_flg_ary][$i];
+				if ($clinic_flg === '1') {
+					$clinic_id_array[] = $i+1;
+				}
+			}
+	
+			//CSVデータ出力
+			print '"' . $file_info[id] . '"'. ","; //ID
+			print '"' . $file_info[product_nm] . '"'. ","; //名称
+			print '"' . str_replace("_", "\n", $file_info[model_nm]) . '"'. ","; //型番
+			print '"' . (0 < $file_info[model_visible_flg] ? "1" : ""). '"'. ","; //型番非表示
+			print '"' . $file_info[type_nm] . '"'. ","; //文書種別
+	
+			//診療科
+			$clinic_id__order_array = array(2,3,4,5,6,7,8,9,10,1);
+			foreach($clinic_id__order_array as $order) {
+				if (in_array($order, $clinic_id_array)) {
+					print '"' . "1" . '"'. ",";	//選択されている診療科
+				} else {
+					print '"' . "" . '"'. ",";
+				}
+			}
+	
+			print '"' . "" . '"'. ","; //代表キーワード無し
+			print '"' . str_replace("_", "\n", $file_info[search_keyword]) . '"'. ","; //フリーキーワード
+			print '"' . (0 < $file_info[status_flg] ? "1" : "") . '"'. ","; //公開フラグ
+	
+			print '"' . $file_info[publish_start_dt] . '"'. ","; //掲載開始日
+			print '"' . $file_info[sale_end_dt] . '"'. ","; //販売終了日
+	
+			print '"' . $file_info[update_dt] . '"'. ","; //最終更新日時
+			print '"' . $file_info[update_user_id] . '"'. ","; //最終更新者
+		}
+
+		print '"' . $file_info[file_nm] . '"'. ","; //ファイル名
+		print '"' . $file_info[filepath] . '"'. ","; //ファイルパス
+		print '"' . $file_info[filesize] . '"'. ","; //ファイルサイズ
+
+		print '"' . $file_info[url_hash] . '"'. ","; //url_hash
+
+		print '"' . $file_info[download_file_nm] . '"'. ","; //ダウンロードファイル名
+		print '"' . $file_info[version] . '"'. ","; //版番号
+		print '"' . $file_info[version_update] . '"'. ","; //更新日
+
+		print '"' . $file_info[pdf_password] . '"'. ","; //pdfパスワード
+
+
+		$prev_id = $file_info[id];
+	}
+	print "\r\n";	//改行
+	exit;
+}
+
+header("Content-Type: text/html;Charset=UTF-8");
+?>
+
+<html>
+<h3>文書管理 新DBデータCSVエクスポートツール</h3>
+
+新システムDB(MTDOC)から、CSV形式でデータを出力します<br>
+ボタンを押すとCSVファイルがダウンロードできます
+
+<form method="post">
+<input type="submit" value="csv出力">
+</form>
+
+</html>

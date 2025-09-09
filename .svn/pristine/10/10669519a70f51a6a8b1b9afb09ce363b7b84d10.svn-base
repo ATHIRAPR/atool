@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<!-- Meta -->
+		{include file="page_meta.tpl.html"}
+		<!-- /Meta -->
+		<link rel="stylesheet" type="text/css" href="css/default.css" media="screen,print" />
+		<title>案内文書管理システム</title>
+	</head>
+
+	<body>
+
+		<div id="skip_link_block">
+			<ul>
+				<li>
+					<a href="#main_content_anc">本文へジャンプします</a>
+				</li>
+
+			</ul>
+			<p id="pageTop">
+				ページの先頭です
+			</p>
+		</div>
+
+		<div id="contents">
+
+			<!-- Header Area -->
+			{include file="page_header.tpl.html"}
+			<!-- /Header Area -->
+
+			<!-- Contents Area -->
+			<div id="contents_body_top">
+
+				<div id="skip_main_block">
+					<p id="main_content_anc">
+						<a name="main_content_anc">本文の始まりです</a>
+					</p>
+				</div>
+
+				<!-- テキスト　枠線なし -->
+				<p class="text">
+					ログインに失敗しました。
+					<br>
+					ユーザ名、パスワードをご確認ください。
+				</p>
+
+				<!-- リンク -->
+				<ul class="linklist">
+					<li><img alt="" src="image/subnavi_icon01.gif"><a href="login.php">ログイン画面へ</a>
+					</li>
+				</ul>
+
+			</div>
+			<!-- /Contents Area -->
+
+			<!-- Footer Area -->
+			{include file="page_footer.tpl.html"}
+			<!-- /Footer Area -->
+
+		</div>
+	</body>
+</html>

@@ -1,0 +1,119 @@
+<?php
+
+require_once("include/init.php.inc");
+require_once("include/smarty.php.inc");
+require_once("include/db.php.inc");
+require_once("include/auth.php.inc");
+require_once("include/util.php.inc");
+
+//選択された左メニュー項目
+$smarty->assign("func_info", array("publish" => 1));
+
+
+//公開管理権限が無い場合は、エラーにする
+if ($role_info[publish_role_flg] != 1) {
+	//エラーメッセージ表示
+	show_error_page(array("公開管理者の権限がありません"), "manage.php", "トップページへ戻る");
+	exit;
+}
+
+
+$fim = new FileInfoManager();
+$pim = new PublishInfoManager();
+
+if ($_SERVER['REQUEST_METHOD'] === "GET") {
+	$id = $_GET[id];	//公開設定ID取得
+
+} else if ($_SERVER['REQUEST_METHOD'] === "POST") {
+
+	//更新処理
+	$id = $_POST[id];
+	$dir_flg = $_POST[dir_flg];
+	$search_flg = $_POST[search_flg];
+
+}
+
+$publish_info = $pim->get($id);	//公開設定情報取得
+
+if (!$publish_info) {
+	//エラーメッセージ表示
+	show_error_page(array("編集対象の公開設定が存在しません"), "manage_publish.php", "公開管理へ戻る");
+	exit;
+}
+
+$file_info = $fim->get($publish_info[file_id]);	//ファイル情報取得
+
+if (!$file_info) {
+	//エラーメッセージ表示
+	show_error_page(array("編集対象のファイル情報が存在しません"), "manage_publish.php", "公開管理へ戻る");
+	exit;
+}
+
+$eim = new EditInfoManager();
+$edit_info = $eim->get($publish_info[file_id]);	//編集ファイル情報取得
+
+$detail_array = get_file_details($publish_info[file_id]);	//ファイル詳細情報取得
+
+
+if ($_SERVER['REQUEST_METHOD'] === "POST") {
+
+	//入力チェック
+	if (!isset($dir_flg)) {
+		$dir_flg = 0;
+	}
+	if (!isset($search_flg)) {
+		$search_flg = 0;
+	}
+	if ($dir_flg == 0 && $search_flg == 1) {
+		//不正な設定
+		$msg_array[] = "PDF公開が有効でない場合、検索公開は有効にできません";
+	}
+
+	if ($msg_array) {
+		//編集内容の反映
+		$publish_info[dir_flg] = $dir_flg;
+		$publish_info[search_flg] = $search_flg;
+
+		//公開設定の入力画面を表示する(エラーメッセージ)
+		$smarty->assign("file_info", $file_info);
+		$smarty->assign("publish_info", $publish_info);
+		show_template_page("edit_publish.tpl.html", $msg_array);
+		exit;
+	}
+
+	//ここからトランザクション開始
+//	beginTransaction();
+
+	//公開設定情報をセット
+	$publish_info = array(
+		"dir_flg" => $dir_flg
+		,"search_flg" => $search_flg
+		,"update_dt" => date("Y/m/d H:i:s")
+		,"update_flg" => 1	//更新フラグON
+	);
+
+	$pim = new PublishInfoManager();
+	$ret = $pim->set($id, $publish_info);	//公開設定情報更新
+	if ($ret) {
+		//成功
+		//header("Location: manage_publish.php");
+		$smarty->assign("is_succeed", true);
+		show_template_page("edit_publish_result.tpl.html");
+		exit;
+
+	} else {
+		//失敗
+		show_error_page(array("公開設定の変更に失敗しました"), "manage_file.php", "公開管理へ戻る");
+		exit;
+	}
+
+}
+
+$smarty->assign("file_info", $file_info);
+$smarty->assign("detail_array", $detail_array);
+$smarty->assign("publish_info", $publish_info);
+show_template_page("edit_publish.tpl.html");
+
+exit;
+
+?>

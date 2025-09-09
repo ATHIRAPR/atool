@@ -1,0 +1,81 @@
+<?php
+// ユーティリティ関数
+
+// 指定したidのファイルが格納されるディレクトリの相対パス文字列を取得する
+function get_file_stored_dir($file_id) {
+	return sprintf ( "/%05d/%d", floor ( ($file_id - 1) / 100 ) * 100, $file_id );
+}
+
+// 指定したディレクトリ内に存在するファイルの数を返す
+function get_stored_file_num($store_dir) {
+	$pdf_num = 0;
+	$hdl = opendir ( $store_dir );
+	while ( $pdf_file = readdir ( $hdl ) ) {
+		if (! is_dir ( $pdf_file )) {
+			// ディレクトリ内のpdfファイルの数をチェック
+			$pdf_num ++;
+		}
+	}
+	closedir ( $hdl );
+	return $pdf_num;
+}
+
+// ipアドレスか、ホスト名で検証機チェックを行う
+function is_from_test($remote_addr, $remote_host) {
+	global $TEST_WEB_SERVER;
+	if ($remote_addr === $TEST_WEB_SERVER) {
+		// 検証機とIPアドレスが一致
+		return true;
+	} else if ($remote_host === $TEST_WEB_SERVER) {
+		// 検証機とホスト名が一致
+		return true;
+	}
+	// アクセス元は検証機ではない
+	return false;
+}
+
+// pdfダウンロードログを出力する
+function log_pdf_download($log_file_path, $user_id, $file_nm, $msg = "") {
+	// ログファイルを開く
+	$hdl = fopen ( $log_file_path, "a+" );
+	if ($hdl) {
+		// ダウンロードログを追記する
+		flock ( $hdl, LOCK_EX );
+		fprintf ( $hdl, "%s, %s, %s, $msg\n", date ( "Y/m/d H:i:s" ), $user_id, $file_nm, $msg ); // 現在日時、ユーザID、ファイル名を書き込む
+		flock ( $hdl, LOCK_UN );
+		fclose ( $hdl );
+		return true;
+	}
+	return false;
+}
+
+// 指定したディレクトリ内にあるファイルを全て削除したのち、指定ディレクトリを削除する
+function delete_dir($path) {
+	$strDir = opendir ( $path );
+	while ( $strFile = readdir ( $strDir ) ) {
+		if ($strFile != '.' && $strFile != '..') { // ディレクトリでない場合のみ
+			unlink ( $path . '/' . $strFile );
+		}
+	}
+	rmdir ( $path );
+}
+
+// パスワードをハッシュ化する
+function pw_hash($pwd) {
+	if (isset ( $pwd )) {
+		$salt1 = '$6$rounds=8764$';
+		$salt2 = '5x1.sccKKjfd87//.efaAsalt$';
+		$hpwd = crypt ( $pwd, $salt1 . $salt2 );
+		$hpwd = str_replace ( $salt1, '', $hpwd );
+		return $hpwd;
+	}
+}
+
+//
+function get_pdf_filename($filename) {
+	if (substr ( $filename, - 4 ) == '.pdf') {
+		return substr ( $filename, 0, strrpos ( $filename, '.' ) );
+	}
+	return $filename;
+}
+?>

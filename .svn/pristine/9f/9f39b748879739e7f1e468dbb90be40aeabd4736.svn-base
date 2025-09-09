@@ -1,0 +1,24 @@
+<p id="pager" class="page_count">
+
+	該当件数： {$list|@count}&nbsp;&nbsp;
+	<a href="#" class="first" onclick="return false;"><img alt="最初" onclick="return false;" src="image/btn_prev011.jpg" class="page_arrow_input" /></a>
+	<a href="#" class="prev" onclick="return false;"><img alt="前へ" onclick="return false;" src="image/btn_prev022.jpg" class="page_arrow_input" /></a>
+	<input type="text" class="pagedisplay  count_input" readonly>
+	<a href="#" class="next" onclick="return false;"><img alt="次へ" onclick="return false;" src="image/btn_next011.jpg" class="page_arrow_input" /></a>
+	<a href="#" class="last" onclick="return false;"><img alt="最後" onclick="return false;" src="image/btn_next022.jpg" class="page_arrow_input" /></a>
+
+	&nbsp;&nbsp;表示件数：
+	<select class="pagesize">
+
+		<option value="5">5件</option>
+		<option value="25">25件</option>
+		<option selected="selected" value="50">50件</option>
+		<option value="100">100件</option>
+		<option value="250">250件</option>
+		<option value="500">500件</option>
+		<option value="1000">1000件</option>
+		<option value="5000">5000件</option>
+	</select>
+
+</p>
+

@@ -1,0 +1,244 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!-- Meta -->
+{include file="page_meta.tpl.html"}
+<!-- /Meta -->
+<link rel="stylesheet" type="text/css" href="css/default.css" media="screen,print" />
+<title>文書ファイル管理ツール</title>
+
+<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+
+<script src="js/jquery.tablesorter.js" type="text/javascript"></script>
+<!--
+<script src="js/jquery.tablesorter.pager.js" type="text/javascript"></script>
+ -->
+<script type="text/javascript" src="js/file_table_sorter2.js"></script>
+
+<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+<link type="text/css" rel="stylesheet" href="css/jquery-ui.css" />
+
+
+
+<script language="javascript">
+
+	//--datepicker制御
+
+	$(function(){
+		$(".datepicker").datepicker({
+			changeMonth: true,
+			changeYear: true,
+			showOn: "focus",
+			dateFormat: "yy/mm/dd",
+			showAnim: "slideDown",
+			beforeShow: function(){
+				$('#ui-datepicker-div').css('font-size', '80%');
+			}
+		});
+	});
+
+
+</script>
+
+</head>
+
+<body>
+
+<div id="skip_link_block">
+	<ul>
+		<li><a href="#main_content_anc">本文へジャンプします</a></li>
+
+	</ul>
+	<p id="pageTop">ページの先頭です</p>
+</div>
+
+<div id="contents">
+
+<!-- Header Area -->
+{include file="page_header.tpl.html"}
+<!-- /Header Area -->
+
+<!-- Contents Area -->
+
+<div id="contents_body" class="clearfix">
+
+	<div id="skip_menu_block">
+		<p id="side_navi_anc"><a name="side_navi_anc">メニューの始まりです</a></p>
+	</div>
+
+	<!-- Left Navi Area -->
+	{include file="left_menu.tpl.html" role_info=$role_info func_info=$func_info}
+	<!-- /Left Navi Area -->
+
+	<!-- Main Contents Area -->
+	<div id="main_content_area">
+
+		<div id="skip_main_block">
+			<p id="main_content_anc"><a name="main_content_anc">本文の始まりです</a></p>
+		</div>
+
+		<h2><em>一括設定</em></h2>
+
+		<form name="edit_publish_form" method="post" id="edit_publish_form">
+
+		<p class="text">
+			{foreach from=$err_array item=err}
+			<span class="text_red text_wb">{$err}</span><br>
+			{/foreach}
+		</p>
+
+		<p class="text">
+			{foreach from=$msg_array item=msg}
+			<span class="text_blue text_wb">{$msg}</span><br>
+			{/foreach}
+		</p>
+
+		<!-- ソート　テーブル -->
+		<table id="file_table_sorter" class="tablesorter">
+			<thead>
+				<tr>
+					<th class="header">ファイル</th>
+					<th class="header">文書種類</th>
+					<th class="header">名称</th>
+					<th class="header">掲載開始日</th>
+					<th class="header">販売終了日</th>
+					<th class="header">現在</th>
+					<th class="header">反映後</th>
+
+					<!--<th class="header"></th> -->
+				</tr>
+			</thead>
+
+			<tbody>
+		      {foreach from=$list item=data}
+			    <tr>
+			    <td>
+			    {$data.file_nm|escape|replace:',':'<br>'}
+			    <input type="hidden" name="file_id[]" value="{$data.id}"></input>
+			    <!--
+			    <a href="#" onclick="show_edit_file({$data.id});return false;">{$data.file_nm|escape|replace:',':'<br>'}</a>
+			    -->
+			    </td>
+			    <td nowrap>{$data.type_nm|escape|replace:'\n':'<br>'}</td>
+			    <td>{$data.product_nm|escape}</td>
+			    {if !is_null($data.edit_update_dt) }
+			    <td>{$data.edit_publish_start_dt|escape|date_format:"%Y/%m/%d"}</td>
+			    {else}
+			    <td>{$data.publish_start_dt|escape|date_format:"%Y/%m/%d"}</td>
+			    {/if}
+
+			    {if !is_null($data.edit_update_dt) }
+			    <td>{$data.edit_sale_end_dt|escape|date_format:"%Y/%m/%d"}</td>
+			    {else}
+			    <td>{$data.sale_end_dt|escape|date_format:"%Y/%m/%d"}</td>
+			    {/if}
+
+				<td align="center">
+		        {if $data.status_flg == 1}
+		        	{if $data.publish_start_dt|strtotime < $smarty.now}
+       				<div class="open">
+			        公開
+			        </div>
+	     	    	{else}
+    				<div class="ready">
+			        公開<br>予定
+			        </div>
+			        {/if}
+			    {else}
+			    	{if $data.publish_dt}<div class="close">非公開</div>{else}<div class="new">新規</div>{/if}
+			    {/if}
+			    </div>
+			    </td>
+
+			    <td align="center">
+		        {if $data.edit_status_flg == 1}
+		        	{if $data.edit_publish_start_dt|strtotime < $smarty.now}
+       				<div class="open">
+			        公開{*(PDF)*}
+			        </div>
+			        {else}
+    				<div class="ready">
+			        公開<br>予定
+			        </div>
+			        {/if}
+	     	    {elseif $data.edit_status_flg == 2}
+    				<div class="open">
+			        公開{*(PDF/キーワード)*}
+			        </div>
+			    {elseif isset($data.edit_status_flg)}{if $data.edit_status_flg == 0}<div class="close">非公開</div>{/if}{/if}
+			    </div>
+			    </td>
+
+			    <!--
+			    <td align="center">
+				<input type="button" value="　編集　" onclick="show_edit_file({$data.id});"></input>
+			    </td>
+			      -->
+			    </tr>
+			  {foreachelse}
+
+		      {/foreach}
+			</tbody>
+		</table>
+
+
+		<!-- 登録情報入力 -->
+		<div class="task_input_form">
+
+			<table>
+			<tr>
+				<td>
+					<div>掲載開始日</div>
+				</td>
+				<td>
+					<input type="text" name="publish_start_dt" value="" size="25" maxlength="50" class="datepicker"></input>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<div>販売終了日</div>
+				</td>
+				<td>
+					<input type="text" name="sale_end_dt" value="" size="25" maxlength="50" class="datepicker"></input>
+				</td>
+			</tr>
+
+			<tr>
+				<td><div>公開設定</div></td>
+				<td>
+					<label for="publish_on"><input type="radio" id="publish_on" name="status_flg" value="1" checked>公開</label>
+					<label for="publish_off"><input type="radio" id="publish_off" name="status_flg" value="0">非公開</label>
+				</td>
+			</tr>
+
+			</table>
+ 			<input type="hidden" name="update" value="true"></input>
+
+			<p class="center">
+			<input type="image" alt="変更する" src="image/btn_change.jpg" name="edit_publish_config_submit" onclick="return confirm('一括設定を行います');">
+			<input type="image" alt="キャンセル" src="image/btn_cancel.jpg" onclick="window.location.href='manage_file.php'; return false;">
+			</p>
+		</div>
+		</form>
+
+		<p class="left">
+		<input type="image" class="btn_input_sp_rigt" alt="公開管理トップへ" src="image/btn_gotoopen.jpg" onclick="window.location.href='manage_publish.php'; return false;">
+		</p>
+
+	</div>
+	<!-- /Main Contents Area -->
+
+</div>
+<!-- /Contents Area -->
+
+
+<!-- Footer Area -->
+{include file="page_footer.tpl.html"}
+<!-- /Footer Area -->
+
+</div>
+</body>
+</html>
+
+

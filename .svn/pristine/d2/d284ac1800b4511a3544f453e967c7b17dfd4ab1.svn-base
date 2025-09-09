@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!-- Meta -->
+{include file="page_meta.tpl.html"}
+<!-- /Meta -->
+<link rel="stylesheet" type="text/css" href="css/default.css" media="screen,print" />
+<title>文書ファイル管理ツール</title>
+
+<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="js/clinic_checkbox.js"></script>
+
+<script type="text/javascript" src="js/exvalidation.js"></script>
+<script type="text/javascript" src="js/exchecker-ja.js"></script>
+
+<link type="text/css" rel="stylesheet" href="css/exvalidation.css" />
+
+<script language="javascript">
+	$(function() {
+		//$("#add_file_form").validation();
+		$("#edit_user_form").exValidation({
+		    errInsertPos: 'after',
+		    errPosition: 'fixed',
+		    stepValidation: true,
+		    customListener: "",
+
+		    customAddError: function() {
+	        //if ( $("#alert").length<1 ) {
+	          //$("p.attention").before("<div id=\"alert\"><strong>入力内容に誤りがあります。</strong></div>");
+		          alert("入力内容に不備があります");
+	        //}
+			},
+
+			customClearError: function() {
+				return confirm('ユーザ情報を変更します');
+			},
+
+			stepValidation: true
+		});
+	});
+</script>
+
+</head>
+
+<body>
+
+<div id="skip_link_block">
+	<ul>
+		<li><a href="#main_content_anc">本文へジャンプします</a></li>
+
+	</ul>
+	<p id="pageTop">ページの先頭です</p>
+</div>
+
+<div id="contents">
+
+<!-- Header Area -->
+{include file="page_header.tpl.html"}
+<!-- /Header Area -->
+
+<!-- Contents Area -->
+
+<div id="contents_body" class="clearfix">
+
+	<div id="skip_menu_block">
+		<p id="side_navi_anc"><a name="side_navi_anc">メニューの始まりです</a></p>
+	</div>
+
+	<!-- Left Navi Area -->
+	{include file="left_menu.tpl.html" role_info=$role_info func_info=$func_info}
+	<!-- /Left Navi Area -->
+
+	<!-- Main Contents Area -->
+	<div id="main_content_area">
+
+		<div id="skip_main_block">
+			<p id="main_content_anc"><a name="main_content_anc">本文の始まりです</a></p>
+		</div>
+
+		<h2><em>ユーザの編集</em></h2>
+
+		<form name="edit_user_form" method="post" id="edit_user_form">
+
+		<p class="text">
+			{foreach from=$msg_array item=msg}
+			<span class="text_red text_wb">{$msg}</span><br>
+			{/foreach}
+		</p>
+
+		<p class="text">
+			<span class="text_red">(*:必須)</span>
+		</p>
+
+		<!-- 登録情報入力 -->
+		<div class="task_input_form">
+
+			<table>
+				<tr>
+					<td><div>ユーザID</div></td><td>{$user_info.login_nm|escape}<input type="hidden" name="login_nm" value="{$user_info.login_nm|escape}"></input></td>
+				</tr>
+				<!---
+				<tr><td>パスワード</td><td><input type="text" name="password" value="{$user_info.password|escape}" size="25" class="chkhankaku chkmin8" id="password"></input></td></tr>
+				--->
+				<tr>
+					<td><div>権限名</div></td>
+					<td>
+						<select name="role_id">
+						{html_options options=$role_options selected=$user_info.role_id}
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td><div>状態</div></td>
+					<td>
+						<select name="status_flg">
+						{html_options options=$status_options selected=$user_info.status_flg}
+						</select>
+					</td>
+				</tr>
+
+				<tr>
+					<td><div>名前<span class="text_red">*</span></div></td>
+					<td><input type="text" name="user_nm" value="{$user_info.user_nm|escape}" size="25" class="chkrequired" id="user_nm"></input></td>
+				</tr>
+				<tr>
+					<td><div>会社名/所属<span class="text_red">*</span></div></td>
+					<td><input type="text" name="department_nm" value="{$user_info.department_nm|escape}" size="50" class="chkrequired" id="department_nm"></td>
+				</tr>
+				<tr>
+					<td><div>電話番号<span class="text_red">*</span></div></td>
+					<td><input type="text" name="tel" value="{$user_info.tel|escape|escape}" size="25" class="chkrequired chktel" id="tel"></td>
+				</tr>
+				<tr>
+					<td><div>E-Mail<span class="text_red">*</span></div></td>
+					<td><input type="text" name="email" value="{$user_info.email|escape|escape}" size="25" class="chkrequired chkemail" id="email"></td>
+				</tr>
+			</table>
+
+			<!--
+			<input type="button" value="ユーザ削除"></input>
+			-->
+			<input type="hidden" name="id" value="{$user_info.id}"></input>
+
+			<p class="center">
+			<input type="image" alt="変更する" src="image/btn_change.jpg">
+			<input type="image" alt="キャンセル" src="image/btn_cancel.jpg" onclick="window.location.href='manage_user.php'; return false;">
+			</p>
+
+		</div>
+		</form>
+
+	</div>
+	<!-- /Main Contents Area -->
+
+</div>
+<!-- /Contents Area -->
+
+
+<!-- Footer Area -->
+{include file="page_footer.tpl.html"}
+<!-- /Footer Area -->
+
+</div>
+</body>
+</html>
+
+

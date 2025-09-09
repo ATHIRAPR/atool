@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!-- Meta -->
+{include file="page_meta.tpl.html"}
+<!-- /Meta -->
+<title>文書ファイル管理ツール</title>
+<link rel="stylesheet" type="text/css" href="css/default.css" media="screen,print" />
+<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+
+<style type="text/css">
+
+.task_input_form table {
+	table-layout: fixed;
+	overflow: hidden;
+}
+
+.task_input_form td:first-child {
+	width: 7em;
+}
+
+.task_input_form td * {
+	vertical-align: middle;
+}
+
+#document_count {
+	margin-left: 1em;
+}
+
+.filename {
+	width: 70%;
+}
+
+.uploader_area {
+	overflow: hidden;
+	position: relative;
+}
+
+.uploader {
+/*	opacity: 0;
+	filter: alpha(opacity=0);
+	height: 20px;
+	width: 65px;
+	font-size: 20px;
+	position: absolute;
+	right: 0;*/
+}
+
+.fake_uploader {
+	border: none;
+	background:none;
+	width:auto;
+	overflow:visible;
+	/*cursor:pointer;*/
+}
+
+.confirmation {
+	border: none;
+	margin-left: 30%;
+	background:none;
+	width:auto;
+	overflow:visible;
+	/*cursor:pointer;*/
+}
+
+input[readonly] {
+	background-color:#CCC;
+}
+
+</style>
+
+<script type="text/javascript">
+$(function(){
+	// ファイルボタンchangeイベントハンドラ
+	function on_change_uploader() {
+		$(this).parent('.uploader_area').siblings(':text').val($(this).val());
+	}
+
+	// ドキュメント数
+	$('#document_count').change(function() {
+		$('form[name=form_main] tr.uploader_row').each(function(i, value) {
+			if (i < $('#document_count').val()) {
+				$(this).css('display', '');
+			}
+			else {
+				$(this).css('display', 'none').find(':text').val('');
+				$(this).find(':file').replaceWith(
+					$('<input type="file" class="uploader" name="pdf_document[]" />').change(on_change_uploader));
+			}
+		});
+	});
+
+	// ファイルボタン
+	$('.uploader').change(on_change_uploader);
+
+	// 初期表示
+	$('#document_count').change();
+});
+</script>
+
+</head>
+
+<body>
+
+<div id="skip_link_block">
+	<ul>
+		<li><a href="#main_content_anc">本文へジャンプします</a></li>
+
+	</ul>
+	<p id="pageTop">ページの先頭です</p>
+</div>
+
+<div id="contents">
+
+<!-- Header Area -->
+{include file="page_header.tpl.html"}
+<!-- /Header Area -->
+
+<!-- Contents Area -->
+<div id="contents_body" class="clearfix">
+
+	<!-- Left Navi Area -->
+	{include file="left_menu.tpl.html" role_info=$role_info func_info=$func_info}
+	<!-- /Left Navi Area -->
+
+	<!-- Main Contents Area -->
+	<div id="main_content_area">
+
+		<div id="skip_main_block">
+			<p id="main_content_anc"><a name="main_content_anc">本文の始まりです</a></p>
+		</div>
+
+		<h2><em>キーワード抽出ファイル選択</em></h2>
+
+		<!-- 入力画面 -->
+		<form name="form_main" action="extract_keyword.php" target="_self" method="post" enctype="multipart/form-data">
+		<div class="task_input_form">
+			<table>
+				<tbody>
+					<tr>
+						<td></td>
+						<td>
+							最大{$max_limit_document}個までファイルを選択出来ます
+							<select id="document_count">
+							{for $i=1 to $max_limit_document}
+								<option value="{$i}">{$i}</option>
+							{/for}
+							</select>
+						</td>
+					</tr>
+					<tr><td></td>
+					<td><span class="text_red text_s">※キーワード抽出対象はPDFファイルのみです。PDFファイルを投入してください。</span></td>
+					</tr>
+					{for $i=1 to $max_limit_document}
+					<tr class="uploader_row">
+						<td>{if $i == 1}文書ファイル{/if}</td>
+						<td>
+							<div><!--
+								<input type="text" class="filename" readonly />
+								<span class="uploader_area">
+									<button type="button" class="fake_uploader"><img alt="参照" src="image/btn_refer.jpg" /></button>--->
+									<input type="file" class="uploader" name="pdf_document[]" />
+								<!---</span>
+							</div>-->
+						</td>
+					</tr>
+					{/for}
+					<tr>
+						<td></td>
+						<td>
+							<button type="submit" class="confirmation"><img alt="確認する" src="image/btn_confirmation.jpg" /></button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		</form>
+
+		<div id="skip_end_block">
+			<p id="pageEnd">本文の終わりです。</p>
+		</div>
+
+		<p class="goto_pagetop"><a href="#header"><img src="../image/common/btnPagetop.gif" alt="ページの先頭へ" /></a></p>
+
+	</div>
+	<!-- /Main Contents Area -->
+
+</div>
+<!-- /Contents Area -->
+
+
+<!-- Footer Area -->
+{include file="page_footer.tpl.html"}
+<!-- /Footer Area -->
+
+</div>
+</body>
+</html>
+
+

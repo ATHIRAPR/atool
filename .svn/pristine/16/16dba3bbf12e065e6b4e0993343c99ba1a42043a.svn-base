@@ -1,0 +1,9 @@
+<?php
+require_once ("include/init.php.inc");
+require_once ("include/smarty.php.inc");
+require_once ("include/db.php.inc");
+require_once ("include/auth.php.inc");
+require_once ("include/util.php.inc");
+show_template_page ( "login.tpl.html" );
+exit ();
+?>

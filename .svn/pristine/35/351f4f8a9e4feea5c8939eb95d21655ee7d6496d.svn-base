@@ -1,0 +1,26 @@
+<?php
+require_once ("include/init.php.inc");
+require_once ("include/smarty.php.inc");
+require_once ("include/db.php.inc");
+require_once ("include/auth.php.inc");
+require_once ("include/util.php.inc");
+
+// ファイル管理権限が無い場合は、エラーにする
+if ($role_info [file_role_flg] != 1) {
+    // エラーメッセージ表示
+    show_error_page ( array (
+        "ファイル管理者の権限がありません" 
+    ), "manage.php", "トップページへ戻る" );
+    exit ();
+}
+
+$product_nm = $_GET ['product_nm'];
+
+$smarty->assign ( "product_nm", $product_nm );
+
+$result_ary = search_product_nm ( $product_nm );
+$smarty->assign ( 'list', $result_ary );
+show_template_page ( "manage_product.tpl.html" );
+exit ();
+
+?>

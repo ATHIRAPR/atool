@@ -1,0 +1,17 @@
+      <div id="left_navi">
+		<ul class="mainnavi">
+			{if $role_info.file_role_flg == 1}
+			<li><a href="manage_file.php" {if $func_info.file}class="crnt"{/if}><img alt="" src="image/mainnavi_icon01.gif">ファイル管理</a></li>
+			{/if}
+			{if $role_info.user_role_flg == 1}
+			<li><a href="manage_user.php" {if $func_info.user}class="crnt"{/if}><img alt="" src="image/mainnavi_icon02.gif">ユーザ管理</a></li>
+			{/if}
+			{if $role_info.publish_role_flg == 1}
+			<li><a href="manage_publish.php" {if $func_info.publish}class="crnt"{/if}><img alt="" src="image/mainnavi_icon03.gif">公開管理</a></li>
+			{/if}
+		</ul>
+		<ul class="subnavi">
+			<li><a href="change_user_password.php"><img alt="" src="image/subnavi_icon01.gif">パスワード変更</a></li>
+			<li><a href="logout.php"><img alt="" src="image/subnavi_icon02.gif">ログアウト</a></li>
+		</ul>
+	</div>

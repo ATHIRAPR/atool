@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<!-- Meta -->
+		{include file="page_meta.tpl.html"}
+		<!-- /Meta -->
+		<link rel="stylesheet" type="text/css" href="css/default.css" media="screen,print" />
+		<title>文書ファイル管理ツール</title>
+
+		<script src="js/jquery-1.7.1.min.js" type="text/javascript"></script>
+		<script src="js/jquery.tablesorter.js" type="text/javascript"></script>
+		<script src="js/jquery.tablesorter.pager.js" type="text/javascript"></script>
+		<script type="text/javascript" src="js/user_table_sorter.js"></script>
+
+		<script language="javascript">
+			function show_add_user() {
+				var form = document.add_user_form;
+				form.action = "add_user.php";
+				form.submit();
+			}
+
+			function show_edit_user(id) {
+				var form = document.edit_user_form;
+				form.action = "edit_user.php";
+				form.id.value = id;
+				form.submit();
+			}
+		</script>
+
+	</head>
+
+	<body>
+
+		<div id="skip_link_block">
+			<ul>
+				<li>
+					<a href="#main_content_anc">本文へジャンプします</a>
+				</li>
+
+			</ul>
+			<p id="pageTop">
+				ページの先頭です
+			</p>
+		</div>
+
+		<div id="contents">
+
+			<!-- Header Area -->
+			{include file="page_header.tpl.html"}
+			<!-- /Header Area -->
+
+			<!-- Contents Area -->
+			<div id="contents_body" class="clearfix">
+
+				<!-- Left Navi Area -->
+				{include file="left_menu.tpl.html" role_info=$role_info func_info=$func_info}
+				<!-- /Left Navi Area -->
+
+				<!-- Main Contents Area -->
+				<div id="main_content_area">
+
+					<div id="skip_main_block">
+						<p id="main_content_anc">
+							<a name="main_content_anc">本文の始まりです</a>
+						</p>
+					</div>
+
+					<h2><em>ユーザ管理</em></h2>
+
+					<form name="add_user_form">
+						<p class="text">
+							<input type="image" alt="ユーザを新規登録" src="image/btn_newuser.jpg" onclick="javascript:show_add_user();">
+							</input>
+						</p>
+					</form>
+
+					<!-- 検索条件入力 -->
+					<div class="task_select">
+						<form name="search_user" method="post">
+							<table>
+								<tr>
+									<td>
+									<div>
+										ユーザID
+									</div></td>
+									<td>
+									<input type="text" name="login_nm" id="login_nm" style="width:200px;"  value="{$login_nm|escape}" maxlength="100" />
+									</td>
+									<td>
+									<div>
+										名前
+									</div></td>
+									<td>
+									<input type="text" name="user_nm" id="user_nm" style="width:200px;" value="{$user_nm|escape}" maxlength="100" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<div>
+										権限名
+									</div></td>
+									<td>
+									<select name="role_id" style="width:200px; margin-right:10px;">
+										{html_options options=$role_options selected=$role_id}
+									</select></td>
+									<td>
+									<div>
+										状態
+									</div></td>
+
+									<td>
+									<select name="status_flg" style="width:200px;">
+										{html_options options=$status_options selected=$status_flg}
+									</select></td>
+								</tr>
+								<tr>
+									<td colspan="2"><td>&nbsp;</td><td align="right">
+									<input type="image" src="image/btn_search2.jpg" name="button" id="button" onclick="javascript:document.search_user.submit(); return false;" />
+									<input type="image" alt="条件をクリアする" src="image/btn_clear.jpg"  onclick="window.location.href='manage_user.php'; return false;">
+									</td>
+								</tr>
+							</table>
+						</form>
+					</div>
+
+					<!-- ページ送り  -->
+					{include file='table_pager.tpl.html'}
+					<!-- /ページ送り  -->
+
+					<!-- ソート　テーブル -->
+					<table id="user_table_sorter" class="tablesorter">
+						<thead>
+							<tr>
+								<th class="header headerSortDown" height="23">ユーザID</th>
+								<th class="header">名前</th>
+								<th class="header">権限名</th>
+								<th class="header">状態</th>
+								<th class="header">作業日時</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							{foreach from=$list item=data}
+							<tr>
+								<td><a href='#' onclick='javascript:show_edit_user({$data.id|escape}); return false;'>{$data.login_nm|escape}</td>
+								<td>{$data.user_nm|escape}</td>
+								<td class="center">{$data.role_nm|escape}</td>
+								{if $data.status_flg == 1}
+								<td align="center">
+								<div class="open">
+									使用中
+								</div></td>
+								{else}
+								<td align="center">
+								<div class="close">
+									休止中
+								</div></td>
+								{/if}
+								<td>{$data.update_dt|escape|date_format:"%Y/%m/%d %H:%M:%S"}</td>
+							</tr>
+							{foreachelse}
+
+							{/foreach}
+
+					</table>
+					</tbody>
+
+					</table>
+					<!-- /ソート　テーブル -->
+
+					<form name="edit_user_form" method="get">
+						<input type="hidden" name="id" />
+					</form>
+
+					<div id="skip_end_block">
+						<p id="pageEnd">
+							本文の終わりです。
+						</p>
+					</div>
+
+					<p class="goto_pagetop">
+						<a href="#header"><img src="../image/common/btnPagetop.gif" alt="ページの先頭へ" /></a>
+					</p>
+
+				</div>
+				<!-- /Main Contents Area -->
+
+			</div>
+			<!-- /Contents Area -->
+
+			<!-- Footer Area -->
+			{include file="page_footer.tpl.html"}
+			<!-- /Footer Area -->
+
+		</div>
+	</body>
+</html>
+

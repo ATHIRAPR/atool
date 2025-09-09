@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!-- Meta -->
+{include file="page_meta.tpl.html"}
+<!-- /Meta -->
+<title>文書ファイル管理ツール</title>
+<link rel="stylesheet" type="text/css" href="css/default.css" media="screen,print" />
+<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+
+<style type="text/css">
+#product_table_sorter tbody th:first-child {
+	width: 3em;
+	vertical-align: top;
+	padding-top: 0.5em;
+}
+
+#product_table_sorter tbody th:first-child + td {
+	width: 45%;
+}
+.new_keyword_area {
+	text-align: left;
+}
+</style>
+
+<script type="text/javascript">
+$(function () {
+	// 親画面に値を設定し、ウィンドウを閉じる
+	$('#entry_keyword').click(function () {
+		window.opener.$('#keyword_group_area textarea').val($.trim($('input[name=rep_name]:checked').map(function() {
+			return $.trim($(this).val());
+		}).get().join("\n")));
+		window.close();
+		return false;
+	});
+
+	// キーワード新規追加
+	$('#new_keyword').click(function () {
+		location.href = './edit_representative_kw.php{if $mng == 1}?mng=1{/if}';
+		return false;
+	});
+
+	// キャンセル
+	$('#cancel').click(function () {
+		window.close();
+		return false;
+	});
+
+	// 親画面で入力されているキーワードをチェックする
+	var lines = window.opener.$('#keyword_group_area textarea').val().replace(/\r\n|\r/g, "\n").split('\n');
+	$.each(lines, function(i, value) {
+		var obj = $("input[name=rep_name][value='" + value + "']");
+		if (obj)
+			obj.prop('checked', true);
+	});
+});
+</script>
+
+</head>
+
+<body>
+
+<div id="skip_link_block">
+	<ul>
+		<li><a href="#main_content_anc">本文へジャンプします</a></li>
+
+	</ul>
+	<p id="pageTop">ページの先頭です</p>
+</div>
+
+<div id="contents">
+
+<!-- Header Area -->
+{include file="page_header.tpl.html"}
+<!-- /Header Area -->
+
+<!-- Contents Area -->
+<div id="contents_body" class="clearfix">
+
+	<!-- Main Contents Area -->
+	<div id="main_content_area">
+
+		<div id="skip_main_block">
+			<p id="main_content_anc"><a name="main_content_anc">本文の始まりです</a></p>
+		</div>
+
+		<h2><em>{if $mng == 1}代表キーワード管理{else}代表キーワード選択{/if}</em></h2>
+
+		<form>
+			{if !$representative_kw_list}
+			<p class="text">代表キーワードは登録されていません。</p>
+			{/if}
+
+			{if $mng == 1}
+			<div class="new_keyword_area">
+				<input type="image" id="new_keyword" alt="代表キーワードを新規登録" src="image/btn_keywordregistration.jpg" />
+			</div>
+			{/if}
+
+			{if $representative_kw_list}
+			<table id="product_table_sorter" class="tablesorter">
+				<tbody>
+				{foreach from=$representative_kw_list item=data}
+					<tr>
+						{if $mng != 1}
+						<th {if $data.keywords|count > 1}rowspan="{$data.keywords|count + 1}"{/if} class="center">
+							<input type="checkbox" name="rep_name" value="{$data.representative_name|escape}" />
+						</th>
+						{/if}
+						<td {if $data.keywords|count > 1}rowspan="{$data.keywords|count + 1}"{/if}>
+							<a href="edit_representative_kw.php?rep_id={$data.representative_id}{if $mng == 1}&mng=1{/if}" target="_self">{$data.representative_name|escape}</a>
+						</td>
+						{if $data.keywords|count == 1}
+						<td>{$data.keywords[0]|escape}</td>
+						{/if}
+					</tr>
+					{if $data.keywords|count > 1}
+					{foreach from=$data.keywords item=keyword}
+					<tr>
+						<td>{$keyword|escape}</td>
+					</tr>
+					{/foreach}
+					{/if}
+				{/foreach}
+				</tbody>
+			</table>
+			{/if}
+
+			<p class="center">
+				{if $mng != 1}
+					{if $representative_kw_list}
+				<input type="image" id="entry_keyword" alt="キーワードを反映する" src="image/btn_keywordreflection.jpg" />
+					{/if}
+				{/if}
+				<input type="image" id="cancel" alt="キャンセル" src="image/btn_cancel.jpg" />
+			</p>
+		</form>
+	</div>
+	<!-- /Main Contents Area -->
+
+</div>
+<!-- Contents Area -->
+
+<!-- Footer Area -->
+{include file="page_footer.tpl.html"}
+<!-- /Footer Area -->
+
+</div>
+</body>
+</html>

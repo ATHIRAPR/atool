@@ -1,0 +1,108 @@
+<?php
+require_once ("include/init.php.inc");
+require_once ("include/smarty.php.inc");
+require_once ("include/db.php.inc");
+require_once ("include/auth.php.inc");
+require_once ("include/util.php.inc");
+// 選択された左メニュー項目
+$smarty->assign ( "func_info", array (
+    "user" => 1 
+) );
+// ユーザ管理権限が無い場合は、エラーにする
+if ($role_info ['user_role_flg'] != 1) {
+    // エラーメッセージ表示
+    show_error_page ( array (
+        "ユーザ管理者の権限がありません" 
+    ), "manage.php", "トップページへ戻る" );
+    exit ();
+}
+$uim = new UserInfoManager ();
+$rmm = new RoleMasterManager ();
+$role_all = $rmm->get_all ();
+foreach ( $role_all as $role ) {
+    $role_options [$role ['id']] = $role ['role_nm'];
+}
+$status_options = array ( // 0 => "",
+    0 => "休止",
+    1 => "使用中" 
+);
+if ($_SERVER ['REQUEST_METHOD'] === "GET") {
+    $id = $_GET ['id']; // ユーザID取得
+} else if ($_SERVER ['REQUEST_METHOD'] === "POST") {
+    $id = $_POST ['id'];
+}
+$user_info = $uim->get ( $id ); // ユーザ情報取得
+if (! $user_info) {
+    // エラーメッセージ表示
+    show_error_page ( array (
+        "編集対象のユーザが存在しません" 
+    ), "manage_user.php", "ユーザ管理へ戻る" );
+    exit ();
+}
+if ($_SERVER ['REQUEST_METHOD'] === "POST") {
+    // 更新処理
+    $role_id = $_POST ['role_id'];
+    $status_flg = $_POST ['status_flg'];
+    $user_nm = $_POST ['user_nm'] = mb_convert_encoding ( $_POST ['user_nm'], "UTF-8", $OUTPUT_ENCODING );
+    $department_nm = $_POST ['department_nm'] = mb_convert_encoding ( $_POST ['department_nm'], "UTF-8", $OUTPUT_ENCODING );
+    $tel = $_POST ['tel'] = mb_convert_encoding ( $_POST ['tel'], "UTF-8", $OUTPUT_ENCODING );
+    $email = $_POST ['email'] = mb_convert_encoding ( $_POST ['email'], "UTF-8", $OUTPUT_ENCODING );
+    // 入力チェック、すべて必須
+    if (! $id) {
+        $msg_array [] = "更新対象のユーザIDが指定されていません";
+    }
+    // ログインユーザが自分自身のユーザ情報は変更できないようにする
+    if ($id == $_SESSION ['login_info'] ['id']) {
+        $msg_array [] = "ログインユーザ自身のユーザ情報は変更できません";
+    } else {
+        if (! $user_nm) {
+            $msg_array [] = "名前が入力されていません";
+        }
+        if (! $department_nm) {
+            $msg_array [] = "会社/所属が入力されていません";
+        }
+        if (! $tel) {
+            $msg_array [] = "電話番号が入力されていません";
+        }
+        if (! $email) {
+            $msg_array [] = "E-MAILが入力されていません";
+        }
+    }
+    if (0 < count ( $msg_array )) {
+        // ユーザ編集の入力画面を表示する(エラーメッセージ)
+        $smarty->assign ( "user_info", $_POST );
+        $smarty->assign ( "role_options", $role_options );
+        $smarty->assign ( "status_options", $status_options );
+        show_template_page ( "edit_user.tpl.html", $msg_array );
+        exit ();
+    }
+    $update_user_info = array (
+        "role_id" => $role_id,
+        "status_flg" => $status_flg,
+        "user_nm" => $user_nm,
+        "department_nm" => $department_nm,
+        "tel" => $tel,
+        "email" => $email,
+        "update_dt" => date ( "Y/m/d H:i:s" ) 
+    );
+    $uim = new UserInfoManager ();
+    $ret = $uim->set ( $id, $update_user_info ); // ユーザ更新
+    if ($ret) {
+        // 成功
+        $smarty->assign ( "is_succeed", true );
+        show_template_page ( "edit_user_result.tpl.html", $msg_array );
+        exit ();
+    } else {
+        // ユーザ情報の更新失敗
+        show_error_page ( array (
+            "ユーザ情報の更新に失敗しました" 
+        ), "manage_user.php", "ユーザ管理へ戻る" );
+        exit ();
+    }
+}
+$smarty->assign ( "user_info", $user_info );
+$smarty->assign ( "role_options", $role_options );
+$smarty->assign ( "status_options", $status_options );
+show_template_page ( "edit_user.tpl.html" );
+exit ();
+?>

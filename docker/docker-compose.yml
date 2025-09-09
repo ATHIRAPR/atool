@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - '3000:80'
+    depends_on:
+      - mssql
+    environment:
+      MSSQL_DB_HOST: 'mssql'
+      MSSQL_DB_USER: ${MSSQL_DB_USER}
+      MSSQL_DB_PASSWORD: ${MSSQL_DB_PASSWORD}
+      MSSQL_DB_NAME: ${MSSQL_DB_NAME}
+    volumes:
+      - '../public/admin-tool:/var/www/html/public/admin-tool'
+      # - '../app:/var/www/html/fuel/app'
+      - '../mtinfo_data:/var/www/html/mtinfo_data'
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    container_name: mssql_2017
+    environment:
+      SA_PASSWORD: ${MSSQL_DB_PASSWORD}
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+    ports:
+      - '1433:1433'
+    volumes:
+      - mssql_vol:/var/opt/mssql
+      - '${SQL_BK_FILE}:/tmp/admin-tool-MTINFO.bak'
+
+volumes:
+  mssql_vol:
+

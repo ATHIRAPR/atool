@@ -1,0 +1,52 @@
+<?php
+require_once ("include/init.php.inc");
+require_once ("include/smarty.php.inc");
+require_once ("include/db.php.inc");
+require_once ("include/auth.php.inc");
+require_once ("include/util.php.inc");
+require_once ("include/mtutil.php.inc");
+// 選択された左メニュー項目
+$smarty->assign ( "func_info", array (
+    "file" => 1 
+) );
+// ファイル管理権限が無い場合は、エラーにする
+if ($role_info [file_role_flg] != 1) {
+    // エラーメッセージ表示
+    show_error_page ( array (
+        "ファイル管理者の権限がありません" 
+    ), "manage.php", "トップページへ戻る" );
+    exit ();
+}
+// システムIDはセッション情報から取得する
+$sys_id = $_SESSION [sys_id];
+if ($_SERVER ['REQUEST_METHOD'] === "GET") {
+    $file_id = $_GET [id]; // ファイルID取得
+} else if ($_SERVER ['REQUEST_METHOD'] === "POST") {
+    $file_id = $_POST [id]; // ファイルID取得
+}
+$fim = new FileInfoManager ();
+$file_info = $fim->get ( $file_id ); // ファイル情報取得
+if (! $file_info) {
+    // エラーメッセージ表示
+    show_error_page ( array (
+        "編集対象のファイルが存在しません" 
+    ), "manage_file.php", "ファイル管理へ戻る" );
+    exit ();
+}
+// 編集ファイル情報を取得する
+$eim = new EditInfoManager ();
+$edit_info = $eim->get ( $file_id ); // 編集ファイル情報取得
+if ($edit_info && $edit_info ['file_nm']) {
+    $filepath = $UPLOAD_DIR . "/" . $edit_info ['filepath'];
+} else {
+    $filepath = $UPLOAD_DIR . "/" . $file_info ['filepath'];
+}
+if (file_exists ( $filepath ) && is_file ( $filepath )) {
+    header ( "Content-type: application/pdf" );
+    header ( 'Pragma: private' );
+    header ( 'Cache-Control: private' );
+    header ( "Content-length: " . filesize ( $filepath ) );
+    readfile ( $filepath );
+}
+exit ();
+?>

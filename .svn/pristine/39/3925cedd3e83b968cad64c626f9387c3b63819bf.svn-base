@@ -1,0 +1,139 @@
+<?php
+
+require_once("include/init.php.inc");
+require_once("include/smarty.php.inc");
+require_once("include/db.php.inc");
+require_once("include/auth.php.inc");
+require_once("include/util.php.inc");
+
+require_once("include/pdf_stamp.php.inc");
+
+//ファイル管理権限が無い場合は、エラーにする
+if ($role_info[file_role_flg] != 1) {
+	//エラーメッセージ表示
+	show_error_page(array("ファイル管理者の権限がありません"), "manage.php", "トップページへ戻る");
+	exit;
+}
+
+$APACHE_ACCESS_LOG_DIR = "/www/informationmanager/stat/archives";
+//$APACHE_ACCESS_LOG_DIR = "c:/log";
+
+$method = $_SERVER[REQUEST_METHOD];
+
+if ($method === 'GET') {
+	$smarty->assign('list', $file_info_all);
+	show_template_page("sys_apache_log.tpl.html");
+	exit;
+}
+
+
+$download_year = $_POST['download_year'];
+if (!$download_year) {
+	$download_year = "2012";
+}
+
+$download_month = $_POST['download_month'];
+if (!$download_month) {
+	$download_month = "1";
+}
+
+
+$fim = new FileInfoManager();
+$pim = new PublishInfoManager();
+$dmm = new DoctypeMasterManager();
+
+$doctype_all_info = $dmm->get_all();
+
+//$output_buf = "ダウンロード年月: $year/$month\r\n";
+//$output_buf .= "ダウンロード日時,公開ハッシュID(ログ),ユーザID,ファイルID,ファイル名,文書種別,製品タイトル,製品型番\r\n";
+$output_buf .= "ダウンロード日時,ユーザID,ファイル名,文書種別,製品タイトル,製品型番\r\n";
+
+//指定日時に該当するapacheのアクセスログを読み込む処理
+$year_month = $download_year . str_pad($download_month, 2, '0', STR_PAD_LEFT);
+$APACHE_ACCESS_LOG_DIR .= "/$year_month";
+$APACHE_LOGFILE_NAME = "access_log_2." . $year_month;
+
+$hdl = opendir($APACHE_ACCESS_LOG_DIR);
+
+$filenames_array = array();
+
+if ($hdl) {
+	while( ($file = readdir($hdl)) != false ) {
+		if (is_file($APACHE_ACCESS_LOG_DIR . "/" . $file)) {
+			if (strpos($file, $APACHE_LOGFILE_NAME) !== false) {
+				$filenames_array[] = $file;
+			}
+		}
+	}
+}
+closedir($hdl);
+
+//ファイル名をソートする
+asort($filenames_array);
+
+foreach($filenames_array as $file) {
+	//ファイル内容を配列に読み込む
+	$file_content_array = array();
+	exec("zcat " . $APACHE_ACCESS_LOG_DIR . "/" . $file, $file_content_array);
+	//$file_content_array = file($APACHE_ACCESS_LOG_DIR . "/" . $file);
+
+	//一行づつ処理する
+	foreach ($file_content_array as $line) {
+
+		//ダウンロードログを抽出する正規表現パターン
+		//$pattern = '[(?*)] GET \/\/admin\-tool/download\.php\?id=(\s+)&uid=(\s+)';
+		//$pattern = '/[(?*)] \"GET \/\/admin\-tool/download\.php\?id=(\s+)&uid=(\s+) HTTP\/1\.1\"/';]
+		//$pattern = '/\[([\W\w]+ \+0900)\] \"GET \/\/admin-tool\/download\.php\?id=(\w+)&uid=(\w+) HTTP\/1\.1\"/';
+		$pattern = '/\[([\W\w]+ \+0900)\] \"GET \/\/admin-tool\/download\.php\?id=([\W\w]+)&uid=([\W\w]+) HTTP\/1\.0" (\d+) /';
+
+		if (0 < preg_match($pattern, $line, $match)) {
+			//ダウンロードログを取得
+			$dt = date("Y/m/d H:i:s", strtotime($match[1]));
+			$hash_id = $match[2];
+			$uid = $match[3];
+			$status = $match[4];
+
+			//テストユーザは除く
+			if ($uid !== 'omsc2012' && $uid !== 'mt2011') {
+
+				//DBから情報を取得する
+				//公開ハッシュIDから情報取得
+				$pi = $pim->search_url_hash($hash_id);
+
+				if ($pi) {
+					//ハッシュIDから情報が取得できたので
+					//ファイル情報を取得
+					$fileid = $pi[file_id];
+					$fi = $fim->get($fileid);
+					$filename = $fi[file_nm];
+
+					//文書種別取得
+					$doctype_info = $doctype_all_info[$fi[doctype_id]-1];	//文書種別を取得
+
+					//タイトル、型番取得
+					$product_id = $fi[product_id];
+					$product_info = get_product_model($product_id);
+					$product_nm = $product_info[product_nm];
+					$model_nm = $product_info[model_nm];
+
+					//解析情報の書き出し
+					//$output_buf .= "$dt,$hash_id,$uid,$fileid,$filename,$doctype_info[type_nm],$product_nm,$model_nm\r\n";
+					$output_buf .= "$dt,$uid,$filename,$doctype_info[type_nm],$product_nm,$model_nm\r\n";
+
+					//print mb_convert_encoding("$dt, $hash_id, $uid, $fileid, $filename, $doctype_info[type_nm], $product_nm, $model_nm<br>", "SJIS");
+				}
+			}
+
+		}
+	}
+}
+
+
+if ($output_buf) {
+	header("content-disposition: attachment; filename=pdf_download_log_(" . $download_year . "-" . $download_month . ").csv");
+	header("content-type: text/csv;charset=sjis");
+	print mb_convert_encoding($output_buf, "sjis", "utf-8");
+	//print str_replace("\r\n", "<br>", $output_buf);
+}
+
+?>

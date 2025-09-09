@@ -1,0 +1,558 @@
+@charset "utf-8";
+
+/*******************************************
+Import and Settings
+---------------------------------------------
+01 Page Layout
+02 Header Area
+03 Left Navi Area
+04 Main Contents Area
+05 Footer Area
+06 Class
+*******************************************/
+
+/*===========================================
+01 Page Layout
+===========================================*/
+#contents {
+	width: 1200px;
+	border-right: solid 1px #d2d2d2;
+}
+
+#contents_body #left_navi {
+	width: 190px;
+	float: left;
+}
+
+#contents_body #main_content_area {
+	float: left;
+	width: 970px;
+	padding: 20px 0 20px 20px;
+	border-left: solid 1px #d2d2d2;
+}
+
+#footer {
+	clear: both;
+	padding: 20px 0 30px;
+	border-top: solid 1px #d2d2d2;
+	text-align: center;
+}
+
+/*===========================================
+02 Header Area
+===========================================*/
+#header {
+	width: 100%;
+	position: relative;
+	border-bottom: solid 4px #B06FCD;
+	padding: 15px 0;
+}
+
+#header .header_logo {
+	margin: 0 0 10px 15px;
+}
+
+#header .header_subtitle {
+	margin: 0 0 0 15px;
+}
+
+#header .header_mtlogo {
+	position: absolute;
+	top: 36px;
+	right: 15px;
+}
+
+/*===========================================
+03 Left Navi Area
+===========================================*/
+#contents_body #left_navi ul.mainnavi {
+	margin-bottom: 8px;
+}
+
+#contents_body #left_navi ul.mainnavi li {
+	border-bottom: dashed 1px #d2d2d2;
+}
+
+#contents_body #left_navi ul.mainnavi li img {
+	margin-right: 10px;
+	vertical-align: -2px;
+}
+
+#contents_body #left_navi ul.mainnavi li a {
+	display: block;
+	margin: 0;
+	padding: 15px;
+	text-decoration: none;
+	color: #1099e1;
+	font-size: 90%;
+	font-weight: bold;
+}
+
+#contents_body #left_navi ul.mainnavi li a:hover {
+	display: block;
+	color: #1099e1;
+	text-decoration: underline;
+}
+
+#contents_body #left_navi ul.mainnavi li a.crnt {
+	background-color: #daf0fb;
+}
+
+
+#contents_body #left_navi ul.subnavi {
+	margin-bottom: 10px;
+}
+
+#contents_body #left_navi ul.subnavi li {
+	padding: 6px;
+	margin: 0 8px 5px;
+	background-color: #f4f4f4;
+}
+
+#contents_body #left_navi ul.subnavi li img {
+	margin-right: 8px;
+	vertical-align: -1px;
+}
+
+#contents_body #left_navi ul.subnavi a {
+	text-decoration: none;
+	color: #666666;
+	font-size: 80%;
+}
+
+#contents_body #left_navi ul.subnavi a:hover {
+	text-decoration: underline;
+}
+
+
+/*===========================================
+04 Main Contents Area
+===========================================*/
+/* ログインページ */
+#contents_body_top {
+	width: 930px;
+	padding: 150px 0;
+}
+
+#contents_body_top .tbl_login {
+	margin: 0 auto 20px;
+	font-size: 80%;
+}
+
+#contents_body_top .tbl_login td {
+	padding: 0 20px 5px 0;
+	text-align: left;
+	vertical-align: middle;
+}
+
+#contents_body_top p {
+	margin: 0 100px 20px;
+	line-height: 140%;
+	font-size: 80%;
+}
+
+#contents_body_top p.lead {
+	padding: 10px 15px;
+	border: dotted 1px #d2d2d2;
+}
+
+.linklist {
+	margin: 0 100px 20px;
+}
+
+.linklist li {
+	margin-bottom: 10px;
+	list-style-type: none;
+	font-size: 80%;
+}
+
+.linklist li img {
+	vertical-align: -1px;
+	margin-right: 6px;
+}
+
+
+/* H要素*/
+#main_content_area h2 {
+	border: solid 1px #d2d2d2;
+	margin-bottom: 20px;
+	padding: 5px;
+	background-color: #f2f2f2;
+}
+
+#main_content_area h2 em {
+	padding: 2px 5px;
+	border-left: solid 4px #3267c5;
+	font-size: 80%;
+}
+
+
+/* その他 */
+#main_content_area p {
+	margin-bottom: 5px;
+	line-height: 140%;
+	font-size: 80%;
+}
+
+#main_content_area .text {
+	margin-bottom: 20px;
+}
+#main_content_area .goto_pagetop {
+	margin: 20px 0 0;
+	text-align: right;
+	font-size: 80%;
+}
+
+/* 項目選択　表 */
+.task_select {
+	margin-bottom: 20px;
+	padding: 10px 10px 0;
+	background-color: #f4f4f4;
+	border: solid 2px #d2d2d2;
+}
+
+.task_select table {
+	width: 100%;
+	font-size: 80%;
+}
+
+.task_select table td {
+	padding-bottom: 10px;
+	line-height: 140%;
+}
+
+.task_select table td div {
+	width: 7em;
+	margin-right: 6px;
+	padding: 2px 0;
+	font-size: 90%;
+	text-align: center;
+	background-color: #868686;
+	color: #ffffff;
+}
+
+.task_select table .check_input {
+	margin: 0 5px 0 0;
+	vertical-align: -2px;
+}
+
+/* パスワード変更 */
+.task_select td .pwd_textarea {
+	width: 200px;
+}
+
+.task_select .pwd_go {
+	padding-top: 10px !important;
+	text-align: right;
+}
+
+/* 管理者メニュートップ画面 */
+.topmenu_list {
+	width: 550px;
+	margin: 30px auto 50px;
+}
+
+.topmenu_list li {
+	list-style-type: none;
+	margin-bottom: 20px;
+}
+
+.topmenu_list li a {
+	display: block;
+	padding: 8px 10px;
+	text-decoration: none;
+	background-color: #dff2fb;
+	border: solid 1px #bfe2f3;
+	font-weight: bold;
+	letter-spacing: 2px;
+}
+.topmenu_list li a:hover {
+	color: #069BE3;
+	text-decoration: underline;
+}
+
+.topmenu_list li a img {
+	margin: 0 10px 0 0;
+}
+
+/* 結果　表 */
+.tbl_list {
+	/*width: 700px;*/
+	width: 100%;
+	margin-bottom: 20px;
+	border-collapse: collapse;
+	font-size: 80%;
+	line-height: 140%;
+	color: #444;
+}
+
+.tbl_list th {
+	border: solid 1px #cccccc;
+	padding: 3px 5px;
+	line-height: 140%;
+	text-align: left;
+}
+
+.tbl_list td {
+	border: solid 1px #cccccc;
+	padding: 3px 5px;
+	line-height: 140%;
+	vertical-align: top;
+	font-size: 12px;
+}
+
+.tbl_list th a,
+.tbl_list td a {
+	line-height: 140%;
+}
+
+.tbl_list td .radio_input { vertical-align: -2px;}
+
+.bg_col_bl {
+	color: #ffffff;
+	background-color: #3068c6;
+}
+
+.bg_col_gr {
+	color: #ffffff;
+	background-color: #878787;
+}
+
+
+.bg_col_lgy { background-color: #f2f2f2;}
+
+.open {
+	width: 4em;
+	text-align: center;
+	background-color: #F93;
+	color: #ffffff;
+	font-size: 80%;
+	border: solid 1px #F93;
+}
+
+.close {
+	width: 4em;
+	text-align: center;
+	background-color: #888;
+	color: #ffffff;
+	font-size: 80%;
+	border: solid 1px #888;
+}
+
+.ready {
+	width: 4em;
+	text-align: center;
+	background-color: #09b;
+	color: #ffffff;
+	font-size: 80%;
+	border: solid 1px #09b;
+}
+
+.new {
+	width: 4em;
+	text-align: center;
+	color: #444;
+	background-color: #fff;
+	font-size: 80%;
+	border: solid 1px #999;
+}
+
+.center { text-align: center;}
+.right { text-align: right;}
+.left { text-align: left;}
+
+
+/* ページング */
+.open_area { /*width: 870px;*/}
+
+.open_area .paging {
+	width: 50%;
+	float: left;
+	margin: 0;
+	padding: 0 0 20px 0;
+	font-size: 80%;
+}
+
+.open_area .paging li {
+	float: left;
+	padding: 0;
+	margin: 0 6px 0 0;
+	list-style-type: none;
+}
+
+.open_area .paging li a {
+	display: block;
+	padding: 4px 6px;
+	border: solid 1px #cccccc;
+	color: #444444;
+	text-decoration: none;
+}
+
+.open_area .paging li a:hover {
+	background-color: #f4f4f4;
+}
+
+.open_area .paging li a.current {
+	background-color: #069be3;
+	color: #ffffff;
+	text-decoration: none;
+	border: solid 1px #0080be;
+}
+
+.open_area .paging li a.current:hover {
+	background-color: #41b6ee;
+	text-decoration: none;
+}
+
+.open_area p {
+	float: right;
+	width: 285px;
+	margin: 0;
+	text-align: right;
+	font-size: 80%;
+}
+
+.line_bor2 { border-right: solid 2px #cccccc !important;}
+
+
+/* ページ送り　表示件数 */
+.page_count {
+	font-size: 80%;
+	text-align: right;
+}
+
+.page_arrow_input { vertical-align: -5px;}
+
+.count_input {
+	width:60px;
+	margin: 0 3px;
+	text-align: center;
+}
+
+
+/* 検索結果　ソート版 */
+.tablesorter {
+	width: 100%;
+	margin:10px 0 20px;
+	border-collapse: collapse;
+	font-size: 80%;
+	text-align: left;
+}
+
+.tablesorter thead tr th, .tablesorter tfoot tr th {
+	padding: 3px 5px;
+	background-color: #878787;
+	color: #FFFFFF;
+}
+
+.tablesorter thead tr .header {
+	height: 2.5em;
+	background-image: url(../image/th_bg.gif);
+	background-repeat: no-repeat;
+	background-position: center right;
+	cursor: pointer;
+	text-align: left;
+	white-space: nowrap;
+}
+
+.tablesorter th,
+.tablesorter td {
+	border: solid 1px #d2d2d2;
+	line-height: 140%;
+}
+
+.tablesorter th a,
+.tablesorter td a {
+	line-height: 140%;
+}
+
+.tablesorter tbody td {
+	color: #666;
+	padding: 4px;
+	vertical-align: top;
+	font-size: 12px;
+}
+
+.tablesorter tbody tr.odd td {
+	background-color:#F0F0F6;
+}
+
+.tablesorter thead tr .headerSortUp {
+	background-image: url(../image/icon_asc.gif);
+}
+
+.tablesorter thead tr .headerSortDown {
+	background-image: url(../image/icon_desc.gif);
+}
+
+.tablesorter thead tr .headerSortDown, .tablesorter thead tr .headerSortUp {
+	background-color: #666666;
+}
+
+
+/* 入力フォーム　表 */
+.task_input_form {
+	margin-bottom: 20px;
+	padding: 10px 10px 0;
+	background-color: #f4f4f4;
+	border: solid 2px #d2d2d2;
+}
+
+.task_input_form table {
+	width: 100%;
+	font-size: 80%;
+}
+
+.task_input_form table td {
+	padding-bottom: 10px;
+	line-height: 140%;
+}
+
+.task_input_form table td .check_position {
+	margin: 0 5px 0 0;
+	vertical-align: -2px;
+}
+
+.task_input_form table td .search_position {
+	margin-left: 3px;
+	/*vertical-align: -6px;*/
+}
+
+.task_input_form table label { padding-right: 10px;}
+
+.task_input_form .pwd_go {
+	padding-top: 10px !important;
+	text-align: right;
+}
+
+.task_input_form table td div {
+	margin-right: 5px;
+	white-space: nowrap;
+}
+
+/*
+.task_input_form table td div {
+	width: 10em;
+	margin-right: 6px;
+	padding: 2px 0;
+	font-size: 90%;
+	text-align: center;
+	background-color: #8aa0aB;
+	color: #ffffff;
+}
+*/
+
+/*===========================================
+05 Footer Area
+===========================================*/
+
+/*===========================================
+06 Class
+===========================================*/
+/* ボタン並び用　input画像 */
+.btn_input_sp_right { margin-right: 5px;}
+.btn_input_sp_right40 { margin-right: 40px;}
+.text_red { color: #cd0000;}
+.text_s { font-size: x-small;}
+.text_wb { font-weight: bold;}
+.text_blue { color: #0000ff;}

@@ -1,0 +1,417 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!-- Meta -->
+{include file="page_meta.tpl.html"}
+<!-- /Meta -->
+<link rel="stylesheet" type="text/css" href="css/default.css" media="screen,print" />
+<title>文書ファイル管理ツール</title>
+
+<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="js/clinic_checkbox.js"></script>
+
+<link rel="stylesheet" href="css/validationEngine.jquery.css" type="text/css"/>
+<script src="js/languages/jquery.validationEngine-ja.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>
+<!--
+<script type="text/javascript" src="js/jquery.filestyle.js" ></script>
+-->
+<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+<link type="text/css" rel="stylesheet" href="css/jquery-ui.css" />
+
+<script language="javascript">
+	function search_product() {
+		var form = document.add_file_form;
+		//var options = "dialogWidth=940px;dialogHeight=800px;center=1;status=1;scroll=1;resizable=1;minimize=0;maximize=0;menubar=1;";
+		var options = "width=800,height=600,resizable=yes,scrollbars=yes";//"dialogWidth=940px;dialogHeight=800px;";
+		var url = "manage_product.php?product_nm=" + encodeURI(form.product_nm.value);
+		//window.showModalDialog(url, window, options);
+		window.open(url, "_blank", options);
+		//window.showModalDialog(url, form.product_nm.value, options);
+	}
+</script>
+
+<script language="javascript">
+
+	$(function() {
+		jQuery("#add_file_form").validationEngine('attach', {
+ 			 onValidationComplete: function(form, status){
+				if (status) {
+					return confirm("ファイルを新規登録します");
+				}
+			  }
+		});
+/*
+		//$("#add_file_form").validation();
+		$("#add_file_form").exValidation({
+		    errInsertPos: 'after',
+		    errPosition: 'fixed',
+//		    stepValidation: true,
+		    customListener: "",
+
+		    customAddError: function() {
+		        //if ( $("#alert").length<1 ) {
+		          //$("p.attention").before("<div id=\"alert\"><strong>入力内容に誤りがあります。</strong></div>");
+			          alert("入力内容に不備があります");
+		        //}
+			},
+
+			customClearError: function() {
+				return confirm('ファイルの新規登録を行います');
+			},
+
+			stepValidation: false
+
+
+		});
+
+		$("input[type=file]").filestyle({
+		     image: "image/btn_refer.jpg",
+		     imageheight : 20,
+		     imagewidth : 58,
+		     width : 250
+		 });
+*/
+		$("input#pdf_file_0").removeAttr("disabled");
+		$("table#add_pdf_file_0").show();//removeAttr("disabled").show();
+
+	});
+
+//--datepicker制御
+$(function(){
+	$(".datepicker").datepicker({
+		changeMonth: true,
+		changeYear: true,
+		showOn: "focus",
+		dateFormat: "yy/mm/dd",
+		showAnim: "slideDown",
+		beforeShow: function(){
+			$('#ui-datepicker-div').css('font-size', '80%');
+		}
+	});
+});
+</script>
+
+<script>
+function show_add_pdf() {
+	$("table:hidden").eq(0).show('normal');
+}
+function change_file_count() {
+	var cnt = $("#file_count").val();
+	var now = $("table.add_file_table:visible").length;
+
+	if (now < cnt) {
+		//非表示から表示に変える
+		$("table.add_file_table").slice(1, cnt).show();
+		$("input[type=file]:visible").removeAttr("disabled");
+
+	} else if (cnt < now) {
+		//表示から非表示にする
+		$("table.add_file_table").slice(cnt, 10).css("display", "none");
+		$("input[type=file]:hidden").attr("disabled", "disabled");
+	}
+}
+
+function initClinicCheck() {
+	var clinic_input_all = $("#clinic_checkboxes_part > label > input");
+	var clinic_not = $("#clinic_checkboxes_part > label > input:last");
+	var clinics = $("#clinic_checkboxes_part > label > input:lt(" + (clinic_input_all.length-1) + ")");
+	var doctype_select = $("select[name='doctype_id']");
+
+//	if (doctype_select.val() != 1 && doctype_select.val() != 15) {
+		clinic_not.attr("checked", true);
+		clinics.removeAttr("checked");
+		clinics.attr("disabled", "disabled");
+//	}
+}
+
+</script>
+
+</head>
+
+<body onload="change_file_count(); {if !$data}initClinicCheck();{/if}">
+
+<div id="skip_link_block">
+	<ul>
+		<li><a href="#main_content_anc">本文へジャンプします</a></li>
+
+	</ul>
+	<p id="pageTop">ページの先頭です</p>
+</div>
+
+<div id="contents">
+
+<!-- Header Area -->
+{include file="page_header.tpl.html"}
+<!-- /Header Area -->
+
+<!-- Contents Area -->
+
+<div id="contents_body" class="clearfix">
+
+	<div id="skip_menu_block">
+		<p id="side_navi_anc"><a name="side_navi_anc">メニューの始まりです</a></p>
+	</div>
+
+	<!-- Left Navi Area -->
+	{include file="left_menu.tpl.html" role_info=$role_info func_info=$func_info}
+	<!-- /Left Navi Area -->
+
+	<!-- Main Contents Area -->
+	<div id="main_content_area">
+
+		<div id="skip_main_block">
+			<p id="main_content_anc"><a name="main_content_anc">本文の始まりです</a></p>
+		</div>
+
+		<h2><em>ファイルの新規登録</em></h2>
+
+		<form name="add_file_form" method="post" enctype="multipart/form-data" id="add_file_form">
+
+		<p class="text">
+			{foreach from=$msg_array item=msg}
+			<span class="text_red text_wb">{$msg}</span><br>
+			{/foreach}
+		</p>
+
+		<p>
+			<span>最大10個までファイルを選択できます</span>
+			<!--<input type="button" value="ファイル追加" onclick="show_add_pdf();"> -->
+			<select id="file_count" name="file_count" onchange="change_file_count();">
+			{for $i=1 to 10}
+				<option value="{$i}" {if count($detail_array) == $i}selected{/if}>{$i}</option>
+			{/for}
+			</select>
+		</p>
+
+		<p>
+			<span class="text_red">(*:必須)</span>
+		</p>
+
+		<!-- 登録情報入力 -->
+		<div class="task_input_form">
+			<table>
+				<tr>
+					<td>
+						<span class="text_red text_s">※登録ファイル名には全角文字を含まないでください。</span><br>
+						<span class="text_red text_s">※ダウンロードファイル名には、100文字まで使用できます。</span><br>
+						<span class="text_red text_s" style="margin-left: 1em;">ダウンロードファイル名には、拡張子まで入力してください。 　例：洗浄消毒装置.pdf</span><br>
+						<span class="text_red text_s" style="margin-left: 1em;">ダウンロードファイル名が入力されなかった場合は、登録ファイル名と同じファイル名で登録されます。</span>
+					</td>
+				</tr>
+			</table>
+
+			{* assign var=cnt value=0 *}
+			{* foreach from=$detail_array item=detail *}
+
+			{for $cnt=0 to 9}
+			{assign var=detail value=$detail_array[$cnt]}
+			<table id="add_pdf_file_{$cnt}" style="border: double 3px #adadad; padding: 5px; margin-bottom: 5px; display: none;" class="add_file_table">
+			<tr>
+				<td>
+					<div>登録ファイル{$cnt+1}<span class="text_red">*</span></div>
+				</td>
+				<td>
+					<input type="file" id="pdf_file_{$cnt}" name="pdf_file[]" size="50" class="validate[required,checkFileType[pdf|PDF|zip|ZIP]]" disabled="disabled" data-prompt-position="bottomRight"></input>
+
+				</td>
+			</tr>
+<!--
+			<tr>
+				<td></td><td><span class="text_red text_s">※登録ファイル名には全角文字を含まないでください。</span></td>
+			</tr>
+-->
+			<tr>
+				<td>
+					<div>ダウンロードファイル名</div>
+				</td>
+				<td>
+					<input type="text" name="download_filename[]" value="{$detail.download_file_nm|escape}" size="25" maxlength="100"></input>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div>版番号</div>
+				</td>
+				<td>
+					<input type="text" name="download_version[]" value="{$detail.version|escape}" size="25" maxlength="50"></input>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div>更新日時</div>
+				</td>
+				<td>
+					<input type="text" name="download_update_dt[]" value="{$detail.version_update|escape}" size="25" maxlength="50" class="datepicker"></input>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div>PDFパスワード</div>
+				</td>
+				<td>
+					<input type="text" name="pdf_password[]" value="{$detail.pdf_password|escape}" size="25" maxlength="50"></input>
+				</td>
+			</tr>
+
+<!--
+			<tr>
+				<td></td>
+				<td>
+					<span class="text_red text_s">※使用可能文字：半角英数字、"-"(ハイフン)、"_"(アンダーバー)</span><br>
+					<span class="text_red text_s">※文字数：128</span><br>
+					<span class="text_red text_s">※全角文字は含まないでください。<br>
+					<span class="text_red text_s">※ダウンロードファイル名を指定しなかった場合、アップロードファイルと同じ名前になります。</span>
+				</td>
+			</tr>
+ -->
+			</table>
+			{* /foreach *}
+			{/for}
+
+			<table>
+			<tr>
+				<td>
+					<div>名称<span class="text_red">*</span></div>
+				</td>
+				<td>
+					<input type="text" id="product_nm" name="product_nm" value="{$data.product_nm|escape}" size="50" class="validate[required,checkProductName]" maxlength="1000" style="width: 250px;" data-prompt-position="bottomRight"></input>
+					<!--
+					<input type="image" class="search_position" alt="検索" src="image/btn_product.jpg" onclick="javascript:search_product(); return false;"></input>-->
+					<input type="button" value="名称選択" class="search_position" alt="名称選択" onclick="javascript:search_product(); return false;"></input>
+
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td>
+					<span class="text_red text_s">※名称には1,000文字まで使用できます。</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div>型番</div>
+				</td>
+				<td>
+					<textarea name="model_nm" cols="45" rows="5" class="chkmax5000">{$data.model_nm|escape}</textarea>
+					<!-- <textarea name="model_nm" cols="45">{$model_nm}</textarea> -->
+					<label for="model_visible_flg"><input id="model_visible_flg" type="checkbox" class="check_position" name="model_visible_flg" value="1" {if $data.model_visible_flg == 1}checked{/if}></input>型番を非表示にする</label>
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td>
+					<span class="text_red text_s">※型番には半角5,000文字、全角2,500文字まで使用できます。</span><br>
+					<span class="text_red text_s">※複数の型番を入力するときは、改行で区切ってください。</span><br>
+					<span class="text_red text_s">※スコープなど「TYPE」が入るものは「-（半角ハイフン）」に統一してください。　例：LTF TYPE VPではなくてLTF-VPとする</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div>文書種別<span class="text_red">*</span></div>
+				</td>
+				<td>
+					<select id="doctype_id" name="doctype_id" class="validate[required]" data-prompt-position="bottomRight">
+					<option></option>
+					{html_options options=$doctype_options selected=$data.doctype_id}
+					</select>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<div>診療科<span class="text_red">*</span></div>
+				</td>
+				<td>
+					<!--
+					<div id="clinic_checkboxes_part" class="chkcheckbox">
+					-->
+					<div id="clinic_checkboxes_part" class="chkcheckbox" style="font-size:100%;">
+					{foreach from=$clinic_options item=clinic_name key=value name='clinic'}
+						<label for="clinic_{$value}"><input id="clinic_{$value}" type="checkbox" value="{$value}" name="clinic_id_array[]" class="validate[required,checkClinicCheck] checkbox" data-prompt-position="bottomRight" {if $value|in_array:$data.clinic_id_array}checked{/if}></input>{$clinic_name}</label>
+						{if ($smarty.foreach.clinic.index+1) % 5 == 0}<br/>	{/if}
+					{/foreach}
+
+					{*html_checkboxes name='clinic_id_array' options=$clinic_options selected=$data.clinic_id_array assign=clinic_checkboxes_tags}
+					{foreach from=$clinic_checkboxes_tags item=checkbox_tag name='clinic'}
+						{$checkbox_tag}
+						{if ($smarty.foreach.clinic.index+1) % 5 == 0}<br/>{/if}
+					{/foreach*}
+					</div>
+					<!--
+					</div>
+					 -->
+				</td>
+			</tr>
+<!--
+			<tr>
+				<td>
+					<div>スタンプの押印</div>
+				</td>
+				<td>
+					<select name="stamp_flg" style="width: 50px;">
+					{html_options options=$stamp_options selected=$file_info.stamp_flg}
+					</select>
+				</td>
+			</tr>
+-->
+
+			<tr>
+				<td><div>フリーキーワード</div></td>
+				<td><textarea name="search_keyword" cols="45" rows="5">{$data.search_keyword}</textarea></td>
+			</tr>
+			<tr>
+				<td></td><td><span class="text_red text_s">※フリーキーワードには2,000文字まで使用できます。</span><br>
+					<span class="text_red text_s">※複数のキーワードを入力するときは、改行で区切ってください。</span>
+			<tr>
+				<td><div>公開設定</div></td>
+				<td><label for="publish_on"><input type="radio" id="publish_on" name="status_flg" value="1" checked>公開</label>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<div>掲載開始日</div>
+				</td>
+				<td>
+					<input type="text" name="publish_start_dt" value="{$data.publish_start_dt|escape}" size="25" maxlength="50" class="datepicker"></input>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<div>販売終了日</div>
+				</td>
+				<td>
+					<input type="text" name="sale_end_dt" value="{$data.sale_end_dt|escape}" size="25" maxlength="50" class="datepicker"></input>
+				</td>
+			</tr>
+
+			</table>
+
+			<p class="center">
+			<input type="image" alt="登録する" src="image/btn_entry.jpg">
+			<input type="image" alt="キャンセル" src="image/btn_cancel.jpg" onclick="window.location.href='manage_file.php'; return false;">
+			</p>
+
+		</div>
+		</form>
+		<br>
+		<br>
+		<br>
+	</div>
+	<!-- /Main Contents Area -->
+
+</div>
+<!-- /Contents Area -->
+
+
+<!-- Footer Area -->
+{include file="page_footer.tpl.html"}
+<!-- /Footer Area -->
+
+</div>
+</body>
+</html>
+
+

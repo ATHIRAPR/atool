@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<!-- Meta -->
+		{include file="page_meta.tpl.html"}
+		<!-- /Meta -->
+		<link rel="stylesheet" type="text/css" href="css/default.css" media="screen,print" />
+		<title>案内文書管理システム</title>
+	</head>
+	<body>
+		<div id="skip_link_block">
+			<ul>
+				<li>
+					<a href="#main_content_anc">本文へジャンプします</a>
+				</li>
+			</ul>
+			<p id="pageTop">
+				ページの先頭です
+			</p>
+		</div>
+		<div id="contents">
+			<!-- Header Area -->
+			{include file="page_header.tpl.html"}
+			<!-- /Header Area -->
+			<!-- Contents Area -->
+			<div id="contents_body" class="clearfix">
+				<!-- Left Navi Area -->
+				{include file="left_menu.tpl.html" role_info=$role_info func_info=$func_info}
+				<!-- /Left Navi Area -->
+				<!-- Main Contents Area -->
+				<div id="main_content_area">
+					<div id="skip_main_block">
+						<p id="main_content_anc">
+							<a name="main_content_anc">本文の始まりです</a>
+						</p>
+					</div>
+					<h2><em>公開完了</em></h2>
+					{if $open_list}
+					<p class="text">
+						以下のファイルを公開しました。
+					</p>
+					<table id="open_list" class="tablesorter">
+						<thead>
+							<tr>
+								<th class="bg_col_gr">タイトル</th>
+								<th class="bg_col_gr">カテゴリ</th>
+								<th class="bg_col_gr">文書種別</th>
+								<th class="bg_col_bl">公開日</th>
+								<th class="bg_col_bl">更新日</th>
+								<th class="bg_col_bl">状態</th>
+							</tr>
+						</thead>
+						<tbody>
+							{foreach from=$open_list item=data}
+							<tr>
+								<td><a href="edit_file.php?id={$data.id}">{$data.title|escape|replace:',':'
+								<br>
+								'}</a></td>
+								<td nowrap>{$data.clinic_str|escape|replace:'\n':'
+								<br>
+								'}</td>
+								<td nowrap>{$data.type_nm|escape|replace:'\n':'
+								<br>
+								'}</td>
+								<td>{$data.publish_start_dt|escape|date_format:"%Y/%m/%d"}</td>
+								<td>{$data.download_update_dt|escape|date_format:"%Y/%m/%d"}</td>
+								<td>{if empty($data.publish_start_dt) or ($data.publish_start_dt and $data.publish_start_dt|strtotime < $smarty.now)}公開{else}公開予定{/if}</td>
+							</tr>
+							{foreachelse}
+							{/foreach}
+						</tbody>
+					</table>
+					{/if}
+					{if $close_list}
+					<p class="text">
+						以下のファイルを非公開にしました。
+					</p>
+					<table id="close_list" class="tablesorter">
+						<thead>
+							<tr>
+								<th class="bg_col_gr">タイトル</th>
+								<th class="bg_col_gr">カテゴリ</th>
+								<th class="bg_col_gr">文書種別</th>
+								<th class="bg_col_bl">公開日</th>
+								<th class="bg_col_bl">更新日</th>
+								<th class="bg_col_bl">状態</th>
+							</tr>
+						</thead>
+						<tbody>
+							{foreach from=$close_list item=data}
+							<tr>
+								<td><a href="edit_file.php?id={$data.id}">{$data.title|escape|replace:',':'
+								<br>
+								'}</a></td>
+								<td nowrap>{$data.clinic_str|escape|replace:'\n':'
+								<br>
+								'}</td>
+								<td nowrap>{$data.type_nm|escape|replace:'\n':'
+								<br>
+								'}</td>
+								<td>{$data.publish_start_dt|escape|date_format:"%Y/%m/%d"}</td>
+								<td>{$data.download_update_dt|escape|date_format:"%Y/%m/%d"}</td>
+								<td>非公開</td>
+							</tr>
+							{foreachelse}
+							{/foreach}
+						</tbody>
+					</table>
+					{/if}
+					{if !$open_list && !$close_list}
+					<p class="text">
+						ファイルが指定されていません
+					</p>
+					{/if}
+					<p class="left">
+						<input type="image" class="btn_input_sp_rigt" alt="公開管理トップへ" src="image/btn_gotoopen.jpg" onclick="window.location.href='manage_publish.php'; return false;">
+					</p>
+					<div id="skip_end_block">
+						<p id="pageEnd">
+							本文の終わりです。
+						</p>
+					</div>
+					<p class="goto_pagetop">
+						<a href="#header"><img src="../image/common/btnPagetop.gif" alt="ページの先頭へ" /></a>
+					</p>
+				</div>
+				<!-- /Main Contents Area -->
+			</div>
+			<!-- /Contents Area -->
+			<!-- Footer Area -->
+			{include file="page_footer.tpl.html"}
+			<!-- /Footer Area -->
+		</div>
+	</body>
+</html>
+

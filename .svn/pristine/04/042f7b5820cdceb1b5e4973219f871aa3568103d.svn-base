@@ -1,0 +1,56 @@
+<?php
+//ログイン認証チェック
+
+$scr_nm = basename($_SERVER['SCRIPT_FILENAME']);
+
+//PHP 5.3.X 対策
+if (empty($scr_nm)) {
+	$scr_nm = $_SERVER['SCRIPT_FILENAME'];
+	$pos = strrpos($scr_nm, "/");
+	if ($pos !== FALSE) {
+		$scr_nm = substr($scr_nm, $pos + 1);
+	}
+}
+
+if ($scr_nm !== "login.php"
+	&& $scr_nm !== "login_check.php"
+	&& $scr_nm !== "logout.php"
+	&& $scr_nm !== "download.php"
+	&& $scr_nm !== "doc_version2.php"
+	&& $scr_nm !== "doc_version.php") {
+
+	//ログインユーザ情報の共通チェック処理(権限情報はセッションに格納したほうがいいか？)
+	session_start();
+	if (!isset($_SESSION['login_info'])) {
+		header("Location: login.php");
+		exit();
+	}
+
+	$now = date("Y-m-d H:i:s");
+	//セッションから最終アクセス日時を取得
+	$last_access_dt = $_SESSION['last_access_dt'];
+	if ( !$last_access_dt ||
+		$SESSION_TIMEOUT < (strtotime($now) - strtotime($last_access_dt)) ) {
+		//セッションタイムアウトさせる
+		$_SESSION['timeout'] = true;
+		header("Location: logout.php");
+		exit;
+	}
+
+	$_SESSION['last_access_dt'] = $now;	//最終アクセス日時を更新
+
+	//セッションからログインユーザ情報取得
+	$login_info = $_SESSION['login_info'];
+	$id = $login_info['id'];
+	$role_id = $login_info['role_id'];	//ロールID取得
+
+	//ログインユーザの権限を取得し、利用可能な機能のみ有効にします
+	$rmm = new RoleMasterManager();
+	$role_info_all = $rmm->get_all();	//全ロール情報取得
+	$role_info = $role_info_all[$role_id-1];	//$role_idに該当するロール情報を取得
+
+	$smarty->assign("role_info", $role_info);
+	//ここまで共通
+}
+
+?>

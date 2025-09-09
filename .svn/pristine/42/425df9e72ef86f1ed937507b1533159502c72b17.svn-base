@@ -1,0 +1,101 @@
+<?php
+/**
+ * キーワードの配列から型番を検索して処理する関数
+ * @param array $keywords 検索元キーワード文字列の配列
+ * @param array $prefix_array 前方一致検索用の型番プレフィックス文字列の配列
+ * @param array $exclude_array 除外用の型番文字列の配列
+ * @return array 型番検索処理を行ったキーワードの配列
+ */
+function get_model_number($keywords, $prefix_array, $exclude_array) {
+	$PATTERN = "[a-zA-Z0-9\\-\\/]+";	//半角英数,-,/にマッチするパターン
+	$result_keywords = array();
+
+	//抽出された各キーワードごとにループ処理
+	foreach($keywords as $keyword) {
+		$match_result = null;
+		$bExcluded = false;
+
+		foreach($exclude_array as $exclude) {
+			//型番除外リストに該当するか
+			if ($keyword == $exclude) {
+				//除外リストに該当したらループ抜ける
+				$bExcluded = true;
+				break;
+			}
+		}
+		if ($bExcluded) {
+			//除外型番に該当したら以降の処理はスキップ、次のキーワードに処理を移す
+			continue;
+		}
+
+		if (preg_match("/^\-([0-9\/]+)$/", $keyword, $match_result)) {
+			$num_array = explode("/", $match_result[1]);
+
+			//スラッシュ区切りした各文字列ごとにループ処理
+			for($i = 0; $i < count($num_array); $i++) {
+				if (!empty($num_array[$i])) {
+					$result_keywords[] = "-" . $num_array[$i];	//ナンバーを連結
+				}
+			}
+			//以降の処理はスキップ、次のキーワードに処理を移す
+			continue;
+		}
+
+
+		foreach($prefix_array as $prefix) {
+			//型番プレフィックスによる前方一致検索
+			$pattern = "/^${prefix}(${PATTERN})/";
+			if (preg_match($pattern, $keyword, $match_result)) {
+				//検索該当したらループ抜ける
+				break;
+			}
+		}
+
+		if (is_array($match_result) && 0 < count($match_result)) {
+			//前方一致検索により型番に該当
+			if (preg_match("/^((PCF|CF)${PATTERN})L\/I$/", $keyword, $match_result)) {
+				//PCFまたはCFで始まり、L/Iで終わるキーワードなら処理する
+				$result_keywords[] = $match_result[1]."L";
+				$result_keywords[] = $match_result[1]."I";
+
+			} else if (preg_match("/^(PW|FB)\-([0-9]+)([A-Z\/]+)\-([0-9]+)$/", $keyword, $match_result)) {
+				$num_array = explode("/", $match_result[3]);
+
+				//スラッシュ区切りした各文字列ごとにループ処理
+				for($i = 0; $i < count($num_array); $i++) {
+					if (!empty($num_array[$i])) {
+						$result_keywords[] = $match_result[1]."-".$match_result[2].$num_array[$i]."-".$match_result[4];
+					}
+				}
+
+			} else {
+				//他のキーワードの場合
+				$sep1 = strpos($keyword, "/");
+				$sep2 = strrpos($keyword, "-");
+
+				if ($sep1 !== false && $sep2 !== false) {
+					//スラッシュとハイフンを含むキーワードなら処理する
+					$num_array = explode("/", $keyword);	//スラッシュで分割する
+					$model_num = $num_array[0];				//スラッシュ区切りの先頭文字列取得
+
+					$pre_rpos = strrpos($model_num, "-");	//スラッシュ区切りの先頭文字列からハイフンを検索(先頭文字列にハイフンが含まれていることが前提)
+					$pre = substr($model_num, 0, $pre_rpos);	//ハイフンの前文字列取得(型番プレフィックス)
+					$num_array[0] = substr($model_num, $pre_rpos+1);	//スラッシュ区切り文字列配列の最初の要素から、型番プレフィックスを取り除く
+
+					//スラッシュ区切りした各文字列ごとにループ処理
+					for($i = 0; $i < count($num_array); $i++) {
+						if (!empty($num_array[$i])) {
+							$result_keywords[] = $pre ."-" . $num_array[$i];	//型番プレフィックスとナンバーを連結
+						}
+					}
+
+				} else {
+					//スラッシュとハイフン両方を含んでいないキーワードは処理しない
+					$result_keywords[] = $keyword;
+				}
+			}
+		}
+	}
+	return $result_keywords;
+}
+?>

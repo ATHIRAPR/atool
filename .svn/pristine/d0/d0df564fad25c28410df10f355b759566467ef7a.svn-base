@@ -1,0 +1,190 @@
+<?php
+
+require_once("include/init.php.inc");
+require_once("include/smarty.php.inc");
+require_once("include/db.php.inc");
+require_once("include/auth.php.inc");
+require_once("include/util.php.inc");
+
+// ファイル管理権限が無い場合は、エラーにする
+if ($role_info['file_role_flg'] != 1) {
+	// エラーメッセージ表示
+	show_error_page(array("ファイル管理者の権限がありません"));
+	exit;
+}
+
+$smarty->assign("mng", $_REQUEST[mng]);
+
+if ($_SERVER['REQUEST_METHOD'] === "GET") {
+	$rep_id = $_GET['rep_id'];
+
+	if (strlen($rep_id)) {
+		// 指定された代表キーワードIDから、代表キーワード情報を取得する
+		$rkim = new RepresentativeKwInfoManager();
+		$rep_kw_info = $rkim->get($rep_id);
+		if ($rep_kw_info === false) {
+			show_error_page(array('代表キーワード情報の取得に失敗しました'));
+			exit;
+		}
+		else if (empty($rep_kw_info)) {
+			$msg_array[] = '代表キーワード情報が存在しません';
+		}
+		else {
+			// 代表キーワードIDから、キーワード群情報を取得
+			$rep_kw_detail = get_representative_kw_detail($rep_kw_info['representative_id']);
+			if ($rep_kw_detail === false) {
+				show_error_page(array('キーワード情報の取得に失敗しました'));
+				exit;
+			}
+
+			// キーワード名配列作成
+			$keywords = array();
+			foreach ($rep_kw_detail as $detail) {
+				$keywords[] = $detail['key_word'];
+			}
+
+			$smarty->assign("rep_id", $rep_kw_info['representative_id']);
+			$smarty->assign("rep_name", $rep_kw_info['representative_name']);
+			$smarty->assign("rep_keyword", implode("\n", $keywords));
+		}
+	}
+
+	//登録画面表示
+	show_template_page("edit_representative_kw.tpl.html", $msg_array);
+	exit;
+}
+else if ($_SERVER['REQUEST_METHOD'] === "POST") {
+	$rep_id = $_POST['rep_id'];
+	$rep_name = trim($_POST['rep_name']);
+	$rep_keyword = trim($_POST['rep_keyword']);
+
+	// キーワードを改行で分割
+	$keywords = array_unique(array_reduce(explode("\n", $rep_keyword), function ($carry, $item) {
+		$line = trim($item);
+		if (strlen($line) > 0)
+			$carry[] = $line;
+		return $carry;
+	}));
+
+	if (!strlen($rep_name))
+		$msg_array[] = '代表キーワード名が入力されていません';
+
+	if (!strlen($rep_keyword))
+		$msg_array[] = 'キーワードが入力されていません';
+
+	if (strlen(mb_convert_encoding($rep_name, 'SJIS-win', $OUTPUT_ENCODING)) > 256)
+		$msg_array[] = '代表キーワード名が長すぎます';
+
+	foreach ($keywords as $value) {
+		if (strlen(mb_convert_encoding($value, 'SJIS-win', $OUTPUT_ENCODING)) > 50) {
+			$msg_array[] = '長すぎるキーワードが入力されています';
+			break;
+		}
+	}
+
+	// エラーが存在しない場合
+	if (empty($msg_array)) {
+		$rkdm = new RepresentativeKwDetailManager();
+		$rkim = new RepresentativeKwInfoManager();
+
+		// 代表名IDが設定されている場合は更新処理
+		if (strlen($rep_id)) {
+			// 代表名IDから、代表キーワード情報を取得する
+			$rep_kw_info = $rkim->get($rep_id);
+
+			if ($rep_kw_info === false) {
+				$msg_array[] = '代表キーワード情報の取得に失敗しました';
+			}
+			else {
+				$current_rep_name = $rep_kw_info['representative_name'];
+
+				// 既存の代表キーワード名を変更する場合、変更後の代表キーワード名がすでに存在するかチェック
+				if ($current_rep_name != $rep_name && $rkim->search_name($rep_name))
+					$msg_array[] = "既に同じ代表キーワード名が登録されています";
+			}
+		}
+		else {
+			// 新規登録時、代表キーワード名が既に登録済みかチェック
+			if ($rkim->search_name($rep_name))
+				$msg_array[] = "既に同じ代表キーワード名が登録されています";
+		}
+	}
+
+	// エラーが存在した場合はエラー表示
+	if (!empty($msg_array)) {
+		$smarty->assign("rep_id", $rep_id);
+		$smarty->assign("rep_name", $rep_name);
+		$smarty->assign("rep_keyword", $rep_keyword);
+		show_template_page("edit_representative_kw.tpl.html", $msg_array);
+		exit;
+	}
+
+	// トランザクション開始
+	if (beginTransaction() === false) {
+		show_error_page(array('トランザクションを開始出来ません'));
+		exit;
+	}
+
+	try {
+		$info = array("representative_name" => $rep_name);
+		if (strlen($rep_id)) {
+			// 代表キーワード名を更新する
+			if ($rkim->set($rep_id, $info) === false)
+				throw new Exception('代表キーワード名の更新に失敗しました');
+
+			//指定した代表キーワードIDに紐づく代表キーワード詳細を削除する
+			if ($rkdm->remove_from_representative_id($rep_id) === false)
+				throw new Exception('代表キーワード詳細の削除に失敗しました');
+		}
+		else {
+			// 代表キーワード名を新規登録する
+			$rep_id = $rkim->add($info);
+			if ($rep_id === false)
+				throw new Exception('代表キーワード名の登録に失敗しました');
+		}
+
+		$kwmm = new KeyWordMasterManager();
+
+		// 各キーワードごとに、マスターテーブルに登録すべきかチェックする
+		foreach ($keywords as $kw) {
+			// キーワードを指定してキーワードマスタ情報を取得する
+			$kw_master = $kwmm->search($kw);
+			if ($kw_master) {
+				// 登録済みマスタIDを取得する
+				$kw_master_id = $kw_master['id'];
+			}
+			else {
+				// 未登録ならマスター登録を行いマスタIDを取得する
+				$kw_master_id = $kwmm->add(array("key_word" => $kw));
+				if ($kw_master_id === false)
+					throw new Exception('キーワードマスタの登録に失敗しました');
+			}
+
+			$representative_kw_detail = array (
+				"representative_id" => $rep_id,
+				"key_word_no" => ++$no,
+				"key_word_id" => $kw_master_id,
+				'delete_flg' => 0
+			);
+
+			// 代表キーワード詳細を登録
+			if ($rkdm->add($representative_kw_detail) === false)
+				throw new Exception('代表キーワード詳細の登録に失敗しました');
+		}
+
+		// コミット
+		if (commit() === false)
+			throw new Exception('コミットに失敗しました');
+	}
+	catch(Exception $e) {
+		rollBack();
+		show_error_page(array(''.$e->getMessage()));
+		exit;
+	}
+
+	$smarty->assign("is_succeed", true);
+	$smarty->display("edit_representative_kw.tpl.html");
+}
+exit;
+
+?>

@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<!-- Meta -->
+		{include file="page_meta.tpl.html"}
+		<!-- /Meta -->
+		<link rel="stylesheet" type="text/css" href="css/default.css" media="screen,print" />
+		<title>文書ファイル管理ツール</title>
+
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/publish_checkbox.js"></script>
+
+		<script type="text/javascript" src="js/exvalidation.js"></script>
+		<script type="text/javascript" src="js/exchecker-ja.js"></script>
+
+		<link type="text/css" rel="stylesheet" href="css/exvalidation.css" />
+
+		<script language="javascript">
+			$(function() {
+				$("#edit_publish_form").exValidation({
+					errInsertPos : 'after',
+					errPosition : 'fixed',
+					stepValidation : true,
+					stepValidation : true,
+
+					customAddError : function() {
+						alert("入力内容に不備があります");
+					},
+
+					customClearError : function() {
+						return confirm('公開設定を変更します');
+					},
+
+					stepValidation : true
+				});
+			});
+		</script>
+
+	</head>
+
+	<body>
+
+		<div id="skip_link_block">
+			<ul>
+				<li>
+					<a href="#main_content_anc">本文へジャンプします</a>
+				</li>
+
+			</ul>
+			<p id="pageTop">
+				ページの先頭です
+			</p>
+		</div>
+
+		<div id="contents">
+
+			<!-- Header Area -->
+			{include file="page_header.tpl.html"}
+			<!-- /Header Area -->
+
+			<!-- Contents Area -->
+
+			<div id="contents_body" class="clearfix">
+
+				<div id="skip_menu_block">
+					<p id="side_navi_anc">
+						<a name="side_navi_anc">メニューの始まりです</a>
+					</p>
+				</div>
+
+				<!-- Left Navi Area -->
+				{include file="left_menu.tpl.html" role_info=$role_info func_info=$func_info}
+				<!-- /Left Navi Area -->
+
+				<!-- Main Contents Area -->
+				<div id="main_content_area">
+
+					<div id="skip_main_block">
+						<p id="main_content_anc">
+							<a name="main_content_anc">本文の始まりです</a>
+						</p>
+					</div>
+
+					<h2><em>公開設定の編集</em></h2>
+
+					<form name="edit_publish_form" method="post" id="edit_publish_form">
+
+						<p class="text">
+							{foreach from=$msg_array item=msg}
+							<span class="text_red text_wb">{$msg}</span>
+							<br>
+							{/foreach}
+						</p>
+
+						<!-- 登録情報入力 -->
+						<div class="task_input_form">
+
+							<table>
+								<tr>
+									<td>
+									<div>
+										登録ファイル名
+									</div></td>
+									<td> {foreach from=$detail_array item=detail}
+									{if not $detail.delete_flg}{$detail.file_nm}
+									<br>
+									{/if}
+									{/foreach} </td>
+								</tr>
+								<tr>
+									<td>
+									<div>
+										公開の設定（現在）
+									</div></td>
+									<td>{if $publish_info.dir_flg == 1}○{else}×{/if}PDF&nbsp;&nbsp;{if $publish_info.search_flg == 1}○{else}×{/if}検索</td>
+								</tr>
+								<tr>
+									<td>
+									<div>
+										公開の設定
+									</div></td>
+									<td>
+									<div id="publish_checkboxes_part">
+										<label for="dir_flg">
+											<input id="dir_flg" type="checkbox" name="dir_flg" value="1" {if $publish_info.dir_flg == 1 || !$publish_info.publish_dt}checked{/if}>
+											</input>PDF</label>
+										<label for="search_flg">
+											<input id="search_flg" type="checkbox" name="search_flg" value="1" {if $publish_info.search_flg == 1 || !$publish_info.publish_dt}checked{/if}>
+											</input>検索</label>
+									</td>
+						</div>
+						</tr>
+						<tr>
+							<td></td><td><span class="text_red text_s">※管理ツール内で「公開」としてもカタログダウンロード リストページには反映されません。リストページの更新は別途対応が必要です。
+								<br>
+								※管理ツール内で「非公開」とする前には必ずリンク元ページの削除が必要です。</span></td>
+						</tr>
+
+						<tr>
+							<td>
+							<div>
+								現在の状態
+							</div></td>
+							<td> {if $publish_info.status_flg == 1 || $publish_info.status_flg == 2}
+							公開中
+							{else}
+							{if $publish_info.publish_dt}非公開{else}－{/if}
+							{/if} </td>
+						</tr>
+						</table>
+
+						<input type="hidden" name="id" value="{$publish_info.id}">
+						</input>
+
+						<p class="center">
+							<input type="image" alt="変更する" src="image/btn_change.jpg" name="edit_file_submit">
+							<input type="image" alt="キャンセル" src="image/btn_cancel.jpg" onclick="window.location.href='manage_publish.php'; return false;">
+						</p>
+
+				</div>
+				</form>
+
+			</div>
+			<!-- /Main Contents Area -->
+
+		</div>
+		<!-- /Contents Area -->
+
+		<!-- Footer Area -->
+		{include file="page_footer.tpl.html"}
+		<!-- /Footer Area -->
+
+		</div>
+	</body>
+</html>
+

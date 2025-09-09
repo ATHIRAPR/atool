@@ -1,0 +1,64 @@
+$(document).ready(function() {
+	//初期化処理
+	var clinic_input_all = $("#clinic_checkboxes_part > label > input");
+
+	//カテゴリの該当無しチェックボックスの要素を取得する
+	var clinic_not = $("#clinic_checkboxes_part > label > input:last");
+
+	//最後の要素を除いたチェックボックス要素
+	var clinics = $("#clinic_checkboxes_part > label > input:lt(" + (clinic_input_all.length-1) + ")");
+
+	clinic_not.change(function() {
+		if (clinic_not.attr("checked")) {
+			//該当無しにチェックをつけた場合、それ以外のカテゴリのチェックを外して無効化する
+			clinics.removeAttr("checked");
+			clinics.attr("disabled", "disabled");
+			//clinics.parent().hide("show");
+		} else {
+			//該当無しのチェックを外した場合、それ以外のカテゴリのチェックを外して有効化する
+			clinics.removeAttr("disabled");
+			clinics.removeAttr("checked");
+			//clinics.parent().show("show");
+		}
+	});
+
+	clinics.change(function() {
+		if (clinics.is(":checked")) {
+			//該当無し以外のカテゴリをチェックした場合、該当無しのチェックを外す
+			clinic_not.removeAttr("checked");
+			//clinic_not.attr("disabled", "disabled");
+		} else {
+			//該当無し以外のカテゴリのいずれにもチェックがついていない場合、該当無しの無効化を解除する
+			clinic_not.removeAttr("disabled");
+		}
+	});
+
+	if (clinic_not.attr("checked")) {
+		clinics.removeAttr("checked");
+		clinics.attr("disabled", "disabled");
+	}
+
+	//文書種別のセレクトボックス要素
+	var doctype_select = $("select[name='doctype_id']");
+
+	//文書種別「カタログ」または「その他」が選択されたときはカテゴリ「該当無し」にチェックをつける
+	//それ以外の文書種別が選択されたときは、カテゴリ「該当無し」のチェックを外すようにする
+	doctype_select.change(function() {
+/*		if (doctype_select.val() != 1 && doctype_select.val() != 15) {*/
+			//該当無しにチェックをつけて、それ以外のカテゴリのチェックを外して無効化する
+			clinic_not.attr("checked", true);
+			clinics.removeAttr("checked");
+			clinics.attr("disabled", "disabled");
+//			clinic_not.attr("disabled", "disabled");
+/*
+		} else {
+			//該当無しのチェックを外して、無効化を解除する
+			clinic_not.removeAttr("checked");
+			clinics.removeAttr("disabled");
+//			clinics.removeAttr("checked");
+//			clinic_not.removeAttr("disabled");
+		}
+*/
+	});
+
+});

@@ -1,0 +1,189 @@
+<?php
+
+require_once("include/init.php.inc");
+require_once("include/smarty.php.inc");
+require_once("include/db.php.inc");
+require_once("include/auth.php.inc");
+require_once("include/util.php.inc");
+
+require_once("include/pdf_stamp.php.inc");
+
+//ファイル管理権限が無い場合は、エラーにする
+if ($role_info[file_role_flg] != 1) {
+	//エラーメッセージ表示
+	show_error_page(array("ファイル管理者の権限がありません"), "manage.php", "トップページへ戻る");
+	exit;
+}
+
+$method = $_SERVER[REQUEST_METHOD];
+
+$src_dir = $_POST['src_dir'];
+if (!$src_dir) {
+	$src_dir = $BASE_DIR . "/catalog";
+}
+
+$dst_dir = $_POST['dst_dir'];
+if (!$dst_dir) {
+	$dst_dir = $UPLOAD_DIR;
+}
+
+$pub_dir = $_POST['pub_dir'];
+if (!$pub_dir) {
+	$pub_dir = $PUBLISH_DIR;
+}
+
+$smarty->assign("src_dir", $src_dir);
+$smarty->assign("dst_dir", $dst_dir);
+$smarty->assign("pub_dir", $pub_dir);
+
+if ($_POST[do_import] === "1") {
+	$smarty->assign("show_result", true);
+}
+
+$fim = new FileInfoManager();
+//全ファイル情報取得
+$file_info_all = $fim->get_all();
+
+$pim = new PublishinfoManager();
+$file_info_all = $fim->get_all();
+
+for($i = 0; $i < count($file_info_all); $i++) {
+	$file_info = $file_info_all[$i];
+
+	$file_nm = $file_info[file_nm];
+	$src_file = $src_dir . "/" . $file_nm;
+	if (!file_exists($src_file)) {
+		$file_info[exist_src] = "Not Found";
+
+	} else if (!is_file($src_file)) {
+		$file_info[exist_src] = "Not File";
+
+	} else if (!is_readable($src_file)) {
+		$file_info[exist_src] = "Not Readable";
+
+	} else {
+		$file_info[exist_src] = "Exist";
+
+		if ($msg = check_protected_pdf($src_file, $file_info[pdf_password])) {
+
+			if ($file_info[doctype_id] == 1) {
+				$file_info[exist_src] = "Exist(Ignore Protection)";
+			} else {
+				$file_info[exist_src] = "<span alt='" . $msg . "'>Open Error</span>";//$msg;
+			}
+		}
+
+	}
+	$file_info_all[$i][exist_src] = $file_info[exist_src];
+
+	$filepath = $file_info[filepath];
+	$dst_file = $dst_dir . "/" . $filepath;
+	if (file_exists($dst_file)) {
+		$file_info[exist_dst] = "Exist";
+
+	} else {
+		$file_info[exist_dst] = "Not Found";
+	}
+	$file_info_all[$i][exist_dst] = $file_info[exist_dst];
+
+
+	$pub_file = $pub_dir . "/" . $filepath;
+	if (file_exists($pub_file)) {
+		$file_info[exist_pub] = "Exist";
+
+	} else {
+		$file_info[exist_pub] = "Not Found";
+	}
+	$file_info_all[$i][exist_pub] = $file_info[exist_pub];
+
+	$publish_info = $pim->search_info($file_info[id], 1);
+	if ($publish_info) {
+		$file_info_all[$i][status_flg] = $publish_info[status_flg];
+	} else {
+		$file_info_all[$i][status_flg] = "N/A";
+	}
+
+	$file_info_all[$i][result] = "Skipped";
+
+	if ($method === "POST" && $_POST[do_import] === "1" &&
+		($file_info[exist_src] === "Exist" || $file_info[exist_src] === "Exist(Ignore Protection)") ) {
+		//ファイルのインポート処理を行う
+		if (!file_exists(dirname($dst_file))) {
+			//インポート先ディレクトリが存在しない場合は作成する
+			$ret = mkdir(dirname($dst_file), 0777, true);
+
+			if (!$ret) {
+				//ディレクトリの作成失敗
+				$file_info_all[$i][result] = "Directory Creation Failed.";
+				continue;
+			}
+		}
+
+		if (!is_writable(dirname($dst_file))) {
+			//ディレクトリ書き込み不可
+			$file_info_all[$i][result] = "Directory Not Writable.";
+			continue;
+		}
+
+		//ファイルコピー実行
+		$ret = copy($src_file, $dst_file);
+		if ($ret) {
+			//コピー成功
+			$file_info_all[$i][result] = "Succeeded Import";
+			$file_info_all[$i][dst_exist] = "Exist";
+
+			$ret = $fim->set( $file_info[id], array('filesize' => filesize($dst_file)) );
+			if (!$ret) {
+				$file_info_all[$i][result] = "Failed to update filesize";
+			}
+
+		}
+
+		if (0 < $publish_info[status_flg]) {
+			//公開ファイルのインポート処理を行う
+			if (!file_exists(dirname($pub_file))) {
+				//インポート先ディレクトリが存在しない場合は作成する
+				$ret = mkdir(dirname($pub_file), 0777, true);
+
+				if (!$ret) {
+					//ディレクトリの作成失敗
+					$file_info_all[$i][result] = "Directory Creation Failed.";
+					continue;
+				}
+			}
+
+			if (!is_writable(dirname($pub_file))) {
+				//ディレクトリ書き込み不可
+				$file_info_all[$i][result] = "Directory Not Writable.";
+				continue;
+			}
+
+			//ファイルコピー実行
+			$ret = copy($src_file, $pub_file);
+			if ($ret) {
+				//コピー成功
+				$file_info_all[$i][result] = "Succeeded Import";
+				$file_info_all[$i][dst_exist] = "Exist";
+			}
+
+		} else {
+			if ( file_exists(dirname($pub_file)) ) {
+				//公開ディレクトリのファイルを削除する
+				delete_dir(dirname($pub_file));
+			}
+		}
+
+		//echo $file_info_all[$i][result];
+	}
+
+
+}
+
+//if ($method === "GET" || ($method === "POST" && $_POST[btn_check])) {
+
+	$smarty->assign('list', $file_info_all);
+	show_template_page("sys_import_file.tpl.html");
+	exit;
+//}
+
+?>

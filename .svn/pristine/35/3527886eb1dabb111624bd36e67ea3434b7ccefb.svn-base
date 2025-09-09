@@ -1,0 +1,59 @@
+<?php
+require_once ("include/init.php.inc");
+require_once ("include/smarty.php.inc");
+require_once ("include/db.php.inc");
+require_once ("include/auth.php.inc");
+require_once ("include/util.php.inc");
+// 選択された左メニュー項目
+$smarty->assign ( "func_info", array (
+    "file" => 1 
+) );
+// ファイル管理権限が無い場合は、エラーにする
+if ($role_info [file_role_flg] != 1) {
+    // エラーメッセージ表示
+    show_error_page ( array (
+        "ファイル管理者の権限がありません" 
+    ), "manage.php", "トップページへ戻る" );
+    exit ();
+}
+if ($_SERVER ['REQUEST_METHOD'] === "POST") {
+    $clinic_id = $_POST ['clinic_id'];
+    $doctype_id = $_POST ['doctype_id'];
+    $title = mb_convert_encoding ( $_POST ['title'], "UTF-8", $OUTPUT_ENCODING );
+    $file_nm = mb_convert_encoding ( $_POST ['file_nm'], "UTF-8", $OUTPUT_ENCODING );
+    $smarty->assign ( "clinic_id", $clinic_id );
+    $smarty->assign ( "doctype_id", $doctype_id );
+    $smarty->assign ( "title", $title );
+    $smarty->assign ( "file_nm", $file_nm );
+}
+$cmm = new ClinicMasterManager ();
+$clinic_all = $cmm->get_all ();
+$clinic_options ["0"] = "全て";
+foreach ( $clinic_all as $clinic ) {
+    $clinic_options [$clinic [id]] = $clinic [clinic_nm];
+}
+$smarty->assign ( "clinic_options", $clinic_options );
+$dmm = new DoctypeMasterManager ();
+$doctype_all = $dmm->get_all ();
+$doctype_options ["0"] = "全て";
+foreach ( $doctype_all as $doctype ) {
+    $doctype_options [$doctype [id]] = $doctype [type_nm];
+}
+$smarty->assign ( "doctype_options", $doctype_options );
+$result_ary = search_file_info_ex ( $doctype_id, $clinic_id, $title, $file_nm );
+foreach ( $result_ary as &$result ) {
+    $clinic_str = '';
+    for($i = 0; $i < strlen ( $result [clinic_flg_ary] ); $i ++) {
+        $clinic_flg = $result [clinic_flg_ary] [$i];
+        if ($clinic_flg === '1') {
+            $clinic_str .= empty ( $clinic_str ) ? '' : '/';
+            $clinic_str .= $clinic_options [$i + 1];
+        }
+    }
+    $result ['clinic_str'] = $clinic_str;
+    $result ['type_nm'] = $doctype_options [$result ['doctype_id']];
+}
+$smarty->assign ( 'list', $result_ary );
+show_template_page ( "manage_file.tpl.html" );
+exit ();
+?>

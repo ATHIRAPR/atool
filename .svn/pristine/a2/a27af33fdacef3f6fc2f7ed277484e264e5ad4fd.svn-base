@@ -1,0 +1,261 @@
+<?php
+
+//指定したpdfをテンプレートとして読み込んで、PDFデータを新規に生成する
+//スタンプ押印が必要なら、PDFにスタンプを押印する
+
+//PDFファイルの読み込み、スタンプ押印に失敗したらfalseを返す
+function get_stamped_pdf_data($license_file_path, $cmap_path, $pdf_file_path, $pdf_password, $uid, $fid, $stamp_flg, $pdf_protect_pwd) {
+	global $DOWNLOAD_LOG_FILE;
+
+//	dl($LIB_PDF);
+
+	//PDFLIBの準備
+	$pdflib = new PDFlib();
+
+	$pdflib->set_option("licensefile={$license_file_path}");	//ライセンスファイル
+	$pdflib->set_option("searchpath={$cmap_path}");	//ベースディレクトリ直下のcmapディレクトリ
+	$pdflib->set_option("textformat=utf8");
+
+	$pdi = 0;
+	try {
+		//pdfファイル読み込み
+		if ($pdf_password) {
+			$pdi = $pdflib->open_pdi_document($pdf_file_path, "password=$pdf_password");
+		} else {
+			$pdi = $pdflib->open_pdi_document($pdf_file_path, "");
+		}
+
+		if ($pdi == 0) {
+			//PDFの読み込み失敗、パスワード無効など
+			$msg = $pdflib->get_errmsg();
+			//echo $msg;
+			$ret = log_pdf_download($DOWNLOAD_LOG_FILE, $uid, $fid, "Error: " . $msg);
+			return false;
+		}
+
+	} catch(Exception $e) {
+		//それ以外の例外
+		$msg = $e->getMessage();
+		$ret = log_pdf_download($DOWNLOAD_LOG_FILE, $uid, $fid, $msg);
+		return false;
+	}
+
+	//文書情報をPCOS関数で読み取る
+	$endpage = $pdflib->pcos_get_number($pdi, "length:pages");
+
+	//権限情報を読み取る
+	//$perm_array = get_permissions_array($pdflib, $pdi);
+	$perm_array = array();
+	//$perm_array[] = "noaccessible";	//内容抽出不可
+
+	if (!in_array("noassemble", $perm_array)) {
+		$perm_array[] = "noassemble";	//文書アセンブリ不可
+	}
+	if (!in_array("nomodify", $perm_array)) {
+		$perm_array[] = "nomodify";	//変更不可
+	}
+	if (!in_array("noannots", $perm_array)) {
+		$perm_array[] = "noannots";	//注釈不可
+	}
+	if (!in_array("noforms", $perm_array)) {
+		$perm_array[] = "noforms";	//フォームフィールド不可
+	}
+
+	//$perm_array[] = "plainmetadata";	//メタデータ
+
+	//if (!$pdf_password) {
+		//PDFパスワードが設定されていない場合はランダムな英数字の文字列をパスワードにして保護する
+	//	$pdf_password = get_random_string(12);
+	//}
+
+	//生成されるPDFにプロテクトをかける設定(共通マスターパスワード設定、かつコンテンツの変更不可、印刷可能)
+	$oplist = "masterpassword=$pdf_protect_pwd permissions={" . join($perm_array, " ") . "}";
+
+	//権限設定つきでPDFを生成する
+	$pdflib->begin_document("", $oplist);
+	//$pdflib->begin_document($work_path . "output.pdf", "");
+	$stamplayer = $pdflib->define_layer("stamp", "initialviewstate=true initialprintstate=true");
+
+	for($i = 1; $i <= $endpage; $i++) {
+		$page = $pdflib->open_pdi_page($pdi, $i, "");
+		if ( ! $page) {
+			continue;
+		}
+		$pdflib->begin_page_ext(10, 10, "");
+
+		$pdflib->fit_pdi_page($page, 0, 0, "adjustpage");
+
+		#pcos関数で情報を得る時の添字はページ数と違い0からスタートなので-1しておく
+		$annots_path = sprintf("pages[%s]/annots", $i - 1);
+		$ann_count = get_length($pdflib, $page, $annots_path);
+		if($ann_count > 0) {
+			set_page_links($pdflib, $page, $ann_count, $annots_path);
+		}
+
+		$heightpage = $pdflib->info_pdi_page($page, "pageheight", "");
+		$widthpage = $pdflib->info_pdi_page($page, "pagewidth", "");
+		$font = $pdflib->load_font("KozGoPro-Medium", "UniJIS-UCS2-H", "");//"unicode", "");
+
+		if ($stamp_flg == 2) {
+			//ユーザ配布禁止フラグ
+			$str = "※この文書はユーザーへの開示および配布が禁止されています。\n　ダウンロード年月日 ". date("Y年m月d日") . "　ID $uid";
+			$padding = 190;
+		} else if ($stamp_flg == 1) {
+			//$str = "ユーザＩＤ：　$uid\nファイルＩＤ：$fid\n押印日時：　　" . date("Y/m/d h:i:s");
+			$str = "※この文書はメディカルタウンよりダウンロードしたものです。\n　ダウンロード年月日 ". date("Y年m月d日") . "　ID $uid";
+			$padding = 190;
+		}
+		$pdflib->begin_layer($stamplayer);
+		$tf = $pdflib->create_textflow($str //to_utf8($str)
+			, "font=" . $font . " strokecolor={rgb 0.6 0.6 0.6} fillcolor={rgb 0.6 0.6 0.6} textrendering=2 fontsize=6"
+			. " leading=140% alignment=justify");
+		$pdflib->fit_textflow($tf, $widthpage-5, 5, $widthpage-$padding, $heightpage-5, "");
+		$textendx = $pdflib->info_textflow($tf, "textendx");
+		$textendy = $pdflib->info_textflow($tf, "textendy");
+		$textwidth = $pdflib->info_textflow($tf, "textwidth");
+		$textheight = $pdflib->info_textflow($tf, "textheight");
+
+		$pdflib->setlinewidth(0.5);
+		$pdflib->setcolor("stroke", "rgb", 0.6, 0.6, 0.6, 0);
+		$pdflib->rect($widthpage-$padding-3, $heightpage-5, $textwidth+3+6, -($textheight+4));
+		$pdflib->stroke();
+		$pdflib->delete_textflow($tf);
+		$pdflib->end_layer();
+
+		$pdflib->close_pdi_page($page);
+		$pdflib->end_page_ext("");
+	}
+	$pdflib->end_document("");
+
+	$buf = $pdflib->get_buffer();	//PDFデータを取得する
+	$pdflib->delete();
+
+	return $buf;
+}
+
+//ランダムな英数字の文字列を生成して返す
+function get_random_string($char_num) {
+	$strinit = "abcdefghkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ012345679";
+	$strarray = preg_split("//", $strinit, 0, PREG_SPLIT_NO_EMPTY);
+
+	for ($i = 0, $str = null; $i < $char_num; $i++) {
+		$str .= $strarray[array_rand($strarray, 1)];
+	}
+ 	return $str;
+}
+
+//PDF文書のパーミッション設定を読み取る
+function get_permissions_array($pdflib, $pdi) {
+
+	$perms = array(
+		//"noaccessible"
+		//,
+		"noannots"
+		//,"noassemble"
+		,"nocopy"
+		,"noforms"
+		,"nohiresprint"
+		//,"nomodify"
+		,"noprint"
+	);
+
+	$list = array();
+	foreach($perms as $perm) {
+		$ret = $pdflib->pcos_get_number($pdi, "encrypt/$perm");
+		if ($ret) {
+			$list[] = $perm;
+		}
+	}
+	return $list;
+}
+
+
+//指定したpdfがパスワード保護されているかチェックする
+//指定されたPDFファイルに対してPDFパスワードが指定されていれば、そのパスワードで保護解除を行う
+//PDFパスワードが指定されていない場合は、PDFファイルが開けるかどうかをチェックする
+//開くのに失敗したらエラーメッセージを返す
+function check_protected_pdf($pdf_file_path, $pdf_password) {
+
+//	dl($LIB_PDF);
+
+	//PDFLIBの準備
+	$pdflib = new PDFlib();
+
+	$pdi = 0;
+	try {
+		//pdfファイル読み込み
+		if ($pdf_password) {
+			$pdi = $pdflib->open_pdi_document($pdf_file_path, "password=$pdf_password");
+		} else {
+			$pdi = $pdflib->open_pdi_document($pdf_file_path, "");
+		}
+
+		if ($pdi == 0) {
+			//PDFの読み込み失敗、パスワード無効など
+			$msg = $pdflib->get_errmsg();
+		}
+
+	} catch(Exception $e) {
+		//それ以外の例外
+		$msg = $e->getMessage();
+	}
+	$pdflib = 0;
+	$pdi = 0;
+
+	return $msg;
+}
+
+function set_page_links($pdf, $page, $annots_count, $annots_path) {
+	for($j = 0; $j < $annots_count; $j++){
+		$annot_path = sprintf("%s[%s]", $annots_path, $j);
+		$subtype = $pdf->pcos_get_string($page, $annot_path.'/Subtype');
+		if($subtype != 'Link') {
+			continue;
+		}
+		$dest_path = sprintf("%s/Dest", $annot_path);
+		$dest_type = get_type($pdf, $page, $dest_path);
+		switch($dest_type) {
+			case 'string':
+			case 'name':
+			case 'array':
+				$rect_path = sprintf('%s/Rect', $annot_path);
+				$rect_type = get_type($pdf, $page, $rect_path);
+				$rect_len = get_length($pdf, $page, $rect_path);
+				$angle = array();
+				for($k = 0; $k < $rect_len; $k++) {
+					$angle[] = $pdf->pcos_get_number($page, sprintf('%s[%s]', $rect_path, $k));
+				}
+				list($llx, $lly, $urx,$ury) = $angle;
+				$dest_page_number = (int) $pdf->pcos_get_number($page, $annot_path."/destpage");
+				if($dest_type == 'array') {
+					$dest_kind = $pdf->pcos_get_string($page, $dest_path."[1]");
+					$dest_left = 0;
+					$dest_top = 0;
+					$dest_zoom = 0;
+					if($dest_kind == "XYZ") {
+						$dest_left = (int) get_type($pdf, $page, $dest_path."[2]");
+						$dest_top = (int) get_type($pdf, $page, $dest_path."[3]");
+						$dest_zoom = (int) get_type($pdf, $page, $dest_path."[4]");
+					}
+					$opt = sprintf("destination={page=%s type=fixed left=%s top=%s zoom=%s}", $dest_page_number, $dest_left, $dest_top, $dest_zoom);
+					$dest_action = $pdf->create_action("GoTo", $opt);
+					$opt = sprintf("action={activate %s} interiorcolor=none linewidth=0", $dest_action);
+					$pdf->create_annotation($llx, $lly, $urx, $ury, "Link", $opt);
+				}
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+function get_length($pdf, $doc, $pcos_path) {
+	$path = sprintf('length:%s', $pcos_path);
+	return (int)$pdf->pcos_get_number($doc, $path);
+}
+
+function get_type($pdf, $doc, $pcos_path) {
+	$path = sprintf('type:%s',$pcos_path);
+	return $pdf->pcos_get_string($doc, $path);
+}
+?>

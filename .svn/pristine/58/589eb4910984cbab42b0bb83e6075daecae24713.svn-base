@@ -1,0 +1,39 @@
+<?php
+
+require_once("include/init.php.inc");
+require_once("include/smarty.php.inc");
+require_once("include/db.php.inc");
+require_once("include/auth.php.inc");
+require_once("include/util.php.inc");
+
+//ファイル管理権限が無い場合は、エラーにする
+if ($role_info['file_role_flg'] != 1) {
+	//エラーメッセージ表示
+	show_error_page(array("ファイル管理者の権限がありません"));
+	exit;
+}
+
+// 現在登録済みの代表キーワード情報をすべて取得
+$rkim = new RepresentativeKwInfoManager();
+$kw_info = $rkim->get_all();
+
+foreach($kw_info as $index => $info) {
+	// 代表キーワードIDから、キーワード群情報を取得
+	$rep_kw_detail = get_representative_kw_detail($info['representative_id']);
+
+	// キーワード名配列作成
+	$keywords = array();
+	foreach($rep_kw_detail as $detail) {
+		$keywords[] = $detail['key_word'];
+	}
+
+	// キーワード名配列セット
+	$kw_info[$index]['keywords'] = $keywords;
+}
+$smarty->assign('mng', $_REQUEST[mng]);
+$smarty->assign('representative_kw_list', $kw_info);
+
+show_template_page("manage_representative_kw.tpl.html");
+exit;
+
+?>

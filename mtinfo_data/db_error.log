@@ -1,0 +1,2979 @@
+2016/11/08 14:02:10, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/08 14:02:59, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/08 16:11:39, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/09 13:00:05, search_file_info_ex, Array
+(
+    [0] => HY000
+    [1] => 207
+    [2] => General SQL Server error: Check messages from the SQL Server [207] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_status_flg, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.status_flg, eim.status_flg AS edit_status_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info WHERE info.delete_flg = 0 ORDER BY update_dt DESC, 
+2016/11/09 13:01:34, search_file_info_ex, Array
+(
+    [0] => HY000
+    [1] => 207
+    [2] => General SQL Server error: Check messages from the SQL Server [207] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_status_flg, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.status_flg, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info WHERE info.delete_flg = 0 ORDER BY update_dt DESC, 
+2016/11/09 13:01:47, search_file_info_ex, Array
+(
+    [0] => HY000
+    [1] => 207
+    [2] => General SQL Server error: Check messages from the SQL Server [207] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_status_flg, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.status_flg, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info WHERE info.delete_flg = 0 ORDER BY update_dt DESC, 
+2016/11/09 13:02:15, search_file_info_ex, Array
+(
+    [0] => HY000
+    [1] => 207
+    [2] => General SQL Server error: Check messages from the SQL Server [207] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_status_flg, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.status_flg, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info WHERE info.delete_flg = 0 ORDER BY update_dt DESC, 
+2016/11/10 13:01:26, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/10 13:34:01, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/14 15:20:58, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/14 15:21:17, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/14 15:22:01, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/14 15:22:29, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/16 14:04:34, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/16 14:10:50, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/16 14:15:08, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/16 14:17:20, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/16 14:20:23, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/16 14:24:18, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/16 14:24:39, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/16 14:28:50, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/16 14:32:29, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/16 14:45:23, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/16 14:47:20, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/17 09:58:08, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/17 14:00:48, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/17 14:13:57, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/17 14:38:51, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/18 15:50:22, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/18 15:51:00, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 10:34:40, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 10:38:18, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 10:41:25, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 10:42:28, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 11:04:26, commit, Array
+(
+    [0] => HY000
+    [1] => 3902
+    [2] => General SQL Server error: Check messages from the SQL Server [3902] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, COMMIT, 
+2016/11/21 11:39:54, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 12:41:27, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 12:42:40, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 12:45:07, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 12:55:15, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 12:59:08, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 13:28:57, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 13:30:13, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 13:31:16, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 13:32:11, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 13:51:02, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 14:13:12, commit, Array
+(
+    [0] => HY000
+    [1] => 3902
+    [2] => General SQL Server error: Check messages from the SQL Server [3902] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, COMMIT, 
+2016/11/21 15:29:33, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 15:30:32, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 15:31:19, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 15:47:25, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 15:48:16, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/21 15:49:19, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 08:57:13, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 09:04:57, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 09:05:50, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 09:06:51, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 09:12:54, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 09:13:57, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 09:15:07, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 09:31:36, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 09:32:33, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 09:33:47, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 10:04:57, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 10:06:07, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 10:06:52, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 10:13:40, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 10:14:36, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 10:15:16, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 10:29:32, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 10:30:25, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 10:31:15, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 10:39:29, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 10:40:26, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 10:41:32, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 10:55:34, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 11:46:09, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 12:46:08, commit, Array
+(
+    [0] => HY000
+    [1] => 3902
+    [2] => General SQL Server error: Check messages from the SQL Server [3902] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, COMMIT, 
+2016/11/22 12:46:26, commit, Array
+(
+    [0] => HY000
+    [1] => 3902
+    [2] => General SQL Server error: Check messages from the SQL Server [3902] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, COMMIT, 
+2016/11/22 12:46:38, commit, Array
+(
+    [0] => HY000
+    [1] => 3902
+    [2] => General SQL Server error: Check messages from the SQL Server [3902] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, COMMIT, 
+2016/11/22 12:50:59, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 12:51:45, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 12:52:32, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 13:00:57, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 13:02:08, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 13:03:14, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 13:06:01, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 13:06:06, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 13:06:12, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 13:28:57, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 13:29:41, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 13:30:28, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 13:38:19, commit, Array
+(
+    [0] => HY000
+    [1] => 3902
+    [2] => General SQL Server error: Check messages from the SQL Server [3902] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, COMMIT, 
+2016/11/22 13:38:23, commit, Array
+(
+    [0] => HY000
+    [1] => 3902
+    [2] => General SQL Server error: Check messages from the SQL Server [3902] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, COMMIT, 
+2016/11/22 13:38:28, commit, Array
+(
+    [0] => HY000
+    [1] => 3902
+    [2] => General SQL Server error: Check messages from the SQL Server [3902] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, COMMIT, 
+2016/11/22 14:20:09, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 14:23:11, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 14:26:49, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 14:27:47, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 14:28:39, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 14:29:23, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 14:30:30, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 14:31:13, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 14:48:44, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 14:49:17, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 14:50:08, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/22 14:50:50, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:10:46, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:11:32, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:12:31, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:13:25, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:14:39, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:15:53, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:16:42, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:17:50, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:18:38, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:19:34, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:20:25, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:21:11, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:24:15, commit, Array
+(
+    [0] => HY000
+    [1] => 3902
+    [2] => General SQL Server error: Check messages from the SQL Server [3902] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, COMMIT, 
+2016/11/24 11:42:38, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:43:29, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:44:38, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:45:52, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:46:46, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 11:47:33, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 12:42:38, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/24 12:42:40, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/25 15:37:38, commit, Array
+(
+    [0] => HY000
+    [1] => 3902
+    [2] => General SQL Server error: Check messages from the SQL Server [3902] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, COMMIT, 
+2016/11/25 15:40:11, commit, Array
+(
+    [0] => HY000
+    [1] => 3902
+    [2] => General SQL Server error: Check messages from the SQL Server [3902] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, COMMIT, 
+2016/11/25 15:50:22, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 11:34:00, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 11:34:45, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 11:35:33, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 11:40:54, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 11:41:45, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 11:43:23, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 12:37:10, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 12:37:54, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 12:38:41, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 12:43:37, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 12:44:30, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 12:45:15, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 12:48:31, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 12:49:28, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 12:50:17, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 12:55:19, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 12:56:14, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 12:57:01, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:00:08, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:00:57, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:01:33, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:10:54, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:11:36, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:12:22, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:23:02, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:23:52, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:24:30, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:36:33, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:38:47, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:40:18, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:43:07, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:44:18, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:46:17, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:49:17, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:49:58, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:50:40, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:51:33, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:52:54, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 13:53:50, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 14:01:01, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 14:01:13, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 14:01:43, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 14:05:10, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 14:05:42, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 14:05:57, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/11/28 17:03:25, search_file_info_ex, Array
+(
+    [0] => HY000
+    [1] => 156
+    [2] => General SQL Server error: Check messages from the SQL Server [156] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:03:52, search_file_info_ex, Array
+(
+    [0] => HY093
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:04:02, search_file_info_ex, Array
+(
+    [0] => HY093
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:04:08, search_file_info_ex, Array
+(
+    [0] => HY093
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:04:10, search_file_info_ex, Array
+(
+    [0] => HY093
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:04:13, search_file_info_ex, Array
+(
+    [0] => HY093
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:04:16, search_file_info_ex, Array
+(
+    [0] => HY000
+    [1] => 156
+    [2] => General SQL Server error: Check messages from the SQL Server [156] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:04:22, search_file_info_ex, Array
+(
+    [0] => HY000
+    [1] => 156
+    [2] => General SQL Server error: Check messages from the SQL Server [156] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:04:41, search_file_info_ex, Array
+(
+    [0] => HY000
+    [1] => 156
+    [2] => General SQL Server error: Check messages from the SQL Server [156] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:05:09, search_file_info_ex, Array
+(
+    [0] => HY000
+    [1] => 156
+    [2] => General SQL Server error: Check messages from the SQL Server [156] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:05:51, search_file_info_ex, Array
+(
+    [0] => HY000
+    [1] => 156
+    [2] => General SQL Server error: Check messages from the SQL Server [156] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:06:41, search_file_info_ex, Array
+(
+    [0] => HY000
+    [1] => 156
+    [2] => General SQL Server error: Check messages from the SQL Server [156] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:10:33, search_file_info_ex, Array
+(
+    [0] => HY000
+    [1] => 156
+    [2] => General SQL Server error: Check messages from the SQL Server [156] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:10:41, search_file_info_ex, Array
+(
+    [0] => HY000
+    [1] => 156
+    [2] => General SQL Server error: Check messages from the SQL Server [156] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:11:30, search_file_info_ex, Array
+(
+    [0] => HY093
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:11:59, search_file_info_ex, Array
+(
+    [0] => HY000
+    [1] => 156
+    [2] => General SQL Server error: Check messages from the SQL Server [156] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:12:02, search_file_info_ex, Array
+(
+    [0] => HY000
+    [1] => 156
+    [2] => General SQL Server error: Check messages from the SQL Server [156] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/28 17:22:57, search_file_info_ex, Array
+(
+    [0] => HY000
+    [1] => 156
+    [2] => General SQL Server error: Check messages from the SQL Server [156] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT  info.id, info.doctype_id, info.clinic_flg_ary, info.title, info.download_file_nm, info.file_nm, info.filepath, info.filesize, info.url_hash, info.pdf_password, info.publish_start_dt, info.download_update_dt, info.update_user_id, info.update_dt, info.publish_user_id, info.publish_dt, info.file_publish_start_dt, info.file_download_update_dt, info.file_status_flg, info.edit_publish_start_dt, info.edit_download_update_dt, info.edit_status_flg FROM (SELECT  fim.id, ISNULL(eim.doctype_id, fim.doctype_id) AS doctype_id, ISNULL(eim.clinic_flg_ary, fim.clinic_flg_ary) AS clinic_flg_ary, ISNULL(eim.title, fim.title) AS title, ISNULL(eim.download_file_nm, fim.download_file_nm) AS download_file_nm, ISNULL(eim.file_nm, fim.file_nm) AS file_nm, ISNULL(eim.filepath, fim.filepath) AS filepath, ISNULL(eim.filesize, fim.filesize) AS filesize, ISNULL(eim.url_hash, fim.url_hash) AS url_hash, ISNULL(eim.pdf_password, fim.pdf_password) AS pdf_password, ISNULL(eim.publish_start_dt, fim.publish_start_dt) AS publish_start_dt, ISNULL(eim.download_update_dt, fim.download_update_dt) AS download_update_dt, ISNULL(eim.update_user_id, fim.update_user_id) AS update_user_id, ISNULL(eim.update_dt, fim.update_dt) AS update_dt, fim.publish_user_id, fim.publish_dt, fim.publish_start_dt AS file_publish_start_dt, fim.download_update_dt AS file_download_update_dt, fim.status_flg AS file_status_flg, eim.publish_start_dt AS edit_publish_start_dt, eim.download_update_dt AS edit_download_update_dt, eim.status_flg AS edit_status_flg, fim.delete_flg FROM file_info fim LEFT JOIN edit_info eim ON fim.id = eim.id) info AND info.file_nm LIKE ? ORDER BY update_dt DESC, 
+2016/11/29 17:07:59, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/02 10:24:38, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 10:07:08, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 10:55:44, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 10:58:00, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 10:59:10, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 11:02:09, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 11:04:24, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 12:39:27, commit, Array
+(
+    [0] => HY000
+    [1] => 3902
+    [2] => General SQL Server error: Check messages from the SQL Server [3902] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, COMMIT, 
+2016/12/16 12:39:41, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 13:30:39, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 13:31:58, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 13:32:33, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 13:34:46, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 13:37:58, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 13:47:03, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 13:48:18, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 13:50:21, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 14:01:55, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 14:36:47, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 14:37:36, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 15:06:28, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 15:09:28, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 15:09:51, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 16:58:18, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 16:58:29, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 16:59:09, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 16:59:49, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 17:00:29, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 17:01:17, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 17:02:24, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 17:02:38, commit, Array
+(
+    [0] => HY000
+    [1] => 3902
+    [2] => General SQL Server error: Check messages from the SQL Server [3902] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, COMMIT, 
+2016/12/16 17:05:42, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 17:06:25, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/16 17:07:38, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2016/12/19 10:52:42, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 10:52:55, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 10:56:43, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 10:57:00, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:00:11, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:00:28, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:00:34, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:00:45, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:00:51, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:01:02, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:01:02, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:01:09, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:01:10, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:01:10, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:01:11, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:01:19, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:01:31, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:01:48, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:02:10, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:02:33, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:02:50, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:03:07, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:03:24, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:03:40, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:04:03, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:04:26, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:04:43, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 11:04:55, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:16:03, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:16:03, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:16:03, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:22:50, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:23:06, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:23:27, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:23:48, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:24:09, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:24:25, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:24:31, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:24:41, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:25:20, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:26:20, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:26:30, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:27:19, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:27:35, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:28:28, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:28:50, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:29:11, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:29:27, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:34:00, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:34:01, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:34:27, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:34:27, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:34:43, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:34:59, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:35:43, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:36:09, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:36:30, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:36:51, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:37:13, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:37:39, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 16:38:10, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 17:00:24, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 17:00:36, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 17:00:47, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 17:00:57, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 17:00:58, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 17:00:58, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 17:00:58, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 17:00:58, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 17:00:58, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2016/12/19 17:01:58, search_info_array, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, SELECT * FROM v_file_info WHERE url_hash = ? and delete_flg != 1, 
+2017/01/30 15:00:53, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/01/31 08:56:32, add, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, INSERT INTO file_info (file_nm, filesize, download_file_nm, title, doctype_id, publish_start_dt, status_flg, clinic_flg_ary, filepath, update_user_id, update_dt, delete_flg) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), 
+2017/01/31 09:09:16, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/01/31 09:09:34, set, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, UPDATE edit_info SET title = ?, doctype_id = ?, publish_start_dt = ?, status_flg = ?, download_file_nm = ?, clinic_flg_ary = ?, update_user_id = ?, update_dt = ? WHERE id = ?, 
+2017/01/31 09:09:47, set, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, UPDATE edit_info SET title = ?, doctype_id = ?, publish_start_dt = ?, status_flg = ?, download_file_nm = ?, clinic_flg_ary = ?, update_user_id = ?, update_dt = ? WHERE id = ?, 
+2017/01/31 09:24:46, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/01/31 09:25:13, set, Array
+(
+    [0] => HY000
+    [1] => 102
+    [2] => General SQL Server error: Check messages from the SQL Server [102] (severity 15) [(null)]
+    [3] => -1
+    [4] => 15
+)
+, UPDATE edit_info SET title = ?, doctype_id = ?, publish_start_dt = ?, status_flg = ?, download_file_nm = ?, clinic_flg_ary = ?, update_user_id = ?, update_dt = ? WHERE id = ?, 
+2017/01/31 09:25:48, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/01/31 11:28:34, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/02/01 10:50:57, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/02/01 10:56:39, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/02/01 11:24:23, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/03/27 10:33:22, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/03/27 10:34:17, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/03/27 10:42:15, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/03/27 10:43:53, commit, Array
+(
+    [0] => HY000
+    [1] => 3902
+    [2] => General SQL Server error: Check messages from the SQL Server [3902] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, COMMIT, 
+2017/03/27 10:53:58, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/03/27 10:54:08, commit, Array
+(
+    [0] => HY000
+    [1] => 3902
+    [2] => General SQL Server error: Check messages from the SQL Server [3902] (severity 16) [(null)]
+    [3] => -1
+    [4] => 16
+)
+, COMMIT, 
+2017/03/27 10:54:28, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/03/27 11:00:41, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/03/27 11:01:08, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/03/27 11:01:57, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/06/23 16:46:36, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/06/23 17:03:14, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2017/06/29 16:39:02, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2018/09/05 16:47:07, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2021/08/02 13:30:35, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2021/09/29 15:59:03, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2022/03/10 11:34:29, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2022/03/10 11:37:30, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 
+2025/03/18 11:39:03, get_identity, Array
+(
+    [0] => 00000
+    [1] => 0
+    [2] => (null) [0] (severity 0) [(null)]
+    [3] => 0
+    [4] => 0
+)
+, SELECT SCOPE_IDENTITY() AS insert_id, 

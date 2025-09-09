@@ -1,0 +1,31 @@
+<?php
+function getPidList($list){
+	$result = array();
+	if(is_array($list) && count($list) > 0){
+		foreach($list as $row){
+			$result[] = $row['PID'];
+		}
+	}
+	return $result;
+}
+function adjustFileSizeUnit($size){
+	$str = "";
+	$unit = array("B", "KB", "MB", "GB", "TB", "PB");
+	$tmp = $bk = $size;
+	for($i = 0; $i < count($unit); $i++){
+		$len = strlen($tmp);
+		if($len > 3){
+			$bk = $tmp;
+			$tmp = substr($tmp, 0, -3);
+		} else {
+			if($len === 1){
+				$str = $i === 0 ? $bk.$unit[$i] : "{$bk[0]}.{$bk[1]}{$unit[$i]}";
+			} else {
+				$str = $tmp.$unit[$i];
+			}
+			break;
+		}
+	}
+	return $str;
+}
+?>

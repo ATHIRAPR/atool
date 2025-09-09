@@ -1,0 +1,8 @@
+
+	//OK
+	$(document).ready(function() {
+		$("#my_table_sorter")
+		//.tablesorter({widthFixed: true, widgets: ['zebra']})
+		.tablesorter({widthFixed: true})
+		.tablesorterPager({container: $("#pager")});
+	});

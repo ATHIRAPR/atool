@@ -1,0 +1,38 @@
+<body>
+<div class="demo">
+<body>
+
+<!-- ページヘッダ  -->
+{include file="page_header.tpl.html"}
+<!-- ページヘッダ  -->
+
+<table width="800" height="343" border="0">
+  <tr>
+    <td width="176" valign="top">
+
+      <!-- 左メニュー -->
+      {include file="left_menu.tpl.html" role_info=$role_info}
+      <!-- 左メニュー -->
+
+    </td>
+
+    <td width="371" valign="top">
+
+	    <!-- メインコンテンツ -->
+	    {include file=$content_tpl_html}
+	    <!-- メインコンテンツ -->
+
+	    <!-- フローティングウインドウコンテンツ -->
+	    {*include file=""*}
+	    <!-- フローティングウインドウコンテンツ -->
+
+    </td>
+  </tr>
+</table>
+
+<!-- ページフッダ  -->
+{include file="page_footer.tpl.html"}
+<!-- ページフッダ  -->
+
+</body>
+

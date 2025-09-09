@@ -1,0 +1,41 @@
+<?php
+require_once ("include/init.php.inc");
+require_once ("include/smarty.php.inc");
+require_once ("include/db.php.inc");
+require_once ("include/auth.php.inc");
+require_once ("include/util.php.inc");
+
+if ($_SERVER ['REQUEST_METHOD'] !== "POST") {
+    // NOT FOUND
+    header ( "HTTP/1.0 404 Not Found" );
+    exit ();
+}
+
+// ユーザグループレベルと、urlハッシュ配列を取得
+$lvl = $_POST ['lvl'];
+$type = $_POST ['type'];
+$url_hash_array = json_decode ( $_POST ['url_hash_array'], true );
+
+$develop = $type === 'develop';
+$info_array = search_files_from_hash ( $url_hash_array, $lvl, $develop );
+
+$hash_key_array = array ();
+
+// 取得した配列をurl_hashをキーにした連想配列化する
+foreach ( $info_array as $info ) {
+    $url_hash = $info ['url_hash'];
+    $hash_key_array [$url_hash] = $info;
+}
+
+// ファイル詳細情報のみのリクエストなら、json形式でファイル詳細を返す
+if (! empty ( $info_array )) {
+    print (json_encode ( $hash_key_array, true )) ;
+    exit ();
+} else {
+    // ファイル情報の取得に失敗した
+    // NOT FOUND
+    header ( "HTTP/1.0 404 Not Found" );
+    exit ();
+}
+
+?>

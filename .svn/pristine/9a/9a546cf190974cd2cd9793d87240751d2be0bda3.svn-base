@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!-- Meta -->
+{include file="page_meta.tpl.html"}
+<!-- /Meta -->
+<title>文書ファイル管理ツール</title>
+<link rel="stylesheet" type="text/css" href="css/default.css" media="screen,print" />
+<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+
+<style type="text/css">
+#rep_name {
+	width: 80%;
+}
+
+#rep_keyword {
+	width: 90%;
+	height: 10em;
+}
+
+.task_input_form td {
+	vertical-align: top;
+}
+
+.task_input_form td:first-child {
+	width: 9em;
+}
+</style>
+
+<script type="text/javascript">
+$(function () {
+	{if $is_succeed}
+	location.href = './manage_representative_kw.php{if $mng == 1}?mng=1{/if}';
+	return;
+	{/if}
+
+	// キーワードを登録し、一覧画面へ戻る
+	$('#entry_keyword').click(function () {
+		$('form[name=form_main]').submit();
+		return false;
+	});
+
+	// キャンセル
+	$('#cancel').click(function () {
+		location.href = './manage_representative_kw.php{if $mng == 1}?mng=1{/if}';
+		return false;
+	});
+});
+</script>
+</head>
+
+<body>
+
+<div id="skip_link_block">
+	<ul>
+		<li><a href="#main_content_anc">本文へジャンプします</a></li>
+
+	</ul>
+	<p id="pageTop">ページの先頭です</p>
+</div>
+
+<div id="contents">
+
+<!-- Header Area -->
+{include file="page_header.tpl.html"}
+<!-- /Header Area -->
+
+<!-- Contents Area -->
+<div id="contents_body" class="clearfix">
+
+	<!-- Main Contents Area -->
+	<div id="main_content_area">
+
+		<div id="skip_main_block">
+			<p id="main_content_anc"><a name="main_content_anc">本文の始まりです</a></p>
+		</div>
+
+		<h2><em>キーワード登録編集</em></h2>
+
+		<form name="form_main" action="edit_representative_kw.php" target="_self" method="post">
+			<p class="text">
+			{foreach from=$msg_array item=msg}
+				<span class="text_red text_wb">{$msg}</span><br />
+			{/foreach}
+			</p>
+			<div class="task_input_form">
+				<table>
+					<tr>
+						<td><div>代表キーワード名</div></td>
+						<td>
+							<input type="text" id="rep_name" name="rep_name" value="{$rep_name|escape}" class="chkrequired" maxlength="256" />
+						</td>
+					</tr>
+					<tr>
+						<td><div>キーワード</div></td>
+						<td><textarea id="rep_keyword" name="rep_keyword" class="chkmax4000">{$rep_keyword|escape}</textarea></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td>
+							<span class="text_red text_s">※複数のキーワードを入力するときは、改行で区切ってください。</span>
+						</td>
+					</tr>
+				</table>
+
+				<p class="center">
+					<input type="image" id="entry_keyword" alt="登録する" src="image/btn_entry.jpg" />
+					<input type="image" id="cancel" alt="キャンセル" src="image/btn_cancel.jpg" />
+				</p>
+
+				<input type="hidden" name="rep_id" value="{$rep_id}"></input>
+				{if $mng == 1}
+				<input type="hidden" name="mng" value="1"></input>
+				{/if}
+			</div>
+		</form>
+
+	</div>
+	<!-- /Main Contents Area -->
+
+</div>
+<!-- Contents Area -->
+
+<!-- Footer Area -->
+{include file="page_footer.tpl.html"}
+<!-- /Footer Area -->
+
+</div>
+</body>
+</html>

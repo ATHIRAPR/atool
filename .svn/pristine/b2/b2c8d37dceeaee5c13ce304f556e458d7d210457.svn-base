@@ -1,0 +1,250 @@
+<?php
+
+require_once("include/init.php.inc");
+require_once("include/smarty.php.inc");
+require_once("include/db.php.inc");
+require_once("include/auth.php.inc");
+require_once("include/util.php.inc");
+
+//選択された左メニュー項目
+$smarty->assign("func_info", array("publish" => 1));
+
+
+//公開管理権限が無い場合は、エラーにする
+if ($role_info[publish_role_flg] != 1) {
+	//エラーメッセージ表示
+	show_error_page(array("公開管理者の権限がありません"), "manage.php", "トップページへ戻る");
+	exit;
+}
+
+if ($_SERVER[REQUEST_METHOD] === 'POST') {
+	$doctype_id = $_POST['doctype_id'];
+	//$clinic_id = $_POST['clinic_id'];
+	$product_nm = mb_convert_encoding($_POST['product_nm'], "UTF-8", $OUTPUT_ENCODING);
+	$model_nm = mb_convert_encoding($_POST['model_nm'], "UTF-8", $OUTPUT_ENCODING);
+	$file_nm = mb_convert_encoding($_POST['file_nm'], "UTF-8", $OUTPUT_ENCODING);
+
+	if ($_POST['status_flg'] != -1) {
+		$status_flg = $_POST['status_flg'];
+	}
+
+	if ($_POST['edit_status_flg'] != -1) {
+		$edit_status_flg = $_POST['edit_status_flg'];
+	}
+
+	$show_sync_target_only = $_POST[show_sync_target_only];
+
+} else if ($_SERVER[REQUEST_METHOD] === 'GET') {
+	$show_sync_target_only = 1;
+}
+
+if (isset($publish_flg)) {
+	if($publish_flg == 0) {
+		$dir_flg = 0;
+		$search_flg = 0;
+
+	} else if($publish_flg == 1) {
+		$dir_flg = 1;
+		$search_flg = 0;
+
+	} else if ($publish_flg == 2) {
+		$dir_flg = 1;
+		$search_flg = 1;
+	}
+}
+
+if (!isset($show_sync_target_only)) {
+	$show_sync_target_only = 0;
+}
+
+$smarty->assign("doctype_id", $doctype_id);
+//$smarty->assign("clinic_id", $clinic_id);
+$smarty->assign("product_nm", $product_nm);
+$smarty->assign("model_nm", $model_nm);
+$smarty->assign("file_nm", $file_nm);
+$smarty->assign("show_sync_target_only", $show_sync_target_only);
+
+/*
+$smarty->assign("dir_flg", $dir_flg);
+$smarty->assign("search_flg", $search_flg);
+*/
+$smarty->assign("status_flg", $status_flg);
+$smarty->assign("edit_status_flg", $edit_status_flg);
+
+$dmm = new DoctypeMasterManager();
+$doctype_all = $dmm->get_all();
+$doctype_options["0"] = "全て";
+
+foreach($doctype_all as $doctype) {
+	$doctype_options[$doctype[id]] = get_doctype_stamp_string($doctype[type_nm], $doctype[stamp_flg]);
+}
+
+$smarty->assign("doctype_options", $doctype_options);
+
+/*
+$cmm = new ClinicMasterManager();
+$clinic_all = $cmm->get_all_for_html();
+$clinic_options["0"] = "全て";
+foreach($clinic_all as $clinic) {
+	$clinic_options[$clinic[id]] = $clinic[clinic_nm];
+}
+$smarty->assign("clinic_options", $clinic_options);
+*/
+
+$status_options = array("-1" => "全て"
+	,"2" => "新規"
+	,"3" => "公開予定"
+	,"1" => "公開"
+	,"0" => "非公開"
+);
+$smarty->assign("status_options", $status_options);
+
+$edit_status_options = array("-1" => "全て"
+		,"3" => "公開予定"
+		,"1" => "公開"
+		,"0" => "非公開"
+);
+$smarty->assign("edit_status_options", $edit_status_options);
+
+$result_ary = //search_publish_info($doctype_id, $clinic_id, $product_nm, $model_nm, $dir_flg, $search_flg, $show_sync_target_only, $file_nm);
+	search_publish_info($doctype_id, $product_nm, $model_nm, $status_flg, $edit_status_flg, $show_sync_target_only, $file_nm);
+
+//表示用文書種別文字列、変更内容の情報を付加する
+for($i = 0; $i < count($result_ary); $i++) {
+	$result_ary[$i][type_nm] = get_doctype_stamp_string($result_ary[$i][type_nm], $result_ary[$i][stamp_flg], '\n');
+
+	$file_id = $result_ary[$i][file_id];
+
+	//ファイル詳細情報の差分情報を取得する
+	$detail_info_ary = search_info($file_id);
+	$modified = get_modified_text($result_ary[$i], $detail_info_ary);	//変更内容文字列取得
+
+	$result_ary[$i][modified] = $modified;	//変更内容をセット
+
+}
+
+
+$smarty->assign('list', $result_ary);
+show_template_page("manage_publish.tpl.html");
+exit;
+
+
+//変更内容の表示文字列を返す
+function get_modified_text($result, $detail_array) {
+//変更内容の情報を付加する
+
+	$file_modified_array= array();
+	$publish_modified_array= array();
+	$modified = "";
+
+	//更新フラグがONの場合、変更内容を表示する
+	//if ($result[publish_update_flg] == 1) {
+	if ( !is_null($result[edit_update_dt]) ) {
+
+		foreach($detail_array as $detail) {
+
+		    //PDFパスワード変更済み
+		    if (//$detail[edit_pdf_password] && 
+				($detail[edit_pdf_password] !== $detail[pdf_password])) {
+				if (!in_array('PDFパスワード', $file_modified_array)) {
+	   	    		$file_modified_array[] = 'PDFパスワード';
+				}
+		    }
+
+		    //ダウンロードファイル変更済み
+		    if (//$detail[edit_download_file_nm] && 
+				($detail[edit_download_file_nm] != $detail[download_file_nm])) {
+				if (!in_array('DLファイル名', $file_modified_array)) {
+	   	    		$file_modified_array[] = 'DLファイル名';
+				}
+		    }
+
+		    //版番号変更済み
+		    if (//$detail[edit_version] && 
+				($detail[edit_version] != $detail[version])) {
+				if (!in_array('版番号', $file_modified_array)) {
+	   	    		$file_modified_array[] = '版番号';
+				}
+		    }
+
+		    //版更新日変更済み
+		    if (//$detail[edit_version_update] && 
+				($detail[edit_version_update] != $detail[version_update])) {
+				if (!in_array('版更新日', $file_modified_array)) {
+	   	    		$file_modified_array[] = '版更新日';
+				}
+		    }
+
+		}
+
+	    //ファイルのアップロード更新済み(ファイル名がセットされている)
+	    if ($detail[edit_file_nm]) {
+   	    	$file_modified_array[] = "ファイル";
+	    }
+
+	    //検索キーワード変更済み
+	    if ($result[edit_search_keyword] && ($result[edit_search_keyword] !== $result[search_keyword])) {
+   	    	$file_modified_array[] = 'キーワード';
+	    }
+
+	    //診療科変更済み
+	    if ($result[edit_clinic_flg_ary] && ($result[edit_clinic_flg_ary] !== $result[clinic_flg_ary])) {
+	    	$file_modified_array[] = '診療科';
+	    }
+
+	    //タイトル、型番変更済み
+	    if ($result[edit_product_id] && ($result[edit_product_id] !== $result[product_id])) {
+	    	$file_modified_array[] = 'タイトル型番';
+	    }
+
+	    //文書種別変更済み
+	    if ($result[edit_doctype_id] && ($result[edit_doctype_id] !== $result[doctype_id])) {
+	    	$file_modified_array[] = '文書種別';
+	    }
+
+	    //公開日変更済み
+	    if ($result[edit_publish_start_dt] !== $result[publish_start_dt]) {
+	    	$file_modified_array[] = '公開日';
+	    }
+
+	    //販売終了日変更済み
+	    if ($result[edit_sale_end_dt] !== $result[sale_end_dt]) {
+	    	$file_modified_array[] = '販売終了日';
+	    }
+
+/*
+		//公開設定フラグの変更
+	    //PDF公開済みから、公開フラグOFFの場合
+	    if ($result[status_flg] == 1 && $result[dir_flg] == 0) {
+           	$publish_modified_array[] = 'PDF';
+
+	    } else if ($result[status_flg] == 2) {
+	    	//PDFと検索公開済みから、公開フラグOFFの場合
+	    	if ($result[dir_flg] == 0) {
+	    		//PDF公開OFF
+    			$publish_modified_array[] = 'ファイル';
+	    	}
+
+	    	if ($result[search_flg] == 0) {
+				//検索公開をOFF
+				$publish_modified_array[] = '検索';
+	    	}
+		}
+*/
+   	    //非公開から、PDFと検索公開フラグONの場合は、変更内容は表示しない
+	}
+
+    //変更内容の表示
+	if (0 < count($file_modified_array)) {
+		$modified .= join('/', $file_modified_array);
+	}
+	if ($modified && 0 < count($publish_modified_array)) {
+		$modified .= "、";
+	}
+	if (0 < count($publish_modified_array)) {
+		$modified .= "非公開(" . join('/', $publish_modified_array) . ")";
+	}
+	return $modified;
+}
+
+?>

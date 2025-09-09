@@ -1,0 +1,138 @@
+<?php
+define('LMS_BASE', '/www/informationmanager/lms_script/');
+define('WORKING_DIR', '/www/informationmanager/lms_script/working/');
+define('DOWNLOAD_DIR', '/www/informationmanager/lms_script/download/');
+define('LMS_LOGPATH', '/www/informationmanager/lms_script/lms_pdf.log');
+define('SSH_USER', 'olympus');
+define('LMS_HOST', '10.236.143.168');
+define('RUN_INTERVAL', 60);
+define('COMMENTARY_DIR', '/www/www.medicaltown.net/files/mtsc/elearning/commentary_pdf/');
+define('RESULT_DIR', '/www/www.medicaltown.net/files/mtsc/elearning/result_pdf/');
+
+function set_opt($file) {
+
+	//PDFLIBの準備
+	$pdflib = new PDFlib();
+
+	//ライセンスファイル
+	$pdflib->set_option(sprintf('licensefile=%spdflib_license.txt', LMS_BASE));
+	//ベースディレクトリ直下のcmapディレクトリ
+	$pdflib->set_option(sprintf('searchpath=%scmap', LMS_BASE));
+	$pdflib->set_option("textformat=utf8");
+
+	$pdi = 0;
+	try {
+		//pdfファイル読み込み
+		$pdi = $pdflib->open_pdi_document(DOWNLOAD_DIR.$file, "");
+
+		if ($pdi == 0) {
+			//PDFの読み込み失敗、パスワード無効など
+			$msg = $pdflib->get_errmsg();
+			throw new Exception($msg);
+		}
+
+		//文書情報をPCOS関数で読み取る
+		$endpage = $pdflib->pcos_get_number($pdi, "length:pages");
+
+		//権限情報を読み取る
+		$perm_array = array();
+
+		if (!in_array("noassemble", $perm_array)) {
+			$perm_array[] = "noassemble";	//文書アセンブリ不可
+		}
+		if (!in_array("nomodify", $perm_array)) {
+			$perm_array[] = "nomodify";	//変更不可
+		}
+		if (!in_array("noannots", $perm_array)) {
+			$perm_array[] = "noannots";	//注釈不可
+		}
+		if (!in_array("noforms", $perm_array)) {
+			$perm_array[] = "noforms";	//フォームフィールド不可
+		}
+
+		//生成されるPDFにプロテクトをかける設定(共通マスターパスワード設定、かつコンテンツの変更不可、印刷可能)
+		#$oplist = "masterpassword=$pdf_protect_pwd permissions={" . join($perm_array, " ") . "}";
+		include dirname(__FILE__).'/../mtinfo_data/mtinfo_linux.php.inc';
+		$oplist = sprintf('masterpassword=%s permissions={%s}', $PDF_PWD, implode(' ', $perm_array));
+
+		//権限設定つきでPDFを生成する
+		$pdflib->begin_document(WORKING_DIR.$file, $oplist);
+
+		for($i = 1; $i <= $endpage; $i++) {
+			$page = $pdflib->open_pdi_page($pdi, $i, "");
+			if ( ! $page) {
+				continue;
+			}
+			$pdflib->begin_page_ext(10, 10, "");
+			$pdflib->fit_pdi_page($page, 0, 0, "adjustpage");
+			$pdflib->close_pdi_document($page);
+			$pdflib->end_page_ext("");
+		}
+		$pdflib->end_document("");
+		$pdflib->delete();
+
+		return true;
+	} catch(Exception $e) {
+		//それ以外の例外
+		$msg = $e->getMessage();
+		$str = sprintf('%s - pdf document.[%s]', $msg, $file);
+		log_error($str);
+		return false;
+	}
+}
+
+function modify_lms_pdf($user, $ipaddr, $dir, $interval) {
+	log_info('start pdf process');
+	$list_cmd = sprintf('ssh -i ~/.ssh/id_rsa %s@%s \'find %s -name "*.pdf" -mmin -%s -type f -size +0\'', $user, $ipaddr, $dir, $interval);
+	$lists = array();
+	exec($list_cmd, $lists);
+	log_info('target files '.print_r($lists, true));
+	foreach($lists as $list) {
+		$fname = array_pop(explode('/', trim($list)));
+		$dl_cmd = sprintf('scp -i ~/.ssh/id_rsa %s@%s:%s %s', $user, $ipaddr, $list, DOWNLOAD_DIR);
+		exec($dl_cmd);
+		if( ! file_exists(DOWNLOAD_DIR.$fname)) {
+			// ファイルが存在しない場合は次のループ
+			continue;
+		}
+		$result = set_opt($fname);
+		if($result === false) {
+			// PDFに権限設定できなかった場合は該当ファイルを削除して次のループ
+			unlink(DOWNLOAD_DIR.$fname);
+			continue;
+		}
+		if(file_exists(WORKING_DIR.$fname) && filesize(WORKING_DIR.$fname) > 0) {
+			$up_cmd = sprintf('scp -i ~/.ssh/id_rsa %s %s@%s:%s', WORKING_DIR.$fname, $user, $ipaddr, trim($list));
+			exec($up_cmd);
+			unlink(WORKING_DIR.$fname);
+		}
+		unlink(DOWNLOAD_DIR.$fname);
+	}
+	log_info('end pdf process');
+}
+
+function log_info($str) {
+	$fh = fopen(LMS_LOGPATH, 'a+');
+	if($fh !== false){
+		$prefix = sprintf('INFO  - %s --> ', date('Y-m-d H:i:s'));
+		fwrite($fh, $prefix.$str.PHP_EOL);
+	}
+	fclose($fh);
+}
+
+function log_error($str) {
+	$fh = fopen(LMS_LOGPATH, 'a+');
+	if($fh !== false){
+		$prefix = sprintf('ERROR - %s --> ', date('Y-m-d H:i:s'));
+		fwrite($fh, $prefix.$str.PHP_EOL);
+	}
+	fclose($fh);
+}
+$interval = RUN_INTERVAL;
+if(count($argv) > 1 && is_numeric($argv[1])) {
+	$interval = $argv[1];
+}
+// commentary_pdf の処理
+modify_lms_pdf(SSH_USER, LMS_HOST, COMMENTARY_DIR, $interval);
+// result_pdf の処理
+modify_lms_pdf(SSH_USER, LMS_HOST, RESULT_DIR, $interval);

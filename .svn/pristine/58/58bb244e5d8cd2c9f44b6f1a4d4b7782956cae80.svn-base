@@ -1,0 +1,8 @@
+
+	//OK
+	$(document).ready(function() {
+		$("#user_table_sorter")
+		//.tablesorter({widthFixed: true, widgets: ['zebra']})
+		.tablesorter({widthFixed: true, sortList: [[4, 1]]})
+		.tablesorterPager({container: $("#pager")});
+	});
